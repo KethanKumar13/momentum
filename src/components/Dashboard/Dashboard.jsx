@@ -1,54 +1,39 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import "./Dashboard.css";
 
-import AddTaskForm from "./AddTaskForm";
+import DashboardHeader from "./DashboardHeader";
+import TaskStats from "./TaskStats";
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
-import TaskStats from "./TaskStats";
 import TaskList from "./TaskList";
+
+import AddTaskForm from "../Task/AddTaskForm";
+
+import useTasks from "../../hooks/useTasks";
 
 function Dashboard() {
   // ==========================================
-  // Task State
+  // Task Hook
   // ==========================================
 
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Learn React",
-      assignedTo: "Kethan",
-      dueDate: "2026-08-05",
-      priority: "High",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      title: "Learn Git",
-      assignedTo: "Kethan",
-      dueDate: "2026-08-08",
-      priority: "Medium",
-      status: "Completed",
-    },
-    {
-      id: 3,
-      title: "Learn Docker",
-      assignedTo: "John",
-      dueDate: "2026-08-12",
-      priority: "Low",
-      status: "Pending",
-    },
-  ]);
+  const {
+    tasks,
+    addTask,
+    deleteTask,
+    toggleComplete,
+  } = useTasks();
 
   // ==========================================
-  // Search / Filter / Sort State
+  // UI State
   // ==========================================
 
   const [searchTerm, setSearchTerm] = useState("");
 
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const [priorityFilter, setPriorityFilter] = useState("All");
+  const [priorityFilter, setPriorityFilter] =
+    useState("All");
 
   const [sortBy, setSortBy] = useState("Newest");
 
@@ -71,104 +56,66 @@ function Dashboard() {
   ).length;
 
   // ==========================================
-  // Derived State
+  // Filter + Sort
   // ==========================================
 
-  const filteredTasks = [...tasks]
-    .filter((task) =>
-      task.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-    .filter((task) =>
-      statusFilter === "All"
-        ? true
-        : task.status === statusFilter
-    )
-    .filter((task) =>
-      priorityFilter === "All"
-        ? true
-        : task.priority === priorityFilter
-    )
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "Oldest":
-          return a.id - b.id;
+  const filteredTasks = useMemo(() => {
+    return [...tasks]
+      .filter((task) =>
+        task.title
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      )
+      .filter((task) =>
+        statusFilter === "All"
+          ? true
+          : task.status === statusFilter
+      )
+      .filter((task) =>
+        priorityFilter === "All"
+          ? true
+          : task.priority === priorityFilter
+      )
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "Oldest":
+            return a.id - b.id;
 
-        case "Priority": {
-          const priorityOrder = {
-            High: 1,
-            Medium: 2,
-            Low: 3,
-          };
+          case "Priority": {
+            const priorityOrder = {
+              High: 1,
+              Medium: 2,
+              Low: 3,
+            };
 
-          return (
-            priorityOrder[a.priority] -
-            priorityOrder[b.priority]
-          );
+            return (
+              priorityOrder[a.priority] -
+              priorityOrder[b.priority]
+            );
+          }
+
+          case "DueDate":
+            return (
+              new Date(a.dueDate) -
+              new Date(b.dueDate)
+            );
+
+          default:
+            return b.id - a.id;
         }
-
-        case "DueDate":
-          return (
-            new Date(a.dueDate) -
-            new Date(b.dueDate)
-          );
-
-        default:
-          return b.id - a.id;
-      }
-    });
-
-  // ==========================================
-  // Task Actions
-  // ==========================================
-
-  function addTask(taskData) {
-    const nextId =
-      Math.max(...tasks.map((task) => task.id), 0) + 1;
-
-    const newTask = {
-      id: nextId,
-      ...taskData,
-      status: "Pending",
-    };
-
-    setTasks((previousTasks) => [
-      ...previousTasks,
-      newTask,
-    ]);
-  }
-
-  function deleteTask(taskId) {
-    setTasks((previousTasks) =>
-      previousTasks.filter(
-        (task) => task.id !== taskId
-      )
-    );
-  }
-
-  function toggleComplete(taskId) {
-    setTasks((previousTasks) =>
-      previousTasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status:
-                task.status === "Completed"
-                  ? "Pending"
-                  : "Completed",
-            }
-          : task
-      )
-    );
-  }
-
-  // ==========================================
-  // UI
-  // ==========================================
+      });
+  }, [
+    tasks,
+    searchTerm,
+    statusFilter,
+    priorityFilter,
+    sortBy,
+  ]);
 
   return (
     <main className="dashboard">
+      <DashboardHeader />
+
       <TaskStats
         totalTasks={totalTasks}
         completedTasks={completedTasks}
@@ -177,13 +124,9 @@ function Dashboard() {
       />
 
       <div className="dashboard-grid">
-        {/* Left Side */}
-
         <div className="dashboard-left">
           <AddTaskForm onAddTask={addTask} />
         </div>
-
-        {/* Right Side */}
 
         <div className="dashboard-right">
           <SearchBar

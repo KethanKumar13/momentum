@@ -1,0 +1,45 @@
+.filter-bar{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-bottom:25px;
+
+    flex-wrap:wrap;
+}
+
+.filter-bar select{
+
+    flex:1;
+
+    min-width:180px;
+
+    padding:14px 16px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:12px;
+
+    background:white;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+    font-size:15px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.filter-bar select:hover{
+
+    box-shadow:0 10px 30px rgba(37,99,235,.15);
+}
+
+.filter-bar select:focus{
+
+    box-shadow:0 10px 30px rgba(37,99,235,.25);
+}

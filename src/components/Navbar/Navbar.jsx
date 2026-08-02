@@ -2,22 +2,44 @@ import "./Navbar.css";
 
 function Navbar() {
   return (
-    <header className="navbar">
-      <div className="navbar__logo">
-        <span className="logo-icon">✓</span>
-        <h1>TaskFlow</h1>
+    <header className="navbar fade-in">
+      <div className="navbar__brand">
+        <div className="navbar__logo">
+          ✓
+        </div>
+
+        <div>
+          <h2>TaskFlow</h2>
+          <p>Task Management Dashboard</p>
+        </div>
       </div>
 
-      <div className="navbar__right">
-        <button className="notification-btn">🔔</button>
+      <nav className="navbar__links">
+        <a href="#" className="active">
+          Dashboard
+        </a>
 
-        <div className="user-profile">
-          <div className="avatar">K</div>
+        <a href="#">
+          Tasks
+        </a>
 
-          <div>
-            <h4>Kethan</h4>
-            <p>Software Developer</p>
-          </div>
+        <a href="#">
+          Analytics
+        </a>
+      </nav>
+
+      <div className="navbar__profile">
+        <button className="notification-btn">
+          🔔
+        </button>
+
+        <div className="avatar">
+          K
+        </div>
+
+        <div>
+          <strong>Kethan</strong>
+          <small>Software Developer</small>
         </div>
       </div>
     </header>

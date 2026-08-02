@@ -1,22 +1,34 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 
-const initialFormState = {
+import "./AddTaskForm.css";
+
+import Button from "../ui/Button";
+
+const initialForm = {
   title: "",
-  assignee: "",
+  assignedTo: "",
   dueDate: "",
-  priority: "Medium"
+  priority: "Medium",
 };
 
 function AddTaskForm({ onAddTask }) {
-  const [formData, setFormData] = useState(initialFormState);
-  const [error, setError] = useState("");
-  const titleInputRef = useRef(null);
+  const [formData, setFormData] =
+    useState(initialForm);
+
+  const [error, setError] =
+    useState("");
+
+  const titleRef = useRef(null);
 
   function handleChange(event) {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === "title" && error) {
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+
+    if (error) {
       setError("");
     }
   }
@@ -24,94 +36,97 @@ function AddTaskForm({ onAddTask }) {
   function handleSubmit(event) {
     event.preventDefault();
 
-    const trimmedTitle = formData.title.trim();
-    if (!trimmedTitle) {
+    if (!formData.title.trim()) {
       setError("Task title is required.");
-      titleInputRef.current?.focus();
+
+      titleRef.current.focus();
+
       return;
     }
 
-    onAddTask({
-      title: trimmedTitle,
-      assignee: formData.assignee.trim(),
-      dueDate: formData.dueDate,
-      priority: formData.priority,
-      status: "Pending"
-    });
+    onAddTask(formData);
 
-    setFormData(initialFormState);
-    setError("");
-    titleInputRef.current?.focus();
+    setFormData(initialForm);
+
+    titleRef.current.focus();
   }
 
   return (
     <form
+      className="add-task-form"
       onSubmit={handleSubmit}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        padding: "16px",
-        marginBottom: "20px"
-      }}
     >
-      <h3 style={{ margin: 0 }}>Add New Task</h3>
+      <h2>Create New Task</h2>
 
       <label>
-        <div style={{ marginBottom: "4px" }}>Task Name</div>
+
+        Task Name
+
         <input
-          ref={titleInputRef}
+          ref={titleRef}
           name="title"
-          type="text"
           value={formData.title}
           onChange={handleChange}
           placeholder="Enter task name"
-          style={{ width: "100%", padding: "8px" }}
         />
+
       </label>
 
       <label>
-        <div style={{ marginBottom: "4px" }}>Assigned To</div>
+
+        Assigned To
+
         <input
-          name="assignee"
-          type="text"
-          value={formData.assignee}
+          name="assignedTo"
+          value={formData.assignedTo}
           onChange={handleChange}
-          placeholder="Who is responsible?"
-          style={{ width: "100%", padding: "8px" }}
+          placeholder="Developer name"
         />
+
       </label>
 
       <label>
-        <div style={{ marginBottom: "4px" }}>Due Date</div>
+
+        Due Date
+
         <input
-          name="dueDate"
           type="date"
+          name="dueDate"
           value={formData.dueDate}
           onChange={handleChange}
-          style={{ width: "100%", padding: "8px" }}
         />
+
       </label>
 
       <label>
-        <div style={{ marginBottom: "4px" }}>Priority</div>
+
+        Priority
+
         <select
           name="priority"
           value={formData.priority}
           onChange={handleChange}
-          style={{ width: "100%", padding: "8px" }}
         >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
         </select>
+
       </label>
 
-      {error ? <p style={{ color: "crimson", margin: 0 }}>{error}</p> : null}
+      {error && (
+        <p className="form-error">
+          {error}
+        </p>
+      )}
 
-      <button type="submit">Add Task</button>
+      <Button
+        type="submit"
+        variant="primary"
+      >
+        + Create Task
+      </Button>
+
     </form>
   );
 }

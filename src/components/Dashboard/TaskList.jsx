@@ -1,4 +1,4 @@
-import TaskCard from "../TaskCard/TaskCard";
+import TaskCard from "../Task/TaskCard";
 
 function TaskList({ tasks, onDelete, onToggleComplete }) {
   return (

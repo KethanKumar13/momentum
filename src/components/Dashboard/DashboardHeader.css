@@ -1,0 +1,30 @@
+.dashboard-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+
+    padding:24px 30px;
+
+    background:var(--surface);
+
+    border-radius:var(--radius-lg);
+
+    box-shadow:var(--shadow-sm);
+}
+
+.dashboard-header h1{
+
+    margin-bottom:10px;
+}
+
+.dashboard-date{
+
+    color:var(--text-secondary);
+
+    font-weight:600;
+}

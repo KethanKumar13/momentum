@@ -1,3 +1,7 @@
+import "./TaskCard.css";
+
+import Button from "../ui/Button";
+
 function TaskCard({
   title,
   assignedTo,
@@ -8,50 +12,76 @@ function TaskCard({
   onToggleComplete,
 }) {
   return (
-    <article
-      style={{
-        border: "1px solid #dcdcdc",
-        borderRadius: "10px",
-        padding: "16px",
-        marginBottom: "16px",
-        backgroundColor: "#ffffff",
-      }}
-    >
-      <h2>{title}</h2>
+    <article className="task-card">
 
-      <p>
-        <strong>Assigned To:</strong> {assignedTo}
-      </p>
+      <div className="task-card-header">
 
-      <p>
-        <strong>Due Date:</strong> {dueDate}
-      </p>
+        <h2>{title}</h2>
 
-      <p>
-        <strong>Priority:</strong> {priority}
-      </p>
+        <span
+          className={`priority-badge ${priority.toLowerCase()}`}
+        >
+          {priority}
+        </span>
 
-      <p>
-        <strong>Status:</strong> {status}
-      </p>
-
-      <div
-        style={{
-          marginTop: "15px",
-          display: "flex",
-          gap: "10px",
-        }}
-      >
-        <button onClick={onToggleComplete}>
-          {status === "Completed"
-            ? "Mark as Pending"
-            : "Mark as Completed"}
-        </button>
-
-        <button onClick={onDelete}>
-          Delete
-        </button>
       </div>
+
+      <div className="task-details">
+
+        <p>
+
+          <strong>Assigned To</strong>
+
+          <span>{assignedTo || "-"}</span>
+
+        </p>
+
+        <p>
+
+          <strong>Due Date</strong>
+
+          <span>{dueDate || "-"}</span>
+
+        </p>
+
+        <p>
+
+          <strong>Status</strong>
+
+          <span
+            className={`status ${status.toLowerCase()}`}
+          >
+            {status}
+          </span>
+
+        </p>
+
+      </div>
+
+      <div className="task-actions">
+
+        <Button
+          variant={
+            status === "Completed"
+              ? "secondary"
+              : "success"
+          }
+          onClick={onToggleComplete}
+        >
+          {status === "Completed"
+            ? "Mark Pending"
+            : "Complete"}
+        </Button>
+
+        <Button
+          variant="danger"
+          onClick={onDelete}
+        >
+          Delete
+        </Button>
+
+      </div>
+
     </article>
   );
 }

@@ -1,0 +1,59 @@
+*,
+*::before,
+*::after{
+
+    box-sizing:border-box;
+}
+
+html{
+
+    scroll-behavior:smooth;
+}
+
+body{
+
+    margin:0;
+
+    background:var(--background);
+
+    color:var(--text-primary);
+
+    font-family:
+        Inter,
+        system-ui,
+        sans-serif;
+
+    -webkit-font-smoothing:antialiased;
+
+    text-rendering:optimizeLegibility;
+}
+
+button{
+
+    cursor:pointer;
+
+    font-family:inherit;
+}
+
+input,
+select,
+textarea{
+
+    font-family:inherit;
+
+    font-size:15px;
+}
+
+img{
+
+    max-width:100%;
+
+    display:block;
+}
+
+a{
+
+    text-decoration:none;
+
+    color:inherit;
+}
