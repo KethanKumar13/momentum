@@ -1,15 +1,15 @@
-import "./SearchBar.css";
+import SearchInput from "../ui/SearchInput";
 
-function SearchBar({ searchTerm, onSearch }) {
+function SearchBar({
+  searchTerm,
+  onSearch,
+}) {
   return (
-    <div className="search-container">
-      <input
-        type="text"
-        placeholder="🔍 Search tasks..."
-        value={searchTerm}
-        onChange={(event) => onSearch(event.target.value)}
-      />
-    </div>
+    <SearchInput
+      value={searchTerm}
+      onChange={onSearch}
+      placeholder="Search tasks..."
+    />
   );
 }
 

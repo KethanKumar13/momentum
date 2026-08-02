@@ -1,3 +1,12 @@
+import {
+  CalendarDays,
+  User,
+  CheckCircle2,
+  Trash2,
+} from "lucide-react";
+
+import "./TaskCard.css";
+
 function TaskCard({
   title,
   assignedTo,
@@ -7,51 +16,74 @@ function TaskCard({
   onDelete,
   onToggleComplete,
 }) {
+  const priorityClass = priority.toLowerCase();
+  const statusClass = status.toLowerCase();
+
   return (
-    <article
-      style={{
-        border: "1px solid #dcdcdc",
-        borderRadius: "10px",
-        padding: "16px",
-        marginBottom: "16px",
-        backgroundColor: "#ffffff",
-      }}
-    >
-      <h2>{title}</h2>
+    <article className="task-card fade-in">
 
-      <p>
-        <strong>Assigned To:</strong> {assignedTo}
-      </p>
+      <div className="task-card-header">
 
-      <p>
-        <strong>Due Date:</strong> {dueDate}
-      </p>
+        <h3>{title}</h3>
 
-      <p>
-        <strong>Priority:</strong> {priority}
-      </p>
+        <span className={`priority-badge ${priorityClass}`}>
+          {priority}
+        </span>
 
-      <p>
-        <strong>Status:</strong> {status}
-      </p>
-
-      <div
-        style={{
-          marginTop: "15px",
-          display: "flex",
-          gap: "10px",
-        }}
-      >
-        <button onClick={onToggleComplete}>
-          {status === "Completed"
-            ? "Mark as Pending"
-            : "Mark as Completed"}
-        </button>
-
-        <button onClick={onDelete}>
-          Delete
-        </button>
       </div>
+
+      <div className="task-card-body">
+
+        <div className="task-info">
+
+          <User size={16} />
+
+          <span>{assignedTo || "Unassigned"}</span>
+
+        </div>
+
+        <div className="task-info">
+
+          <CalendarDays size={16} />
+
+          <span>{dueDate || "No Due Date"}</span>
+
+        </div>
+
+      </div>
+
+      <div className="task-card-footer">
+
+        <span className={`status-badge ${statusClass}`}>
+          {status}
+        </span>
+
+        <div className="task-actions">
+
+          <button
+            className="complete-btn"
+            onClick={onToggleComplete}
+          >
+            <CheckCircle2 size={18} />
+
+            {status === "Completed"
+              ? "Undo"
+              : "Complete"}
+          </button>
+
+          <button
+            className="delete-btn"
+            onClick={onDelete}
+          >
+            <Trash2 size={18} />
+
+            Delete
+          </button>
+
+        </div>
+
+      </div>
+
     </article>
   );
 }

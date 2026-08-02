@@ -1,71 +1,72 @@
+/* ========================================
+   TaskFlow Design System
+======================================== */
+
 :root {
 
-  /* ==========================
-      Brand Colors
-  ========================== */
+  /* Primary */
 
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: #60a5fa;
 
-  --color-success: #16a34a;
-  --color-success-hover: #15803d;
+  /* Success */
 
-  --color-danger: #dc2626;
-  --color-danger-hover: #b91c1c;
+  --success: #22c55e;
+  --success-light: #4ade80;
 
-  --color-warning: #f59e0b;
+  /* Warning */
 
-  /* ==========================
-      Backgrounds
-  ========================== */
+  --warning: #f59e0b;
+  --warning-light: #fbbf24;
 
-  --background: #f5f7fb;
+  /* Danger */
 
-  --surface: #ffffff;
+  --danger: #ef4444;
+  --danger-light: #f87171;
 
-  --surface-secondary: #f9fafb;
+  /* Background */
 
-  /* ==========================
-      Text
-  ========================== */
+  --background: #0f172a;
 
-  --text-primary: #1f2937;
+  --surface: #1e293b;
 
-  --text-secondary: #6b7280;
+  --surface-light: #334155;
 
-  --text-light: #9ca3af;
+  --card: #1f2937;
 
-  /* ==========================
-      Borders
-  ========================== */
+  /* Text */
 
-  --border-color: #e5e7eb;
+  --text-primary: #f8fafc;
 
-  /* ==========================
-      Radius
-  ========================== */
+  --text-secondary: #94a3b8;
+
+  --text-muted: #64748b;
+
+  /* Border */
+
+  --border: #334155;
+
+  /* Shadows */
+
+  --shadow-sm:
+    0 2px 10px rgba(0,0,0,.15);
+
+  --shadow-md:
+    0 8px 30px rgba(0,0,0,.25);
+
+  --shadow-lg:
+    0 18px 40px rgba(0,0,0,.35);
+
+  /* Radius */
 
   --radius-sm: 8px;
 
-  --radius-md: 12px;
+  --radius-md: 14px;
 
-  --radius-lg: 18px;
+  --radius-lg: 20px;
 
-  /* ==========================
-      Shadows
-  ========================== */
+  /* Animation */
 
-  --shadow-sm:
-      0 4px 10px rgba(0,0,0,.06);
-
-  --shadow-md:
-      0 10px 25px rgba(0,0,0,.08);
-
-  /* ==========================
-      Animation
-  ========================== */
-
-  --transition:
-      all .25s ease;
-
+  --transition: all .25s ease;
 }

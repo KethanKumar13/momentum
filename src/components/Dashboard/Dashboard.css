@@ -1,29 +1,84 @@
-.dashboard{
+/* ==========================================
+   Dashboard Layout
+========================================== */
 
-    max-width:1350px;
-
-    margin:auto;
-
-    padding:35px;
+.dashboard {
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px;
+  background: var(--background);
 }
 
-.dashboard-grid{
-
-    display:grid;
-
-    grid-template-columns:360px 1fr;
-
-    gap:30px;
-
-    align-items:start;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-top: 32px;
 }
 
-@media(max-width:1000px){
+/* ==========================================
+   Left Panel
+========================================== */
 
-.dashboard-grid{
-
-grid-template-columns:1fr;
-
+.dashboard-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
+/* ==========================================
+   Right Panel
+========================================== */
+
+.dashboard-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ==========================================
+   Dashboard Sections
+========================================== */
+
+.dashboard-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  transition: var(--transition);
+}
+
+.dashboard-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media (max-width: 1200px) {
+  .dashboard {
+    padding: 30px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 20px;
+  }
 }

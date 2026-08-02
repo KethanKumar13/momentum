@@ -1,6 +1,13 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  CalendarDays,
+  Flag,
+  Plus,
+  User,
+} from "lucide-react";
 
 import Button from "../ui/Button";
+import "./AddTaskForm.css";
 
 const initialFormState = {
   title: "",
@@ -10,8 +17,11 @@ const initialFormState = {
 };
 
 function AddTaskForm({ onAddTask }) {
-  const [formData, setFormData] = useState(initialFormState);
-  const [error, setError] = useState("");
+  const [formData, setFormData] =
+    useState(initialFormState);
+
+  const [error, setError] =
+    useState("");
 
   const titleInputRef = useRef(null);
 
@@ -23,132 +33,202 @@ function AddTaskForm({ onAddTask }) {
       [name]: value,
     }));
 
-    if (name === "title" && error) {
+    if (error) {
       setError("");
     }
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    const trimmedTitle = formData.title.trim();
-
-    if (!trimmedTitle) {
-      setError("Task title is required.");
-      titleInputRef.current?.focus();
-      return;
-    }
-
-    onAddTask({
-      title: trimmedTitle,
-      assignedTo: formData.assignedTo.trim(),
-      dueDate: formData.dueDate,
-      priority: formData.priority,
-      status: "Pending",
-    });
-
+  function clearForm() {
     setFormData(initialFormState);
     setError("");
 
     titleInputRef.current?.focus();
   }
 
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const trimmedTitle =
+      formData.title.trim();
+
+    if (!trimmedTitle) {
+      setError("Task title is required.");
+
+      titleInputRef.current?.focus();
+
+      return;
+    }
+
+    onAddTask({
+      title: trimmedTitle,
+      assignedTo:
+        formData.assignedTo.trim(),
+      dueDate: formData.dueDate,
+      priority: formData.priority,
+      status: "Pending",
+    });
+
+    clearForm();
+  }
+
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        clearForm();
+      }
+    }
+
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
+
+    return () =>
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+  }, []);
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        padding: "16px",
-        marginBottom: "20px",
-      }}
-    >
-      <h3 style={{ margin: 0 }}>Add New Task</h3>
+    <section className="task-form-card">
 
-      <label>
-        <div style={{ marginBottom: "4px" }}>Task Name</div>
+      <div className="task-form-header">
 
-        <input
-          ref={titleInputRef}
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          placeholder="Enter task name"
-          style={{
-            width: "100%",
-            padding: "8px",
-          }}
-        />
-      </label>
+        <h2>Add New Task</h2>
 
-      <label>
-        <div style={{ marginBottom: "4px" }}>Assigned To</div>
-
-        <input
-          type="text"
-          name="assignedTo"
-          value={formData.assignedTo}
-          onChange={handleChange}
-          placeholder="Who is responsible?"
-          style={{
-            width: "100%",
-            padding: "8px",
-          }}
-        />
-      </label>
-
-      <label>
-        <div style={{ marginBottom: "4px" }}>Due Date</div>
-
-        <input
-          type="date"
-          name="dueDate"
-          value={formData.dueDate}
-          onChange={handleChange}
-          style={{
-            width: "100%",
-            padding: "8px",
-          }}
-        />
-      </label>
-
-      <label>
-        <div style={{ marginBottom: "4px" }}>Priority</div>
-
-        <select
-          name="priority"
-          value={formData.priority}
-          onChange={handleChange}
-          style={{
-            width: "100%",
-            padding: "8px",
-          }}
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </label>
-
-      {error && (
-        <p
-          style={{
-            color: "crimson",
-            margin: 0,
-          }}
-        >
-          {error}
+        <p>
+          Organize your work efficiently
         </p>
-      )}
 
-      <Button type="submit" variant="primary">
-        + Create Task
-      </Button>
-    </form>
+      </div>
+
+      <form
+        className="task-form"
+        onSubmit={handleSubmit}
+        autoComplete="off"
+      >
+
+        <div className="form-group">
+
+          <label htmlFor="title">
+            Task Name
+          </label>
+
+          <div className="input-wrapper">
+
+            <Plus size={18} />
+
+            <input
+              ref={titleInputRef}
+              id="title"
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Enter task name"
+              required
+            />
+
+          </div>
+
+        </div>
+
+        <div className="form-group">
+
+          <label htmlFor="assignedTo">
+            Assigned To
+          </label>
+
+          <div className="input-wrapper">
+
+            <User size={18} />
+
+            <input
+              id="assignedTo"
+              type="text"
+              name="assignedTo"
+              value={formData.assignedTo}
+              onChange={handleChange}
+              placeholder="Who is responsible?"
+            />
+
+          </div>
+
+        </div>
+
+        <div className="form-group">
+
+          <label htmlFor="dueDate">
+            Due Date
+          </label>
+
+          <div className="input-wrapper">
+
+            <CalendarDays size={18} />
+
+            <input
+              id="dueDate"
+              type="date"
+              name="dueDate"
+              value={formData.dueDate}
+              onChange={handleChange}
+            />
+
+          </div>
+
+        </div>
+
+        <div className="form-group">
+
+          <label htmlFor="priority">
+            Priority
+          </label>
+
+          <div className="input-wrapper">
+
+            <Flag size={18} />
+
+            <select
+              id="priority"
+              name="priority"
+              value={formData.priority}
+              onChange={handleChange}
+            >
+              <option value="High">
+                High
+              </option>
+
+              <option value="Medium">
+                Medium
+              </option>
+
+              <option value="Low">
+                Low
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+        {error && (
+          <p className="form-error">
+            {error}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          variant="primary"
+        >
+          + Create Task
+        </Button>
+
+      </form>
+
+    </section>
   );
 }
 

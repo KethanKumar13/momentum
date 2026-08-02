@@ -1,150 +1,260 @@
-.task-card{
+/* ==========================================
+   Task Card
+========================================== */
 
-    background:white;
+.task-card {
 
-    border-radius:18px;
+  background: linear-gradient(
+    145deg,
+    #1e293b,
+    #273449
+  );
 
-    padding:25px;
+  border: 1px solid var(--border);
 
-    margin-bottom:20px;
+  border-radius: var(--radius-lg);
 
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
+  padding: 24px;
 
-    transition:.3s;
+  box-shadow: var(--shadow-md);
+
+  transition: var(--transition);
+
+  margin-bottom: 22px;
+
 }
 
-.task-card:hover{
+.task-card:hover {
 
-    transform:translateY(-4px);
+  transform: translateY(-5px);
 
-    box-shadow:0 20px 45px rgba(0,0,0,.12);
+  box-shadow: var(--shadow-lg);
+
 }
 
-.task-card__header{
+/* ==========================================
+   Header
+========================================== */
 
-    margin-bottom:20px;
+.task-card-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 22px;
+
 }
 
-.task-card__header h2{
+.task-card-header h3 {
 
-    margin:0;
+  font-size: 1.3rem;
 
-    color:#111827;
+  color: var(--text-primary);
 
-    font-size:30px;
 }
 
-.task-card__details{
+/* ==========================================
+   Info
+========================================== */
 
-    margin-bottom:20px;
+.task-card-body {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  margin-bottom: 24px;
+
 }
 
-.task-card__details p{
+.task-info {
 
-    margin:8px 0;
+  display: flex;
 
-    color:#4b5563;
+  align-items: center;
+
+  gap: 10px;
+
+  color: var(--text-secondary);
+
 }
 
-.task-card__badges{
+/* ==========================================
+   Footer
+========================================== */
 
-    display:flex;
+.task-card-footer {
 
-    gap:12px;
+  display: flex;
 
-    margin-bottom:25px;
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+
 }
 
-.badge{
+/* ==========================================
+   Priority Badge
+========================================== */
 
-    padding:8px 15px;
+.priority-badge {
 
-    border-radius:999px;
+  padding: 7px 14px;
 
-    font-size:13px;
+  border-radius: 999px;
 
-    font-weight:600;
+  font-size: .8rem;
+
+  font-weight: 600;
+
 }
 
-.pending{
+.priority-badge.high {
 
-    background:#FEF3C7;
+  background: rgba(239,68,68,.15);
 
-    color:#92400E;
+  color: var(--danger);
+
 }
 
-.completed{
+.priority-badge.medium {
 
-    background:#DCFCE7;
+  background: rgba(245,158,11,.15);
 
-    color:#166534;
+  color: var(--warning);
+
 }
 
-.high{
+.priority-badge.low {
 
-    background:#FEE2E2;
+  background: rgba(34,197,94,.15);
 
-    color:#991B1B;
+  color: var(--success);
+
 }
 
-.medium{
+/* ==========================================
+   Status Badge
+========================================== */
 
-    background:#DBEAFE;
+.status-badge {
 
-    color:#1E3A8A;
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: .82rem;
+
+  font-weight: 600;
+
 }
 
-.low{
+.status-badge.pending {
 
-    background:#E5E7EB;
+  background: rgba(245,158,11,.15);
 
-    color:#374151;
+  color: var(--warning);
+
 }
 
-.task-card__actions{
+.status-badge.completed {
 
-    display:flex;
+  background: rgba(34,197,94,.15);
 
-    gap:15px;
+  color: var(--success);
+
 }
 
-.btn{
+/* ==========================================
+   Buttons
+========================================== */
 
-    flex:1;
+.task-actions {
 
-    padding:13px;
+  display: flex;
 
-    border:none;
+  gap: 12px;
 
-    border-radius:12px;
-
-    cursor:pointer;
-
-    font-weight:600;
-
-    transition:.3s;
 }
 
-.btn-primary{
+.complete-btn,
+.delete-btn {
 
-    background:#2563EB;
+  display: flex;
 
-    color:white;
+  align-items: center;
+
+  gap: 8px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  padding: 10px 16px;
+
+  cursor: pointer;
+
+  transition: var(--transition);
+
+  font-weight: 600;
+
 }
 
-.btn-primary:hover{
+.complete-btn {
 
-    background:#1D4ED8;
+  background: var(--success);
+
+  color: white;
+
 }
 
-.btn-danger{
+.complete-btn:hover {
 
-    background:#EF4444;
+  background: #16a34a;
 
-    color:white;
 }
 
-.btn-danger:hover{
+.delete-btn {
 
-    background:#DC2626;
+  background: var(--danger);
+
+  color: white;
+
+}
+
+.delete-btn:hover {
+
+  background: #dc2626;
+
+}
+
+/* ==========================================
+   Responsive
+========================================== */
+
+@media (max-width: 768px) {
+
+  .task-card-footer {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+  }
+
+  .task-actions {
+
+    width: 100%;
+
+    justify-content: space-between;
+
+  }
+
 }
