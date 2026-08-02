@@ -60,7 +60,7 @@ function DashboardHeader() {
 
           <div>
 
-            <small>Today's Goal</small>
+            <small>Today&apos;s Goal</small>
 
             <strong>Complete 5 Tasks</strong>
 
