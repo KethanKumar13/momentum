@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+    <defs>
+        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#7C5CFF" />
+            <stop offset="100%" stop-color="#22D3EE" />
+        </linearGradient>
+        <radialGradient id="glow" cx="20%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#7C5CFF" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#08090D" stop-opacity="0" />
+        </radialGradient>
+    </defs>
+    <rect width="1200" height="630" fill="#08090D" />
+    <rect width="1200" height="630" fill="url(#glow)" />
+    <text x="80" y="330" font-family="Georgia, serif" font-weight="700" font-size="128"
+        fill="url(#g)"> Momentum </text>
+    <text x="80" y="400" font-family="Inter, system-ui, sans-serif" font-weight="500" font-size="36"
+        fill="#A8ADBD"> Small habits. Real momentum. </text>
+</svg>

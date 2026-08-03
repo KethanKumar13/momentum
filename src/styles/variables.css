@@ -1,72 +1,165 @@
-/* ========================================
-   TaskFlow Design System
-======================================== */
+/* =========================================================================
+   Momentum — Design Tokens
+   Single source of truth for colors, typography, spacing, motion, elevation.
+   Any hard-coded value in a component file is considered a bug.
+   ========================================================================= */
 
 :root {
+  /* ------- Color · Background layers (dark by default) ---------------- */
+  --bg-base:      #08090D;
+  --bg-surface:   #12141C;
+  --bg-elevated:  #1A1D29;
+  --bg-overlay:   rgba(8, 9, 13, 0.72);
 
-  /* Primary */
+  /* ------- Color · Borders ------------------------------------------- */
+  --border-subtle: #1F2230;
+  --border-strong: #2D3142;
+  --border-focus:  #7C5CFF;
 
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: #60a5fa;
+  /* ------- Color · Text ---------------------------------------------- */
+  --text-primary:   #F5F6FA;
+  --text-secondary: #A8ADBD;
+  --text-muted:     #6B7085;
+  --text-inverse:   #08090D;
 
-  /* Success */
+  /* ------- Color · Brand (violet) ------------------------------------ */
+  --brand-50:  #F2EFFF;
+  --brand-100: #E1D9FF;
+  --brand-300: #A990FF;
+  --brand-500: #7C5CFF;
+  --brand-600: #6845F0;
+  --brand-700: #5432D6;
 
-  --success: #22c55e;
-  --success-light: #4ade80;
+  /* ------- Color · Accent (cyan) ------------------------------------- */
+  --accent-500: #22D3EE;
+  --accent-600: #06B6D4;
 
-  /* Warning */
+  /* ------- Color · Semantic ------------------------------------------ */
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger:  #F87171;
+  --info:    #60A5FA;
 
-  --warning: #f59e0b;
-  --warning-light: #fbbf24;
+  /* ------- Color · Life-area categories ------------------------------ */
+  --cat-health:        #34D399;
+  --cat-career:        #7C5CFF;
+  --cat-learning:      #60A5FA;
+  --cat-finance:       #FBBF24;
+  --cat-relationships: #F472B6;
+  --cat-personal:      #22D3EE;
 
-  /* Danger */
+  /* ------- Signature gradients --------------------------------------- */
+  --grad-momentum: linear-gradient(135deg, #7C5CFF 0%, #22D3EE 100%);
+  --grad-sunrise:  linear-gradient(135deg, #F59E0B 0%, #EC4899 50%, #7C5CFF 100%);
+  --grad-hero:
+    radial-gradient(circle at 20% 20%, rgba(124, 92, 255, 0.20), transparent 60%),
+    radial-gradient(circle at 80% 60%, rgba(34, 211, 238, 0.14), transparent 60%);
 
-  --danger: #ef4444;
-  --danger-light: #f87171;
+  /* ------- Radius ---------------------------------------------------- */
+  --radius-sm:   6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
 
-  /* Background */
+  /* ------- Spacing scale (4px base) ---------------------------------- */
+  --sp-1:   4px;
+  --sp-2:   8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-14: 56px;
+  --sp-18: 72px;
+  --sp-24: 96px;
 
-  --background: #0f172a;
+  /* ------- Elevation ------------------------------------------------- */
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-md:   0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg:   0 16px 48px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 1px rgba(124, 92, 255, 0.40), 0 10px 40px rgba(124, 92, 255, 0.25);
 
-  --surface: #1e293b;
+  /* ------- Motion ---------------------------------------------------- */
+  --dur-fast:      120ms;
+  --dur-base:      200ms;
+  --dur-slow:      320ms;
+  --dur-celebrate: 520ms;
 
-  --surface-light: #334155;
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-glide:  cubic-bezier(0.65, 0, 0.35, 1);
 
-  --card: #1f2937;
+  /* ------- Z-index scale --------------------------------------------- */
+  --z-base:    0;
+  --z-sticky:  10;
+  --z-drawer:  40;
+  --z-modal:   50;
+  --z-toast:   60;
+  --z-popover: 70;
 
-  /* Text */
+  /* ------- Breakpoints (for JS matchMedia) --------------------------- */
+  --bp-sm:  640px;
+  --bp-md:  768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1200px;
+  --bp-2xl:1440px;
 
-  --text-primary: #f8fafc;
+  /* ------- Typography families --------------------------------------- */
+  --font-ui:      "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --text-secondary: #94a3b8;
+  /* ------- Type scale (rem) ------------------------------------------ */
+  --fs-display-xl: 4.5rem;
+  --fs-display-lg: 3.5rem;
+  --fs-display-md: 2.5rem;
+  --fs-h1:         2.00rem;
+  --fs-h2:         1.50rem;
+  --fs-h3:         1.25rem;
+  --fs-body:       1.00rem;
+  --fs-small:      0.875rem;
+  --fs-micro:      0.75rem;
 
-  --text-muted: #64748b;
+  --lh-tight: 1.15;
+  --lh-snug:  1.30;
+  --lh-body:  1.55;
+}
 
-  /* Border */
+/* ============================================================
+   Light theme — inverts backgrounds, text, and shadows.
+   Applied by <html data-theme="light">.
+   ============================================================ */
+[data-theme="light"] {
+  --bg-base:      #FAFAF7;
+  --bg-surface:   #FFFFFF;
+  --bg-elevated:  #FFFFFF;
+  --bg-overlay:   rgba(15, 16, 23, 0.48);
 
-  --border: #334155;
+  --border-subtle: #E7E8EE;
+  --border-strong: #D2D5DE;
 
-  /* Shadows */
+  --text-primary:   #0F1017;
+  --text-secondary: #4B5063;
+  --text-muted:     #8A8F9E;
+  --text-inverse:   #FFFFFF;
 
-  --shadow-sm:
-    0 2px 10px rgba(0,0,0,.15);
+  --shadow-sm:   0 1px 2px rgba(10, 12, 20, 0.06);
+  --shadow-md:   0 8px 24px rgba(10, 12, 20, 0.08);
+  --shadow-lg:   0 16px 48px rgba(10, 12, 20, 0.12);
+  --shadow-glow: 0 0 0 1px rgba(124, 92, 255, 0.30), 0 10px 40px rgba(124, 92, 255, 0.18);
+}
 
-  --shadow-md:
-    0 8px 30px rgba(0,0,0,.25);
-
-  --shadow-lg:
-    0 18px 40px rgba(0,0,0,.35);
-
-  /* Radius */
-
-  --radius-sm: 8px;
-
-  --radius-md: 14px;
-
-  --radius-lg: 20px;
-
-  /* Animation */
-
-  --transition: all .25s ease;
+/* ============================================================
+   Respect user's motion preference — collapse durations to 0.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast:      0ms;
+    --dur-base:      0ms;
+    --dur-slow:      0ms;
+    --dur-celebrate: 0ms;
+  }
 }

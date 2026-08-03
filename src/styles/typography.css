@@ -1,34 +1,72 @@
-h1{
+/* =========================================================================
+   Momentum — Typography
+   Loads Inter, Fraunces, JetBrains Mono via @fontsource,
+   and defines the type scale using tokens from variables.css.
+   ========================================================================= */
 
-    font-size:40px;
+/* Inter — UI (400 / 500 / 600) */
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
 
-    font-weight:700;
+/* Fraunces — Marketing / hero display (700) */
+@import "@fontsource/fraunces/700.css";
 
-    margin:0;
+/* JetBrains Mono — Numbers, dates, streak counters (500) */
+@import "@fontsource/jetbrains-mono/500.css";
+
+/* Base */
+body {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text-primary);
+  font-weight: 400;
 }
 
-h2{
+/* Display (marketing hero, celebrations) */
+.t-display-xl,
+.t-display-lg,
+.t-display-md {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: var(--lh-tight);
+  color: var(--text-primary);
+}
+.t-display-xl { font-size: var(--fs-display-xl); }
+.t-display-lg { font-size: var(--fs-display-lg); }
+.t-display-md { font-size: var(--fs-display-md); }
 
-    font-size:30px;
+/* Headings (UI) */
+h1, .t-h1 { font-size: var(--fs-h1); line-height: var(--lh-tight); font-weight: 600; }
+h2, .t-h2 { font-size: var(--fs-h2); line-height: var(--lh-snug);  font-weight: 600; }
+h3, .t-h3 { font-size: var(--fs-h3); line-height: var(--lh-snug);  font-weight: 600; }
 
-    margin:0;
+/* Body & helpers */
+.t-body   { font-size: var(--fs-body);  line-height: var(--lh-body); }
+.t-small  { font-size: var(--fs-small); line-height: var(--lh-body); color: var(--text-secondary); }
+.t-micro  {
+  font-size: var(--fs-micro);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
-h3{
-
-    font-size:22px;
-
-    margin:0;
+/* Monospace (streaks, dates, numbers) */
+.t-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 
-p{
-
-    color:var(--text-secondary);
-
-    line-height:1.6;
-}
-
-small{
-
-    font-size:13px;
+/* Gradient text — for the "Momentum" wordmark */
+.t-gradient {
+  background: var(--grad-momentum);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }

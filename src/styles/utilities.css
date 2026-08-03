@@ -1,69 +1,95 @@
-.flex{
+/* =========================================================================
+   Momentum — Utility Classes
+   Small, composable helpers. Prefer these over one-off inline styles.
+   All values reference tokens from variables.css.
+   ========================================================================= */
 
-display:flex;
+/* Flexbox */
+.u-flex          { display: flex; }
+.u-flex-col      { display: flex; flex-direction: column; }
+.u-inline-flex   { display: inline-flex; }
+.u-items-center  { align-items: center; }
+.u-items-start   { align-items: flex-start; }
+.u-items-end     { align-items: flex-end; }
+.u-justify-center  { justify-content: center; }
+.u-justify-between { justify-content: space-between; }
+.u-justify-end     { justify-content: flex-end; }
+.u-flex-1        { flex: 1 1 0%; }
+.u-wrap          { flex-wrap: wrap; }
 
+/* Grid */
+.u-grid          { display: grid; }
+.u-grid-cols-2   { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.u-grid-cols-3   { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.u-grid-cols-4   { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Stack (vertical rhythm) */
+.u-stack > * + * { margin-top: var(--sp-4); }
+.u-stack-sm > * + * { margin-top: var(--sp-2); }
+.u-stack-lg > * + * { margin-top: var(--sp-6); }
+
+/* Gaps */
+.u-gap-1 { gap: var(--sp-1); }
+.u-gap-2 { gap: var(--sp-2); }
+.u-gap-3 { gap: var(--sp-3); }
+.u-gap-4 { gap: var(--sp-4); }
+.u-gap-6 { gap: var(--sp-6); }
+.u-gap-8 { gap: var(--sp-8); }
+
+/* Padding */
+.u-p-2  { padding: var(--sp-2); }
+.u-p-3  { padding: var(--sp-3); }
+.u-p-4  { padding: var(--sp-4); }
+.u-p-6  { padding: var(--sp-6); }
+.u-p-8  { padding: var(--sp-8); }
+.u-px-4 { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+.u-py-4 { padding-top: var(--sp-4); padding-bottom: var(--sp-4); }
+
+/* Radius */
+.u-round-sm  { border-radius: var(--radius-sm); }
+.u-round-md  { border-radius: var(--radius-md); }
+.u-round-lg  { border-radius: var(--radius-lg); }
+.u-round-xl  { border-radius: var(--radius-xl); }
+.u-round-pill{ border-radius: var(--radius-pill); }
+
+/* Surfaces */
+.u-surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.u-elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
-.flex-center{
+/* Text */
+.u-text-primary   { color: var(--text-primary); }
+.u-text-secondary { color: var(--text-secondary); }
+.u-text-muted     { color: var(--text-muted); }
+.u-text-center    { text-align: center; }
+.u-text-left      { text-align: left; }
+.u-text-right     { text-align: right; }
 
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
+/* Screen-reader-only */
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.grid{
-
-display:grid;
-
-}
-
-.text-center{
-
-text-align:center;
-
-}
-
-.w-100{
-
-width:100%;
-
-}
-
-.mt-1{
-
-margin-top:10px;
-
-}
-
-.mt-2{
-
-margin-top:20px;
-
-}
-
-.mt-3{
-
-margin-top:30px;
-
-}
-
-.mb-1{
-
-margin-bottom:10px;
-
-}
-
-.mb-2{
-
-margin-bottom:20px;
-
-}
-
-.mb-3{
-
-margin-bottom:30px;
-
+/* Container */
+.u-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--sp-6);
 }
