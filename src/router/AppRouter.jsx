@@ -20,7 +20,7 @@ function TempHome() {
     >
       <section className="u-container u-stack-lg u-text-center">
         <p className="t-micro">
-          Week 1 · Day 2
+          Week 1 Â· Day 3
         </p>
 
         <h1 className="t-display-lg t-gradient">
@@ -28,8 +28,17 @@ function TempHome() {
         </h1>
 
         <p className="t-body u-text-secondary">
-          Theme system + UI primitives online.
-          Visit <code>/dev/ui</code>.
+          UI library complete. Visit{" "}
+          <a
+            href="/dev/ui"
+            style={{
+              color: "var(--brand-500)",
+              textDecoration: "underline",
+            }}
+          >
+            /dev/ui
+          </a>{" "}
+          to see all primitives.
         </p>
       </section>
     </main>

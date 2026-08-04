@@ -1,18 +1,18 @@
 /* =========================================================================
-   Momentum — Typography
+   Momentum â€” Typography
    Loads Inter, Fraunces, JetBrains Mono via @fontsource,
    and defines the type scale using tokens from variables.css.
    ========================================================================= */
 
-/* Inter — UI (400 / 500 / 600) */
+/* Inter â€” UI (400 / 500 / 600) */
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
 
-/* Fraunces — Marketing / hero display (700) */
+/* Fraunces â€” Marketing / hero display (700) */
 @import "@fontsource/fraunces/700.css";
 
-/* JetBrains Mono — Numbers, dates, streak counters (500) */
+/* JetBrains Mono â€” Numbers, dates, streak counters (500) */
 @import "@fontsource/jetbrains-mono/500.css";
 
 /* Base */
@@ -62,7 +62,7 @@ h3, .t-h3 { font-size: var(--fs-h3); line-height: var(--lh-snug);  font-weight: 
   font-weight: 500;
 }
 
-/* Gradient text — for the "Momentum" wordmark */
+/* Gradient text â€” for the "Momentum" wordmark */
 .t-gradient {
   background: var(--grad-momentum);
   -webkit-background-clip: text;

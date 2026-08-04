@@ -1,5 +1,5 @@
 /* =========================================================================
-   Momentum — Animations
+   Momentum â€” Animations
    Named keyframes used throughout the app.
    Consumers should compose with tokens: `animation: fade-in var(--dur-base) var(--ease-out);`
    ========================================================================= */
@@ -16,7 +16,7 @@
   to   { opacity: 1; transform: translateY(0);   }
 }
 
-/* Spring pop — the star of habit check-off */
+/* Spring pop â€” the star of habit check-off */
 @keyframes spring-pop {
   0%   { transform: scale(1); }
   35%  { transform: scale(1.18); }
@@ -24,19 +24,19 @@
   100% { transform: scale(1); }
 }
 
-/* Gentle breathe — focus timer, waiting states */
+/* Gentle breathe â€” focus timer, waiting states */
 @keyframes breathe {
   0%, 100% { transform: scale(1);    opacity: 0.85; }
   50%      { transform: scale(1.04); opacity: 1;    }
 }
 
-/* Sweep — gradient reveal for celebration overlays */
+/* Sweep â€” gradient reveal for celebration overlays */
 @keyframes sweep {
   from { background-position: 200% 0; }
   to   { background-position: -200% 0; }
 }
 
-/* Shimmer — skeleton loaders */
+/* Shimmer â€” skeleton loaders */
 @keyframes shimmer {
   from { background-position: -400px 0; }
   to   { background-position: 400px 0; }

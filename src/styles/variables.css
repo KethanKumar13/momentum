@@ -1,28 +1,28 @@
 /* =========================================================================
-   Momentum — Design Tokens
+   Momentum â€” Design Tokens
    Single source of truth for colors, typography, spacing, motion, elevation.
    Any hard-coded value in a component file is considered a bug.
    ========================================================================= */
 
 :root {
-  /* ------- Color · Background layers (dark by default) ---------------- */
+  /* ------- Color Â· Background layers (dark by default) ---------------- */
   --bg-base:      #08090D;
   --bg-surface:   #12141C;
   --bg-elevated:  #1A1D29;
   --bg-overlay:   rgba(8, 9, 13, 0.72);
 
-  /* ------- Color · Borders ------------------------------------------- */
+  /* ------- Color Â· Borders ------------------------------------------- */
   --border-subtle: #1F2230;
   --border-strong: #2D3142;
   --border-focus:  #7C5CFF;
 
-  /* ------- Color · Text ---------------------------------------------- */
+  /* ------- Color Â· Text ---------------------------------------------- */
   --text-primary:   #F5F6FA;
   --text-secondary: #A8ADBD;
   --text-muted:     #6B7085;
   --text-inverse:   #08090D;
 
-  /* ------- Color · Brand (violet) ------------------------------------ */
+  /* ------- Color Â· Brand (violet) ------------------------------------ */
   --brand-50:  #F2EFFF;
   --brand-100: #E1D9FF;
   --brand-300: #A990FF;
@@ -30,17 +30,17 @@
   --brand-600: #6845F0;
   --brand-700: #5432D6;
 
-  /* ------- Color · Accent (cyan) ------------------------------------- */
+  /* ------- Color Â· Accent (cyan) ------------------------------------- */
   --accent-500: #22D3EE;
   --accent-600: #06B6D4;
 
-  /* ------- Color · Semantic ------------------------------------------ */
+  /* ------- Color Â· Semantic ------------------------------------------ */
   --success: #34D399;
   --warning: #FBBF24;
   --danger:  #F87171;
   --info:    #60A5FA;
 
-  /* ------- Color · Life-area categories ------------------------------ */
+  /* ------- Color Â· Life-area categories ------------------------------ */
   --cat-health:        #34D399;
   --cat-career:        #7C5CFF;
   --cat-learning:      #60A5FA;
@@ -129,7 +129,7 @@
 }
 
 /* ============================================================
-   Light theme — inverts backgrounds, text, and shadows.
+   Light theme â€” inverts backgrounds, text, and shadows.
    Applied by <html data-theme="light">.
    ============================================================ */
 [data-theme="light"] {
@@ -153,7 +153,7 @@
 }
 
 /* ============================================================
-   Respect user's motion preference — collapse durations to 0.
+   Respect user's motion preference â€” collapse durations to 0.
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   :root {

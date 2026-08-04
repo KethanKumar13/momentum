@@ -20,34 +20,37 @@
 
 .btn:disabled,
 .btn[aria-busy="true"] {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .btn:not(:disabled):active {
   transform: translateY(1px);
 }
 
-/* Sizes */
+/* â”€â”€ Sizes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
 .sm {
   padding: 6px 12px;
   font-size: var(--fs-small);
 }
 
 .md {
-  padding: 10px 16px;
+  padding: 10px 18px;
   font-size: var(--fs-body);
 }
 
 .lg {
-  padding: 14px 20px;
+  padding: 14px 24px;
   font-size: 1.05rem;
 }
 
-/* Variants */
+/* â”€â”€ Variants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
 .primary {
   background: var(--grad-momentum);
-  color: var(--text-inverse);
+  color: #ffffff;
   box-shadow: var(--shadow-sm);
 }
 
@@ -63,6 +66,7 @@
 
 .secondary:not(:disabled):hover {
   border-color: var(--brand-500);
+  background: var(--bg-elevated);
 }
 
 .ghost {
@@ -76,12 +80,14 @@
 
 .danger {
   background: var(--danger);
-  color: #1a0505;
+  color: #ffffff;
 }
 
 .danger:not(:disabled):hover {
-  filter: brightness(1.06);
+  filter: brightness(1.08);
 }
+
+/* â”€â”€ Loading Spinner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .spinner {
   width: 14px;
@@ -89,5 +95,5 @@
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
-  animation: spin 800ms linear infinite;
+  animation: spin 700ms linear infinite;
 }

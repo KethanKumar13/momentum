@@ -1,0 +1,47 @@
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--grad-momentum);
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  user-select: none;
+}
+
+.sm {
+  width: 28px;
+  height: 28px;
+  font-size: 0.65rem;
+}
+
+.md {
+  width: 36px;
+  height: 36px;
+  font-size: 0.8rem;
+}
+
+.lg {
+  width: 48px;
+  height: 48px;
+  font-size: 1rem;
+}
+
+.xl {
+  width: 64px;
+  height: 64px;
+  font-size: 1.25rem;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  line-height: 1;
+}
