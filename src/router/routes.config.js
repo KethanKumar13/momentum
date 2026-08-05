@@ -1,7 +1,7 @@
 /**
  * Single source of truth for all application routes.
  * Sidebar, Topbar, MobileTabBar, and CommandPalette are
- * all driven by this config â€” never hardcoded separately.
+ * all driven by this config - never hardcoded separately.
  */
 export const routes = [
   {
