@@ -1,46 +1,87 @@
-import "./Input.css";
+import { forwardRef } from "react";
+import { cn } from "../../../lib/cn";
+import styles from "./Input.module.css";
 
-function Input({
-  label,
-  icon,
-  error,
-  className = "",
-  ...props
-}) {
+export const Input = forwardRef(function Input(
+  {
+    label,
+    hint,
+    error,
+    leftSlot,
+    rightSlot,
+    className,
+    id,
+    ...props
+  },
+  ref
+) {
+  const inputId =
+    id ??
+    label?.toLowerCase().replace(/\s+/g, "-");
+
   return (
-    <div className="input-group">
-
+    <div className={cn(styles.group, className)}>
       {label && (
-        <label className="input-label">
+        <label
+          htmlFor={inputId}
+          className={styles.label}
+        >
           {label}
         </label>
       )}
 
       <div
-        className={`input-container ${
-          error ? "input-error" : ""
-        } ${className}`}
+        className={cn(
+          styles.wrapper,
+          error && styles.hasError
+        )}
       >
-        {icon && (
-          <span className="input-icon">
-            {icon}
+        {leftSlot && (
+          <span className={styles.slot}>
+            {leftSlot}
           </span>
         )}
 
         <input
-          className="ui-input"
+          ref={ref}
+          id={inputId}
+          className={styles.input}
+          aria-invalid={!!error}
+          aria-describedby={
+            error
+              ? `${inputId}-error`
+              : hint
+                ? `${inputId}-hint`
+                : undefined
+          }
           {...props}
         />
+
+        {rightSlot && (
+          <span className={styles.slot}>
+            {rightSlot}
+          </span>
+        )}
       </div>
 
       {error && (
-        <small className="input-error-text">
+        <p
+          id={`${inputId}-error`}
+          className={styles.error}
+          role="alert"
+        >
           {error}
-        </small>
+        </p>
       )}
 
+      {hint && !error && (
+        <p
+          id={`${inputId}-hint`}
+          className={styles.hint}
+        >
+          {hint}
+        </p>
+      )}
     </div>
   );
-}
-
-export default Input;
+});

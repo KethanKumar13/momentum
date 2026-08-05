@@ -1,0 +1,27 @@
+.divider {
+  width: 100%;
+  margin-block: var(--sp-4);
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.withLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-block: var(--sp-4);
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.label {
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}

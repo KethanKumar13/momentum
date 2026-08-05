@@ -1,18 +1,15 @@
-function App() {
+import { ThemeProvider } from "./theme";
+import { AppRouter } from "./router/AppRouter";
+import { ToastProvider } from "./components/ui/Toast";
+import { TooltipProvider } from "./components/ui/Tooltip";
+
+export default function App() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        background: "#08090D",
-        color: "#F5F6FA",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      <h1>Momentum</h1>
-    </main>
+    <ThemeProvider>
+      <TooltipProvider>
+        <ToastProvider />
+        <AppRouter />
+      </TooltipProvider>
+    </ThemeProvider>
   );
 }
-
-export default App;
