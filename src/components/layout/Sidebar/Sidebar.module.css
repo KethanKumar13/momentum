@@ -1,0 +1,63 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  transition: width var(--dur-slow) var(--ease-out);
+  overflow: hidden;
+  z-index: var(--z-sticky);
+}
+
+.logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-3);
+  border-bottom: 1px solid var(--border-subtle);
+  min-height: 64px;
+  flex-shrink: 0;
+}
+
+.collapseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.collapseBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-4) var(--sp-2);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-2);
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
