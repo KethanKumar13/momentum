@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { format } from "date-fns";
 
 import { useGreeting } from "@/hooks/useGreeting";
-import { useTodayStore } from "@/store/useTodayStore";
+import { useTodayStore } from "@/store/todayStore";
 import { DailySummaryCard } from "@/components/today/DailySummaryCard";
 import { HabitRow } from "@/components/today/HabitRow";
 import { TaskItem } from "@/components/today/TaskItem";
