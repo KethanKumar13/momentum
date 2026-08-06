@@ -1,0 +1,107 @@
+.page {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--sp-6) var(--sp-6) var(--sp-10);
+}
+
+.inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+/* ── Header ───────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.date {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  margin-bottom: var(--sp-1);
+}
+
+.greeting {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  font-family: var(--font-serif);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ── Quote ────────────────────────── */
+.quote {
+  margin: 0;
+  padding: var(--sp-4) var(--sp-5);
+  border-left: 3px solid var(--color-primary);
+  background: var(--bg-surface);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+.quote p {
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--text-secondary);
+  margin: 0 0 var(--sp-1);
+  line-height: 1.6;
+}
+
+.quote footer {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+/* ── Section ──────────────────────── */
+.sectionTitle {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  margin: 0 0 var(--sp-3);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* ── Two-column grid ──────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6);
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--sp-4) var(--sp-4) var(--sp-20);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .greeting {
+    font-size: var(--text-2xl);
+  }
+}
+
+/* ── Focus timer ──────────────────── */
+.timerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
