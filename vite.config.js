@@ -13,31 +13,5 @@ export default defineConfig({
 
   build: {
     sourcemap: true,
-
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: [
-            "react",
-            "react-dom",
-            "react-router-dom",
-          ],
-
-          ui: [
-            "framer-motion",
-            "lucide-react",
-          ],
-
-          radix: [
-            "@radix-ui/react-checkbox",
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-switch",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-tooltip",
-          ],
-        },
-      },
-    },
   },
 });

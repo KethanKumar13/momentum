@@ -1,1 +1,1 @@
-export { default } from "./TodayPage";
+export { default as TodayPage } from "./TodayPage";
