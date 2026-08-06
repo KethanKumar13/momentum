@@ -5,53 +5,47 @@
     <meta charset="UTF-8" />
 
     <!-- Viewport -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Theme Color -->
-    <meta
-      name="theme-color"
-      content="#08090D"
-    />
+    <meta name="theme-color" content="#08090D" />
 
     <!-- SEO -->
     <meta
       name="description"
       content="Momentum — Build Better Habits. Achieve Meaningful Goals. Stay Consistent Every Day."
     />
-
     <meta
       name="keywords"
       content="Momentum, Habit Tracker, Goals, Productivity, React, Personal Growth"
     />
+    <meta name="author" content="Kethan Kumar" />
 
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
-      name="author"
-      content="Kethan Kumar"
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta
+      name="apple-mobile-web-app-title"
+      content="Momentum"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/icons/icon-192.svg"
     />
 
     <!-- Open Graph -->
-    <meta
-      property="og:title"
-      content="Momentum"
-    />
-
+    <meta property="og:title" content="Momentum" />
     <meta
       property="og:description"
       content="Build Better Habits. Achieve Meaningful Goals."
     />
-
-    <meta
-      property="og:type"
-      content="website"
-    />
-
-    <meta
-      property="og:image"
-      content="/og-image.png"
-    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.svg" />
 
     <!-- Favicon -->
     <link
@@ -65,6 +59,10 @@
   </head>
 
   <body>
+    <a class="skip-link" href="#main-content">
+      Skip to main content
+    </a>
+
     <div id="root"></div>
 
     <script

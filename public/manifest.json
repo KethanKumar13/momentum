@@ -1,0 +1,30 @@
+{
+  "name": "Momentum",
+  "short_name": "Momentum",
+  "description": "Build Better Habits. Achieve Meaningful Goals. Stay Consistent Every Day.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#08090D",
+  "theme_color": "#7C6FF7",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "lifestyle"
+  ],
+  "screenshots": []
+}
