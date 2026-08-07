@@ -1,51 +1,51 @@
 # Momentum
 
-Build better habits. Achieve meaningful goals. Stay consistent every day.
+> Small habits. Real momentum.
 
-Momentum connects your long-term goals, daily habits, and personal reflection in one focused app — so you actually become the person you want to be.
+Build better habits. Achieve meaningful goals. Stay consistent every day.
 
 ---
 
-## What it does
+## Quick Start
 
-- **Habit Tracker** — Build streaks and track daily habits
-- **Goal System** — Set long-term goals and break them into daily actions
-- **Today View** — See everything you need to do in one place
-- **Journal** — Reflect on your day with a daily entry
-- **Weekly Review** — Look back, celebrate wins, plan ahead
-- **Insights** — Visualise your habits, streaks, and mood trends
+### Frontend
+
+```bash
+cd client
+npm install
+npm run dev        # http://localhost:5173
+```
+
+### Backend
+
+```bash
+cd server/Momentum.Api
+cp appsettings.Development.json.example appsettings.Development.json
+# fill in your Neon connection string
+dotnet ef database update
+dotnet run         # http://localhost:5080
+```
+
+---
+
+## Scripts
+
+| Command                                                     | What it does                  |
+| ----------------------------------------------------------- | ----------------------------- |
+| `cd client && npm run dev`                                  | Start frontend dev server     |
+| `cd client && npm run build`                                | Build frontend for production |
+| `cd client && npm run lint`                                 | Run ESLint                    |
+| `cd server/Momentum.Api && dotnet run`                      | Start API                     |
+| `cd server && dotnet test`                                  | Run all tests                 |
+| `cd server/Momentum.Api && dotnet ef migrations add <Name>` | Add migration                 |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, Vite, React Router v7 |
-| UI | Radix UI, Framer Motion, CSS Modules |
-
----
-
-## Getting Started
-
-```bash
-git clone https://github.com/KethanKumar13/momentum.git
-cd momentum
-npm install
-npm run dev
-```
-
-Open `http://localhost:5173`
-
----
-
-## Available Scripts
-
-```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run preview  # Preview production build
-npm run lint     # Run ESLint
-```
-
----
+| Layer    | Technology                                              |
+| -------- | ------------------------------------------------------- |
+| Frontend | React 19, Vite 8, React Router v7, Zustand, CSS Modules |
+| Backend  | ASP.NET Core 8, EF Core 8, PostgreSQL (Neon)            |
+| Auth     | JWT httpOnly cookies + Google OAuth                     |
+| CI/CD    | GitHub Actions → Vercel (client) + Render (server)      |

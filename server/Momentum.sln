@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Api", "Momentum.Api\Momentum.Api.csproj", "{9BD86907-9A54-45D5-A22D-592840BE55EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Api.Tests", "Momentum.Api.Tests\Momentum.Api.Tests.csproj", "{A26B693C-8E36-46B9-A5FB-24BA6C0748BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BD86907-9A54-45D5-A22D-592840BE55EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BD86907-9A54-45D5-A22D-592840BE55EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BD86907-9A54-45D5-A22D-592840BE55EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BD86907-9A54-45D5-A22D-592840BE55EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A26B693C-8E36-46B9-A5FB-24BA6C0748BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26B693C-8E36-46B9-A5FB-24BA6C0748BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26B693C-8E36-46B9-A5FB-24BA6C0748BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26B693C-8E36-46B9-A5FB-24BA6C0748BB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
