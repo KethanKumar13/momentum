@@ -17,10 +17,6 @@ server/**/.vs/
 *.ntvs*
 *.njsproj
 
-# ── EF Core migrations temp ───────────────────
-
-server/**/Migrations/
-
 # ── Secrets ───────────────────────────────────
 
 .env
