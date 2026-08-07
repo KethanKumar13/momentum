@@ -1,0 +1,49 @@
+.card {
+  padding: var(--sp-5);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-bottom: var(--sp-1);
+}
+
+.value {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.1;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.sub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Accent variants */
+.card.primary {
+  border-color: var(--color-primary);
+}
+
+.card.success {
+  border-color: var(--color-success, #16a34a);
+}
+
+.card.warning {
+  border-color: var(--color-warning, #f59e0b);
+}

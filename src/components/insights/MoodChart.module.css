@@ -1,0 +1,45 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 24px 80px 1fr 28px;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.barTrack {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+  min-width: 4px;
+}
+
+.count {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: right;
+}
