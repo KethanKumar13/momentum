@@ -1,4 +1,4 @@
-using Hangfire;
+﻿using Hangfire;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Data;
@@ -17,14 +17,16 @@ builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddCorsPolicy(builder.Configuration);
 
-// -- App services -----------------------------------------------
+// ── App services ───────────────────────────────────────────────
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<FrequencyService>();
 builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<GoalService>();
 builder.Services.AddScoped<HabitService>();
-builder.Services.AddScoped<InsightsService>();   // Day 15
+builder.Services.AddScoped<InsightsService>();
+builder.Services.AddScoped<JournalService>();
+builder.Services.AddScoped<WeeklyReviewService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -64,6 +66,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
     ResponseWriter = async (ctx, report) =>
     {
         ctx.Response.ContentType = "application/json";
+
         await ctx.Response.WriteAsync(
             System.Text.Json.JsonSerializer.Serialize(new
             {

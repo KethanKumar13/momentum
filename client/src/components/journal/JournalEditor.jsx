@@ -1,181 +1,232 @@
-import { useState } from "react";
-import { X } from "lucide-react";
-import { useJournalStore } from "@/store/journalStore";
-import { MoodPicker } from "./MoodPicker";
-import styles from "./JournalEditor.module.css";
+﻿import { useEffect, useState } from 'react'
+import { Bold, Italic, List, ListOrdered, X } from 'lucide-react'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Placeholder from '@tiptap/extension-placeholder'
+import { format } from 'date-fns'
+import { MoodPicker } from './MoodPicker'
+import { useUpsertJournal, useDeleteJournal } from '@/hooks/useJournal'
+import styles from './JournalEditor.module.css'
 
-function EditorForm({
-  initial,
-  isEdit,
-  entryId,
-  onClose,
-}) {
-  const {
-    addEntry,
-    updateEntry,
-  } = useJournalStore();
-
-  const [form, setForm] = useState(initial);
-  const [tagInput, setTagInput] = useState("");
-
-  function set(key, value) {
-    setForm((current) => ({
-      ...current,
-      [key]: value,
-    }));
-  }
-
-  function addTag(event) {
-    if (
-      event.key === "Enter" ||
-      event.key === ","
-    ) {
-      event.preventDefault();
-
-      const tag = tagInput
-        .trim()
-        .toLowerCase()
-        .replace(/,/g, "");
-
-      if (
-        tag &&
-        !form.tags.includes(tag)
-      ) {
-        set("tags", [
-          ...form.tags,
-          tag,
-        ]);
-      }
-
-      setTagInput("");
-    }
-  }
-
-  function removeTag(tag) {
-    set(
-      "tags",
-      form.tags.filter(
-        (currentTag) =>
-          currentTag !== tag
-      )
-    );
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    if (!form.body.trim()) {
-      return;
-    }
-
-    if (isEdit) {
-      updateEntry(entryId, form);
-    } else {
-      addEntry(form);
-    }
-
-    onClose();
-  }
+function Toolbar({ editor }) {
+  if (!editor) return null
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={styles.form}
+    <div className={styles.toolbar}>
+      <button
+        type="button"
+        className={`${styles.toolBtn} ${
+          editor.isActive('bold') ? styles.toolActive : ''
+        }`}
+        onClick={() => editor.chain().focus().toggleBold().run()}
+        aria-label="Bold"
+      >
+        <Bold size={15} />
+      </button>
+
+      <button
+        type="button"
+        className={`${styles.toolBtn} ${
+          editor.isActive('italic') ? styles.toolActive : ''
+        }`}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+        aria-label="Italic"
+      >
+        <Italic size={15} />
+      </button>
+
+      <div className={styles.toolDivider} />
+
+      <button
+        type="button"
+        className={`${styles.toolBtn} ${
+          editor.isActive('bulletList') ? styles.toolActive : ''
+        }`}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        aria-label="Bullet list"
+      >
+        <List size={15} />
+      </button>
+
+      <button
+        type="button"
+        className={`${styles.toolBtn} ${
+          editor.isActive('orderedList') ? styles.toolActive : ''
+        }`}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        aria-label="Ordered list"
+      >
+        <ListOrdered size={15} />
+      </button>
+    </div>
+  )
+}
+
+export function JournalEditor({ open, onClose, entry, date }) {
+  const upsert = useUpsertJournal()
+  const remove = useDeleteJournal()
+
+  const targetDate = date ?? format(new Date(), 'yyyy-MM-dd')
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: 'Write freely — this is just for you...',
+      }),
+    ],
+    content: entry?.content ?? '',
+  })
+
+  useEffect(() => {
+    if (editor && entry?.content !== undefined) {
+      editor.commands.setContent(entry.content ?? '')
+    }
+  }, [editor, entry?.content])
+
+  async function handleSave(mood, title, tags) {
+    const html = editor?.getHTML() ?? ''
+
+    if (!html || html === '<p></p>') return
+
+    await upsert.mutateAsync({
+      date: targetDate,
+      data: {
+        content: html,
+        mood,
+        title,
+        tags,
+      },
+    })
+
+    onClose()
+  }
+
+  async function handleDelete() {
+    if (confirm('Delete this journal entry?')) {
+      await remove.mutateAsync(targetDate)
+      onClose()
+    }
+  }
+
+  if (!open) return null
+
+  return (
+    <div
+      className={styles.overlay}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>
-          Title (optional)
-        </span>
-
-        <input
-          className={styles.input}
-          type="text"
-          placeholder="What's on your mind?"
-          value={form.title}
-          onChange={(event) =>
-            set(
-              "title",
-              event.target.value
-            )
-          }
-          autoFocus
-        />
-      </label>
-
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>
-          Entry
-        </span>
-
-        <textarea
-          className={styles.textarea}
-          rows={8}
-          placeholder="Write freely — this is just for you..."
-          value={form.body}
-          onChange={(event) =>
-            set(
-              "body",
-              event.target.value
-            )
-          }
-          required
-        />
-      </label>
-
-      <div className={styles.field}>
-        <span className={styles.fieldLabel}>
-          How are you feeling?
-        </span>
-
-        <MoodPicker
-          value={form.mood}
-          onChange={(value) =>
-            set("mood", value)
-          }
+      <div className={styles.modal}>
+        <JournalForm
+          editor={editor}
+          entry={entry}
+          targetDate={targetDate}
+          onSave={handleSave}
+          onDelete={entry ? handleDelete : null}
+          onClose={onClose}
+          isPending={upsert.isPending || remove.isPending}
         />
       </div>
+    </div>
+  )
+}
 
-      <div className={styles.field}>
-        <span className={styles.fieldLabel}>
-          Tags (press Enter to add)
-        </span>
+function JournalForm({
+  editor,
+  entry,
+  targetDate,
+  onSave,
+  onDelete,
+  onClose,
+  isPending,
+}) {
+  const [mood, setMood] = useState(entry?.mood ?? 'good')
+  const [title, setTitle] = useState(entry?.title ?? '')
 
-        <div className={styles.tagWrap}>
-          {form.tags.map((tag) => (
-            <span
-              key={tag}
-              className={styles.tag}
-            >
-              #{tag}
+  useEffect(() => {
+    setMood(entry?.mood ?? 'good')
+    setTitle(entry?.title ?? '')
+  }, [entry])
 
-              <button
-                type="button"
-                className={styles.tagRemove}
-                onClick={() =>
-                  removeTag(tag)
-                }
-              >
-                <X size={10} />
-              </button>
-            </span>
-          ))}
+  const displayDate = targetDate
+    ? format(new Date(`${targetDate}T00:00:00`), 'EEEE, MMMM d yyyy')
+    : ''
+
+  return (
+    <>
+      <div className={styles.header}>
+        <div>
+          <p className={styles.sub}>
+            {entry ? 'Edit entry' : 'New entry'}
+          </p>
+
+          <h2 className={styles.heading}>Journal</h2>
+
+          {displayDate && (
+            <p className={styles.entryDate}>{displayDate}</p>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className={styles.body}>
+        <label className={styles.field}>
+          <span className={styles.fieldLabel}>Title (optional)</span>
 
           <input
-            className={styles.tagInput}
+            className={styles.input}
             type="text"
-            placeholder="e.g. health, work"
-            value={tagInput}
-            onChange={(event) =>
-              setTagInput(
-                event.target.value
-              )
-            }
-            onKeyDown={addTag}
+            placeholder="What's on your mind?"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            autoFocus={!entry}
+          />
+        </label>
+
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>Entry</span>
+
+          <div className={styles.editorWrap}>
+            <Toolbar editor={editor} />
+
+            <EditorContent
+              editor={editor}
+              className={styles.editor}
+            />
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.fieldLabel}>
+            How are you feeling?
+          </span>
+
+          <MoodPicker
+            value={mood}
+            onChange={setMood}
           />
         </div>
       </div>
 
       <div className={styles.footer}>
+        {onDelete && (
+          <button
+            type="button"
+            className={styles.deleteBtn}
+            onClick={onDelete}
+          >
+            Delete
+          </button>
+        )}
+
         <button
           type="button"
           className={styles.cancelBtn}
@@ -185,79 +236,18 @@ function EditorForm({
         </button>
 
         <button
-          type="submit"
+          type="button"
           className={styles.submitBtn}
+          disabled={isPending}
+          onClick={() => onSave(mood, title, '')}
         >
-          {isEdit
-            ? "Save changes"
-            : "Save entry"}
+          {isPending
+            ? 'Saving...'
+            : entry
+              ? 'Save changes'
+              : 'Save entry'}
         </button>
       </div>
-    </form>
-  );
-}
-
-export function JournalEditor({
-  open,
-  onClose,
-  entry,
-}) {
-  if (!open) {
-    return null;
-  }
-
-  const isEdit = Boolean(entry);
-
-  const initial = entry
-    ? {
-        title: entry.title,
-        body: entry.body,
-        mood: entry.mood,
-        tags: entry.tags,
-      }
-    : {
-        title: "",
-        body: "",
-        mood: "good",
-        tags: [],
-      };
-
-  return (
-    <div
-      className={styles.overlay}
-      onClick={(event) =>
-        event.target ===
-          event.currentTarget &&
-        onClose()
-      }
-    >
-      <div className={styles.panel}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>
-            {isEdit
-              ? "Edit entry"
-              : "New entry"}
-          </h2>
-
-          <button
-            className={styles.close}
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className={styles.body}>
-          <EditorForm
-            key={entry?.id ?? "new"}
-            initial={initial}
-            isEdit={isEdit}
-            entryId={entry?.id}
-            onClose={onClose}
-          />
-        </div>
-      </div>
-    </div>
-  );
+    </>
+  )
 }
