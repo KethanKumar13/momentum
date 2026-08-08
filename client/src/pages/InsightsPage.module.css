@@ -1,0 +1,155 @@
+.page {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.sub {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 var(--sp-1);
+}
+
+.heading {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--sp-1);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* -- Period selector -------------------------------- */
+.periodSelector {
+  display: flex;
+  gap: var(--sp-2);
+  align-self: flex-end;
+}
+
+.periodBtn {
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: 99px;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.periodBtn:hover {
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.periodBtn.periodActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* -- Stats grid ------------------------------------- */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--sp-4);
+}
+
+/* -- Section grid ----------------------------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--sp-5);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dominantMood {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* -- States ----------------------------------------- */
+.loading,
+.empty {
+  margin: 0;
+  padding: var(--sp-6) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.error {
+  margin: 0;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger, #ef4444) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger, #ef4444) 20%, transparent);
+  font-size: var(--text-sm);
+  color: var(--color-danger, #ef4444);
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: var(--sp-4) var(--sp-4) var(--sp-20);
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .periodSelector {
+    align-self: flex-start;
+  }
+}
