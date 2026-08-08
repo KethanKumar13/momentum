@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
+ï»¿import { useMemo } from 'react'
 import { useInsightsData } from './useInsightsData'
 
 /**
- * Thin adapter — keeps InsightsPage.jsx interface identical
+ * Thin adapter - keeps InsightsPage.jsx interface identical
  * while pulling from the real API instead of Zustand.
  */
 export function useInsights(days = 35) {
@@ -13,19 +13,25 @@ export function useInsights(days = 35) {
       return {
         isLoading,
         isError,
+
         totalHabits: 0,
         completedToday: 0,
         completionRate: 0,
         longestStreak: 0,
         currentStreak: 0,
+
         topHabits: [],
         heatmapDays: [],
+
         totalGoals: 0,
         completedGoals: 0,
         avgGoalProgress: 0,
+
         totalLogs: 0,
         goals: [],
-        // legacy Zustand fields kept for MoodChart — will be wired in Journal day
+
+        // Legacy Zustand fields kept for MoodChart.
+        // Will be wired in the Journal module.
         moodCounts: [],
         dominantMood: null,
         totalEntries: 0,
@@ -45,13 +51,15 @@ export function useInsights(days = 35) {
       completionRate: summary.completionRatePct,
       longestStreak: summary.longestStreak,
       currentStreak: summary.currentStreak,
+
       totalGoals: summary.totalGoals,
       completedGoals: summary.completedGoals,
       avgGoalProgress: summary.avgGoalProgressPct,
+
       totalLogs: summary.totalHabitLogsAllTime,
 
-      // Heatmap — shape the server response to match the component
-      heatmapDays: heatmap.map(d => ({
+      // Heatmap
+      heatmapDays: heatmap.map((d) => ({
         date: new Date(d.date),
         label: new Date(d.date).toLocaleDateString('en-US', {
           month: 'short',
@@ -64,10 +72,10 @@ export function useInsights(days = 35) {
       // Top habits
       topHabits,
 
-      // Goals list
+      // Goals
       goals,
 
-      // Journal (not wired yet — Day 17)
+      // Journal - not wired yet
       moodCounts: [],
       dominantMood: null,
       totalEntries: 0,

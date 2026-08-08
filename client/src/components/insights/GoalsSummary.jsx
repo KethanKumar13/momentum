@@ -1,7 +1,6 @@
-import { GoalProgressBar } from '@/components/goals/GoalProgressBar'
+﻿import { GoalProgressBar } from '@/components/goals/GoalProgressBar'
 import styles from './GoalsSummary.module.css'
 
-// Accepts goals prop from InsightsPage (already loaded via useInsights)
 export function GoalsSummary({ goals = [] }) {
   const top = goals.slice(0, 4)
 
@@ -14,17 +13,22 @@ export function GoalsSummary({ goals = [] }) {
   }
 
   return (
-    <div className={styles.list}>
+    <div className={styles.wrap}>
       {top.map((goal) => (
-        <div key={goal.id} className={styles.row}>
+        <div className={styles.row} key={goal.id}>
           <div className={styles.info}>
-            <p className={styles.title}>{goal.title}</p>
+            <p className={styles.title}>
+              {goal.title}
+            </p>
 
-            <p className={styles.meta}>
+            <p className={styles.category}>
               {goal.category}
 
               {goal.linkedHabitsCount > 0 && (
-                <> � {goal.linkedHabitsCount} habit{goal.linkedHabitsCount > 1 ? 's' : ''}</>
+                <>
+                  {' '}· {goal.linkedHabitsCount} habit
+                  {goal.linkedHabitsCount > 1 ? 's' : ''}
+                </>
               )}
             </p>
           </div>

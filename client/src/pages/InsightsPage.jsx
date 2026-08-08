@@ -1,4 +1,4 @@
-import { useState } from 'react'
+ï»¿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useInsights } from '@/hooks/useInsights'
 import { StatCard } from '@/components/insights/StatCard'
@@ -49,7 +49,6 @@ export default function InsightsPage() {
     moodCounts,
     dominantMood,
     totalEntries,
-    entriesThisWeek,
   } = useInsights(days)
 
   return (
@@ -64,10 +63,11 @@ export default function InsightsPage() {
         <div>
           <p className={styles.sub}>Your data, your story</p>
           <h1 className={styles.heading}>Insights</h1>
-          <p className={styles.meta}>Based on your habits &amp; goals</p>
+          <p className={styles.meta}>
+            Based on your habits &amp; goals
+          </p>
         </div>
 
-        {/* Period selector */}
         <div className={styles.periodSelector}>
           {PERIODS.map((p) => (
             <button
@@ -83,26 +83,33 @@ export default function InsightsPage() {
         </div>
       </motion.header>
 
-      {/* Loading / Error */}
+      {/* Loading */}
       {isLoading && (
-        <p className={styles.loading}>Loading insights…</p>
+        <p className={styles.loading}>
+          Loading insights...
+        </p>
       )}
 
+      {/* Error */}
       {isError && (
         <p className={styles.error}>
           Failed to load insights. Make sure the server is running.
         </p>
       )}
 
+      {/* Content */}
       {!isLoading && !isError && (
         <>
           {/* Stat cards */}
-          <motion.div className={styles.statsGrid} variants={fadeUp}>
+          <motion.div
+            className={styles.statsGrid}
+            variants={fadeUp}
+          >
             <StatCard
               label="Today's completion"
               value={`${completionRate}%`}
               sub={`${completedToday} of ${totalHabits} habits done`}
-              icon="??"
+              icon="ðŸŽ¯"
               accent="primary"
             />
 
@@ -110,7 +117,7 @@ export default function InsightsPage() {
               label="Current best streak"
               value={`${currentStreak}d`}
               sub={`${longestStreak}d all-time best`}
-              icon="??"
+              icon="ðŸ”¥"
               accent="warning"
             />
 
@@ -118,7 +125,7 @@ export default function InsightsPage() {
               label="Goals completed"
               value={`${completedGoals}/${totalGoals}`}
               sub={`avg ${avgGoalProgress}% progress`}
-              icon="??"
+              icon="ðŸ†"
               accent="success"
             />
 
@@ -126,24 +133,30 @@ export default function InsightsPage() {
               label="Total habit logs"
               value={totalLogs.toLocaleString()}
               sub="all time"
-              icon="??"
+              icon="ðŸ“Š"
             />
           </motion.div>
 
           {/* Grid sections */}
           <div className={styles.grid}>
             {/* Heatmap */}
-            <motion.section className={styles.section} variants={fadeUp}>
+            <motion.section
+              className={styles.section}
+              variants={fadeUp}
+            >
               <h2 className={styles.sectionTitle}>
-                Habit activity — last{' '}
-                {PERIODS.find(p => p.days === days)?.label}
+                Habit activity - last{' '}
+                {PERIODS.find((p) => p.days === days)?.label}
               </h2>
 
               <HabitHeatmap days={heatmapDays} />
             </motion.section>
 
             {/* Mood chart */}
-            <motion.section className={styles.section} variants={fadeUp}>
+            <motion.section
+              className={styles.section}
+              variants={fadeUp}
+            >
               <h2 className={styles.sectionTitle}>
                 Mood distribution
 
@@ -159,13 +172,16 @@ export default function InsightsPage() {
                 <MoodChart moodCounts={moodCounts} />
               ) : (
                 <p className={styles.empty}>
-                  Journal entries will appear here — coming in Day 17.
+                  Journal entries will appear here - coming in Day 17.
                 </p>
               )}
             </motion.section>
 
             {/* Top habits */}
-            <motion.section className={styles.section} variants={fadeUp}>
+            <motion.section
+              className={styles.section}
+              variants={fadeUp}
+            >
               <h2 className={styles.sectionTitle}>
                 Top habits by streak
               </h2>
@@ -174,14 +190,20 @@ export default function InsightsPage() {
                 <TopHabitsTable habits={topHabits} />
               ) : (
                 <p className={styles.empty}>
-                  No habits logged yet — start tracking to see streaks!
+                  No habits logged yet - start tracking to see streaks!
                 </p>
               )}
             </motion.section>
 
             {/* Goals progress */}
-            <motion.section className={styles.section} variants={fadeUp}>
-              <h2 className={styles.sectionTitle}>Goals progress</h2>
+            <motion.section
+              className={styles.section}
+              variants={fadeUp}
+            >
+              <h2 className={styles.sectionTitle}>
+                Goals progress
+              </h2>
+
               <GoalsSummary goals={goals} />
             </motion.section>
           </div>
