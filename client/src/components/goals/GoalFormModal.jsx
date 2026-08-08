@@ -1,215 +1,242 @@
-import { useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
-import {
-  useGoalsStore,
-  GOAL_CATEGORIES,
-  GOAL_TIMEFRAMES,
-} from "@/store/goalsStore";
-import styles from "./GoalFormModal.module.css";
+import { useState, useMemo } from 'react'
+import { X } from 'lucide-react'
+import { useCreateGoal, useUpdateGoal } from '@/hooks/useGoals'
+import styles from './GoalFormModal.module.css'
 
-const empty = {
-  title: "",
-  description: "",
-  category: "Health",
-  timeframe: "This month",
-  target: 10,
-};
+const CATEGORIES = [
+  'Health',
+  'Career',
+  'Learning',
+  'Finance',
+  'Relationships',
+  'Personal',
+]
 
-// ── Inner form ───────────────────────────────────────────────
-function GoalForm({ initial, onClose, isEdit, goalId }) {
-  const { addGoal, updateGoal } = useGoalsStore();
-  const [form, setForm] = useState(initial);
+const STATUSES = [
+  'active',
+  'paused',
+  'done',
+]
 
-  function set(key, value) {
-    setForm((current) => ({
-      ...current,
-      [key]: value,
-    }));
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-
-    if (!form.title.trim()) {
-      return;
-    }
-
-    if (isEdit) {
-      updateGoal(goalId, form);
-    } else {
-      addGoal(form);
-    }
-
-    onClose();
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>Goal title</span>
-
-        <input
-          className={styles.input}
-          type="text"
-          placeholder="e.g. Run a 5K"
-          value={form.title}
-          onChange={(event) => set("title", event.target.value)}
-          required
-          autoFocus
-        />
-      </label>
-
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>
-          Description (optional)
-        </span>
-
-        <textarea
-          className={styles.textarea}
-          rows={2}
-          placeholder="Why does this goal matter?"
-          value={form.description}
-          onChange={(event) =>
-            set("description", event.target.value)
-          }
-        />
-      </label>
-
-      <div className={styles.row}>
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>
-            Category
-          </span>
-
-          <select
-            className={styles.select}
-            value={form.category}
-            onChange={(event) =>
-              set("category", event.target.value)
-            }
-          >
-            {GOAL_CATEGORIES.map((category) => (
-              <option
-                key={category}
-                value={category}
-              >
-                {category}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.fieldLabel}>
-            Timeframe
-          </span>
-
-          <select
-            className={styles.select}
-            value={form.timeframe}
-            onChange={(event) =>
-              set("timeframe", event.target.value)
-            }
-          >
-            {GOAL_TIMEFRAMES.map((timeframe) => (
-              <option
-                key={timeframe}
-                value={timeframe}
-              >
-                {timeframe}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>
-          Target (number of steps / sessions)
-        </span>
-
-        <input
-          className={styles.input}
-          type="number"
-          min={1}
-          max={365}
-          value={form.target}
-          onChange={(event) =>
-            set("target", Number(event.target.value))
-          }
-        />
-      </label>
-
-      <div className={styles.footer}>
-        <button
-          type="button"
-          className={styles.cancelBtn}
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          className={styles.submitBtn}
-        >
-          {isEdit ? "Save changes" : "Add goal"}
-        </button>
-      </div>
-    </form>
-  );
-}
-
-// ── Modal shell ───────────────────────────────────────────────
 export function GoalFormModal({
   open,
   onClose,
   goal,
 }) {
-  const isEdit = Boolean(goal);
+  const createGoal = useCreateGoal()
+  const updateGoal = useUpdateGoal()
 
-  const initial = goal
-    ? {
-        title: goal.title,
-        description: goal.description,
-        category: goal.category,
-        timeframe: goal.timeframe,
-        target: goal.target,
-      }
-    : empty;
+  const initialForm = useMemo(
+    () =>
+      goal
+        ? {
+            title: goal.title,
+            why: goal.why ?? '',
+            category: goal.category,
+            targetDate: goal.targetDate ?? '',
+            status: goal.status,
+          }
+        : {
+            title: '',
+            why: '',
+            category: 'Health',
+            targetDate: '',
+            status: 'active',
+          },
+    [goal]
+  )
+
+  const [form, setForm] = useState(initialForm)
+
+  function set(key, value) {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }))
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+
+    const payload = {
+      title: form.title,
+      why: form.why || undefined,
+      category: form.category,
+      targetDate: form.targetDate || undefined,
+      status: form.status,
+    }
+
+    if (goal) {
+      await updateGoal.mutateAsync({
+        id: goal.id,
+        data: payload,
+      })
+    } else {
+      await createGoal.mutateAsync(payload)
+    }
+
+    onClose()
+  }
+
+  if (!open) return null
+
+  const isPending =
+    createGoal.isPending ||
+    updateGoal.isPending
 
   return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(value) => !value && onClose()}
+    <div
+      className={styles.overlay}
+      onClick={(e) =>
+        e.target === e.currentTarget && onClose()
+      }
     >
-      <Dialog.Portal>
-        <Dialog.Overlay className={styles.overlay} />
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="goal-form-title"
+      >
+        <div className={styles.header}>
+          <h2
+            id="goal-form-title"
+            className={styles.title}
+          >
+            {goal ? 'Edit goal' : 'New goal'}
+          </h2>
 
-        <Dialog.Content className={styles.content}>
-          <div className={styles.header}>
-            <Dialog.Title className={styles.title}>
-              {isEdit ? "Edit Goal" : "New Goal"}
-            </Dialog.Title>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-            <Dialog.Close
-              className={styles.close}
-              aria-label="Close"
-            >
-              <X size={18} />
-            </Dialog.Close>
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit}
+        >
+          <label className={styles.field}>
+            <span className={styles.label}>
+              Title *
+            </span>
+
+            <input
+              className={styles.input}
+              value={form.title}
+              onChange={(e) =>
+                set('title', e.target.value)
+              }
+              required
+              maxLength={200}
+              autoFocus
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span className={styles.label}>
+              Why? (optional)
+            </span>
+
+            <textarea
+              className={styles.textarea}
+              rows={3}
+              value={form.why}
+              onChange={(e) =>
+                set('why', e.target.value)
+              }
+            />
+          </label>
+
+          <div className={styles.row}>
+            <label className={styles.field}>
+              <span className={styles.label}>
+                Category
+              </span>
+
+              <select
+                className={styles.select}
+                value={form.category}
+                onChange={(e) =>
+                  set('category', e.target.value)
+                }
+              >
+                {CATEGORIES.map((category) => (
+                  <option
+                    key={category}
+                    value={category}
+                  >
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>
+                Status
+              </span>
+
+              <select
+                className={styles.select}
+                value={form.status}
+                onChange={(e) =>
+                  set('status', e.target.value)
+                }
+              >
+                {STATUSES.map((status) => (
+                  <option
+                    key={status}
+                    value={status}
+                  >
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
-          <GoalForm
-            key={goal?.id ?? "new"}
-            initial={initial}
-            onClose={onClose}
-            isEdit={isEdit}
-            goalId={goal?.id}
-          />
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
+          <label className={styles.field}>
+            <span className={styles.label}>
+              Target date (optional)
+            </span>
+
+            <input
+              className={styles.input}
+              type="date"
+              value={form.targetDate}
+              onChange={(e) =>
+                set('targetDate', e.target.value)
+              }
+            />
+          </label>
+
+          <div className={styles.footer}>
+            <button
+              type="button"
+              className={styles.cancelBtn}
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={isPending}
+            >
+              {isPending
+                ? 'Saving…'
+                : goal
+                  ? 'Save changes'
+                  : 'Create goal'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }

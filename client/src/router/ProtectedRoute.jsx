@@ -1,7 +1,24 @@
-/**
- * Week 1 stub â€” always renders children.
- * Will be replaced in Week 2 when real auth is wired.
- */
+import { Navigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+
 export function ProtectedRoute({ children }) {
-  return children;
+  const { user, loading } = useAuth()
+  const location = useLocation()
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100dvh', color: 'var(--text-muted)', fontSize: 'var(--text-sm)',
+      }}>
+        Loading…
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  return children
 }

@@ -1,184 +1,281 @@
-import { useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
-import { useHabitsStore, CATEGORIES } from "@/store/habitsStore";
-import styles from "./HabitFormModal.module.css";
+import { useState, useMemo } from 'react'
+import { X } from 'lucide-react'
+import { useCreateHabit, useUpdateHabit } from '@/hooks/useHabits'
+import styles from './HabitFormModal.module.css'
+
+const FREQUENCY_TYPES = [
+  'daily',
+  'weekly_count',
+  'specific_days',
+]
 
 const ICONS = [
-  "🧘",
-  "📖",
-  "🚶",
-  "💧",
-  "🏋️",
-  "🥗",
-  "😴",
-  "✍️",
-  "🎯",
-  "💪",
-  "🧠",
-  "🌱",
-];
+  '⚡',
+  '🧘',
+  '📖',
+  '🚶',
+  '💧',
+  '💪',
+  '🎯',
+  '✍️',
+  '🏃',
+  '🥗',
+  '😴',
+  '🎸',
+]
 
-const empty = {
-  label: "",
-  icon: "🎯",
-  category: "Health",
-};
+const COLORS = [
+  '#7C5CFF',
+  '#22C55E',
+  '#F59E0B',
+  '#EF4444',
+  '#3B82F6',
+  '#EC4899',
+  '#14B8A6',
+]
 
-// ── Inner form — mounted fresh every time the modal opens ──────
-function HabitForm({ initial, onClose, isEdit, habitId }) {
-  const { addHabit, updateHabit } = useHabitsStore();
-  const [form, setForm] = useState(initial);
+export function HabitFormModal({ open, onClose, habit }) {
+  const createHabit = useCreateHabit()
+  const updateHabit = useUpdateHabit()
 
-  function handleSubmit(event) {
-    event.preventDefault();
+  const initialForm = useMemo(
+    () =>
+      habit
+        ? {
+            title: habit.title,
+            type: habit.type,
+            frequencyType: habit.frequencyType,
+            frequencyConfig: habit.frequencyConfig,
+            color: habit.color,
+            icon: habit.icon ?? '⚡',
+            goalId: habit.goalId ?? '',
+          }
+        : {
+            title: '',
+            type: 'build',
+            frequencyType: 'daily',
+            frequencyConfig: '{}',
+            color: '#7C5CFF',
+            icon: '⚡',
+            goalId: '',
+          },
+    [habit]
+  )
 
-    if (!form.label.trim()) {
-      return;
-    }
+  const [form, setForm] = useState(initialForm)
 
-    if (isEdit) {
-      updateHabit(habitId, form);
-    } else {
-      addHabit(form);
-    }
-
-    onClose();
+  function set(key, value) {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }))
   }
 
+  async function handleSubmit(e) {
+    e.preventDefault()
+
+    const payload = {
+      title: form.title,
+      type: form.type,
+      frequencyType: form.frequencyType,
+      frequencyConfig: form.frequencyConfig,
+      color: form.color,
+      icon: form.icon,
+      goalId: form.goalId || undefined,
+    }
+
+    if (habit) {
+      await updateHabit.mutateAsync({
+        id: habit.id,
+        data: payload,
+      })
+    } else {
+      await createHabit.mutateAsync(payload)
+    }
+
+    onClose()
+  }
+
+  if (!open) return null
+
+  const isPending =
+    createHabit.isPending ||
+    updateHabit.isPending
+
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      {/* Label */}
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>Habit name</span>
-
-        <input
-          className={styles.input}
-          type="text"
-          placeholder="e.g. Read 20 pages"
-          value={form.label}
-          onChange={(event) =>
-            setForm((current) => ({
-              ...current,
-              label: event.target.value,
-            }))
-          }
-          required
-          autoFocus
-        />
-      </label>
-
-      {/* Category */}
-      <label className={styles.field}>
-        <span className={styles.fieldLabel}>Category</span>
-
-        <select
-          className={styles.select}
-          value={form.category}
-          onChange={(event) =>
-            setForm((current) => ({
-              ...current,
-              category: event.target.value,
-            }))
-          }
-        >
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {/* Icon picker */}
-      <div className={styles.field}>
-        <span className={styles.fieldLabel}>Icon</span>
-
-        <div className={styles.iconGrid}>
-          {ICONS.map((icon) => (
-            <button
-              key={icon}
-              type="button"
-              className={`${styles.iconBtn} ${
-                form.icon === icon ? styles.iconSelected : ""
-              }`}
-              onClick={() =>
-                setForm((current) => ({
-                  ...current,
-                  icon,
-                }))
-              }
-            >
-              {icon}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.footer}>
-        <button
-          type="button"
-          className={styles.cancelBtn}
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          className={styles.submitBtn}
-        >
-          {isEdit ? "Save changes" : "Add habit"}
-        </button>
-      </div>
-    </form>
-  );
-}
-
-// ── Shell — controls open/close only ──────────────────────────
-export function HabitFormModal({ open, onClose, habit }) {
-  const isEdit = Boolean(habit);
-
-  const initial = habit
-    ? {
-        label: habit.label,
-        icon: habit.icon,
-        category: habit.category,
+    <div
+      className={styles.overlay}
+      onClick={(e) =>
+        e.target === e.currentTarget && onClose()
       }
-    : empty;
-
-  return (
-    <Dialog.Root
-      open={open}
-      onOpenChange={(value) => !value && onClose()}
     >
-      <Dialog.Portal>
-        <Dialog.Overlay className={styles.overlay} />
+      <div className={styles.modal}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>
+            {habit ? 'Edit habit' : 'New habit'}
+          </h2>
 
-        <Dialog.Content className={styles.content}>
-          <div className={styles.header}>
-            <Dialog.Title className={styles.title}>
-              {isEdit ? "Edit Habit" : "New Habit"}
-            </Dialog.Title>
+          <button
+            type="button"
+            className={styles.closeBtn}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-            <Dialog.Close
-              className={styles.close}
-              aria-label="Close"
-            >
-              <X size={18} />
-            </Dialog.Close>
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit}
+        >
+          {/* Icon picker */}
+          <div className={styles.field}>
+            <span className={styles.label}>
+              Icon
+            </span>
+
+            <div className={styles.iconGrid}>
+              {ICONS.map((icon) => (
+                <button
+                  key={icon}
+                  type="button"
+                  className={`${styles.iconBtn} ${
+                    form.icon === icon
+                      ? styles.iconActive
+                      : ''
+                  }`}
+                  onClick={() =>
+                    set('icon', icon)
+                  }
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* key forces a full remount — new blank/pre-filled form every open */}
-          <HabitForm
-            key={habit?.id ?? "new"}
-            initial={initial}
-            onClose={onClose}
-            isEdit={isEdit}
-            habitId={habit?.id}
-          />
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
+          {/* Title */}
+          <label className={styles.field}>
+            <span className={styles.label}>
+              Title *
+            </span>
+
+            <input
+              className={styles.input}
+              value={form.title}
+              onChange={(e) =>
+                set('title', e.target.value)
+              }
+              required
+              maxLength={200}
+            />
+          </label>
+
+          {/* Type + Frequency */}
+          <div className={styles.row}>
+            <label className={styles.field}>
+              <span className={styles.label}>
+                Type
+              </span>
+
+              <select
+                className={styles.select}
+                value={form.type}
+                onChange={(e) =>
+                  set('type', e.target.value)
+                }
+              >
+                <option value="build">
+                  Build
+                </option>
+
+                <option value="break">
+                  Break
+                </option>
+              </select>
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>
+                Frequency
+              </span>
+
+              <select
+                className={styles.select}
+                value={form.frequencyType}
+                onChange={(e) =>
+                  set(
+                    'frequencyType',
+                    e.target.value
+                  )
+                }
+              >
+                {FREQUENCY_TYPES.map(
+                  (frequency) => (
+                    <option
+                      key={frequency}
+                      value={frequency}
+                    >
+                      {frequency.replace('_', ' ')}
+                    </option>
+                  )
+                )}
+              </select>
+            </label>
+          </div>
+
+          {/* Color picker */}
+          <div className={styles.field}>
+            <span className={styles.label}>
+              Color
+            </span>
+
+            <div className={styles.colorRow}>
+              {COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`${styles.colorBtn} ${
+                    form.color === color
+                      ? styles.colorActive
+                      : ''
+                  }`}
+                  style={{
+                    background: color,
+                  }}
+                  onClick={() =>
+                    set('color', color)
+                  }
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className={styles.footer}>
+            <button
+              type="button"
+              className={styles.cancelBtn}
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={isPending}
+            >
+              {isPending
+                ? 'Saving…'
+                : habit
+                  ? 'Save changes'
+                  : 'Create habit'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }
