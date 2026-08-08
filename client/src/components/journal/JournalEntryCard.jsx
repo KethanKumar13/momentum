@@ -1,31 +1,43 @@
-import { format } from "date-fns";
-import { Pencil, Trash2 } from "lucide-react";
-import {
-  MOODS,
-  useJournalStore,
-} from "@/store/journalStore";
-import styles from "./JournalEntryCard.module.css";
+﻿import { format } from 'date-fns'
+import { Pencil, Trash2 } from 'lucide-react'
+import { useDeleteJournal } from '@/hooks/useJournal'
+import styles from './JournalEntryCard.module.css'
 
-export function JournalEntryCard({
-  entry,
-  onEdit,
-}) {
-  const { deleteEntry } =
-    useJournalStore();
+const MOODS = [
+  { value: 'great', emoji: '😄', label: 'Great' },
+  { value: 'good', emoji: '🙂', label: 'Good' },
+  { value: 'okay', emoji: '😐', label: 'Okay' },
+  { value: 'bad', emoji: '😔', label: 'Bad' },
+  { value: 'awful', emoji: '😢', label: 'Awful' },
+]
 
-  const mood = MOODS.find(
-    (item) =>
-      item.value === entry.mood
-  );
+export function JournalEntryCard({ entry, onEdit }) {
+  const remove = useDeleteJournal()
+
+  const mood = MOODS.find((m) => m.value === entry.mood)
+
+  function handleDelete() {
+    if (confirm('Delete this journal entry?')) {
+      remove.mutate(entry.date)
+    }
+  }
+
+  // Strip HTML tags for preview
+  const preview = entry.content
+    ? entry.content
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    : ''
 
   return (
     <article className={styles.card}>
       <div className={styles.top}>
         <div className={styles.meta}>
-          <span className={styles.date}>
+          <span>
             {format(
-              new Date(entry.date),
-              "EEE, MMM d · h:mm a"
+              new Date(`${entry.date}T00:00:00`),
+              'EEE, MMM d'
             )}
           </span>
 
@@ -52,9 +64,8 @@ export function JournalEntryCard({
           <button
             type="button"
             className={`${styles.actionBtn} ${styles.danger}`}
-            onClick={() =>
-              deleteEntry(entry.id)
-            }
+            onClick={handleDelete}
+            disabled={remove.isPending}
             aria-label="Delete entry"
           >
             <Trash2 size={14} />
@@ -68,22 +79,29 @@ export function JournalEntryCard({
         </h3>
       )}
 
-      <p className={styles.body}>
-        {entry.body}
-      </p>
+      {preview && (
+        <p className={styles.body}>
+          {preview.length > 200
+            ? `${preview.slice(0, 200)}…`
+            : preview}
+        </p>
+      )}
 
-      {entry.tags?.length > 0 && (
+      {entry.tags && (
         <div className={styles.tags}>
-          {entry.tags.map((tag) => (
-            <span
-              key={tag}
-              className={styles.tag}
-            >
-              #{tag}
-            </span>
-          ))}
+          {entry.tags
+            .split(',')
+            .filter(Boolean)
+            .map((tag) => (
+              <span
+                key={tag.trim()}
+                className={styles.tag}
+              >
+                #{tag.trim()}
+              </span>
+            ))}
         </div>
       )}
     </article>
-  );
+  )
 }

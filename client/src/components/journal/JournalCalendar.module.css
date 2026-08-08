@@ -1,0 +1,127 @@
+﻿.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* ── Month nav ──────────────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nav button:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.monthLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Grid ───────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.weekday {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--sp-1) 0;
+}
+
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  gap: 1px;
+}
+
+.day:hover {
+  background: var(--bg-elevated);
+}
+
+.day.hasEntry {
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+}
+
+.day.today {
+  border-color: var(--color-primary);
+}
+
+.day.selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.day.selected .dayNum {
+  color: #fff;
+}
+
+.dayNum {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.dayMood {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+/* ── Legend ─────────────────────────────────── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
