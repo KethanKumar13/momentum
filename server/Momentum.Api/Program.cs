@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Data;
 using Momentum.Api.Extensions;
 using Momentum.Api.Middleware;
+using Momentum.Api.Services;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,10 +19,12 @@ builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddCorsPolicy(builder.Configuration);
 
+// ── App services ───────────────────────────────────────────────
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<AuthService>();
+
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
@@ -29,11 +32,21 @@ builder.Services.AddSwaggerGen(c =>
         Title = "Momentum API",
         Version = "v1"
     });
+
+    // Cookie auth for Swagger UI
+    c.AddSecurityDefinition("cookieAuth", new()
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Cookie,
+        Name = "access_token",
+    });
 });
 
 builder.Services
     .AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("Postgres")!);
+    .AddNpgSql(
+        builder.Configuration.GetConnectionString("Postgres")!
+    );
 
 var app = builder.Build();
 
@@ -54,11 +67,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSerilogRequestLogging();
-
 app.UseCors("MomentumCors");
-
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.UseHangfireDashboard("/hangfire");
@@ -78,9 +88,10 @@ app.MapHealthChecks("/health", new HealthCheckOptions
                 checks = report.Entries.Select(e => new
                 {
                     name = e.Key,
-                    status = e.Value.Status.ToString()
+                    status = e.Value.Status.ToString(),
                 }),
-            }));
+            })
+        );
     }
 });
 
