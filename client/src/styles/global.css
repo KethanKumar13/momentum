@@ -1,10 +1,17 @@
-/* ─── Skip Link ────────────────────────────────────────── */
+/* ─── Design Tokens + Base Styles ───────────────────────── */
+@import "./variables.css";
+@import "./reset.css";
+@import "./typography.css";
+@import "./utilities.css";
+@import "./animations.css";
+
+/* ─── Skip Link ──────────────────────────────────────────── */
 .skip-link {
   position: absolute;
   top: -100%;
   left: var(--sp-4);
   padding: var(--sp-2) var(--sp-4);
-  background: var(--color-primary);
+  background: var(--color-primary, #7C5CFF);
   color: #fff;
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
@@ -20,7 +27,7 @@
 
 /* ─── Focus Visible ──────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-primary, #7C5CFF);
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
@@ -41,9 +48,9 @@ body {
   min-height: 100dvh;
   background: var(--bg-base);
   color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

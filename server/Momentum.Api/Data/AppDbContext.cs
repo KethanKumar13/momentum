@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Domain;
@@ -22,11 +22,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
 
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        // ── Identity tables ────────────────────────────────────
+        // â”€â”€ Identity tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<User>().ToTable("users");
         builder.Entity<IdentityRole<Guid>>().ToTable("roles");
         builder.Entity<IdentityUserRole<Guid>>().ToTable("user_roles");
@@ -35,7 +37,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<IdentityRoleClaim<Guid>>().ToTable("role_claims");
         builder.Entity<IdentityUserToken<Guid>>().ToTable("user_tokens");
 
-        // ── User ───────────────────────────────────────────────
+        // â”€â”€ User â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<User>(e =>
         {
             e.Property(u => u.Plan).HasDefaultValue("free");
@@ -43,7 +45,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(u => u.Timezone).HasDefaultValue("Asia/Kolkata");
         });
 
-        // ── Goal ───────────────────────────────────────────────
+        // â”€â”€ Goal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<Goal>(e =>
         {
             e.ToTable("goals");
@@ -56,7 +58,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(g => g.Status).HasDefaultValue("active");
         });
 
-        // ── Habit ──────────────────────────────────────────────
+        // â”€â”€ Habit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<Habit>(e =>
         {
             e.ToTable("habits");
@@ -79,7 +81,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
                 .HasDefaultValue("#7C5CFF");
         });
 
-        // ── HabitLog ───────────────────────────────────────────
+        // â”€â”€ HabitLog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<HabitLog>(e =>
         {
             e.ToTable("habit_logs");
@@ -92,7 +94,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(l => new { l.HabitId, l.Date }).IsUnique();
         });
 
-        // ── DailyCheckin ───────────────────────────────────────
+        // â”€â”€ DailyCheckin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<DailyCheckin>(e =>
         {
             e.ToTable("daily_checkins");
@@ -105,7 +107,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(c => new { c.UserId, c.Date }).IsUnique();
         });
 
-        // ── JournalEntry ───────────────────────────────────────
+        // â”€â”€ JournalEntry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<JournalEntry>(e =>
         {
             e.ToTable("journal_entries");
@@ -118,7 +120,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(j => new { j.UserId, j.Date }).IsUnique();
         });
 
-        // ── WeeklyReview ───────────────────────────────────────
+        // â”€â”€ WeeklyReview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<WeeklyReview>(e =>
         {
             e.ToTable("weekly_reviews");
@@ -131,7 +133,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasIndex(r => new { r.UserId, r.WeekStart }).IsUnique();
         });
 
-        // ── TaskItem ───────────────────────────────────────────
+        // â”€â”€ TaskItem â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         builder.Entity<TaskItem>(e =>
         {
             e.ToTable("tasks");
