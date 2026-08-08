@@ -7,11 +7,16 @@ namespace Momentum.Api.Services;
 public class ProgressService
 {
     private readonly AppDbContext _db;
+    private readonly FrequencyService _freq;
 
-    public ProgressService(AppDbContext db) => _db = db;
+    public ProgressService(AppDbContext db, FrequencyService freq)
+    {
+        _db   = db;
+        _freq = freq;
+    }
 
     /// <summary>
-    /// Recomputes and saves the ProgressPct for a goal.
+    /// Recomputes and saves ProgressPct for a goal.
     /// Progress = average consistency % of linked habits over last 30 days.
     /// </summary>
     public async Task RecomputeAsync(Guid goalId)
@@ -26,34 +31,34 @@ public class ProgressService
         if (!goal.Habits.Any())
         {
             goal.ProgressPct = 0;
-            goal.UpdatedAt = DateTime.UtcNow;
-
+            goal.UpdatedAt   = DateTime.UtcNow;
             await _db.SaveChangesAsync();
-
             return;
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var startDate = today.AddDays(-30);
+        var today     = DateOnly.FromDateTime(DateTime.UtcNow);
+        var startDate = today.AddDays(-29);
+
+        var last30 = Enumerable.Range(0, 30)
+            .Select(i => startDate.AddDays(i))
+            .ToList();
 
         var consistencies = goal.Habits.Select(habit =>
         {
-            var dueDays = Enumerable.Range(0, 30)
-                .Select(i => startDate.AddDays(i))
-                .Count(_ => true);
+            var dueDays = last30.Count(d => _freq.IsDueToday(habit, d));
+
+            if (dueDays == 0) return 0.0;
 
             var doneDays = habit.Logs.Count(l =>
                 l.Date >= startDate &&
                 l.Date <= today &&
                 l.Status == "done");
 
-            return dueDays == 0
-                ? 0.0
-                : (double)doneDays / dueDays * 100;
+            return (double)doneDays / dueDays * 100.0;
         });
 
         goal.ProgressPct = (int)Math.Round(consistencies.Average());
-        goal.UpdatedAt = DateTime.UtcNow;
+        goal.UpdatedAt   = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
     }
