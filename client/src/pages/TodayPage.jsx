@@ -29,11 +29,7 @@ export default function TodayPage() {
   const { data: habits = [], isLoading } = useHabits()
 
   const today = format(new Date(), 'EEEE, MMMM d')
-
-  // Only show habits due today
-  const dueHabits = habits.filter(h => h.isDueToday || !h.isDueToday)
   const doneCount = habits.filter(h => !h.isDueToday).length
-  const dueCount = habits.filter(h => h.isDueToday).length
 
   return (
     <motion.div
@@ -44,8 +40,12 @@ export default function TodayPage() {
     >
       {/* Header */}
       <motion.header className={styles.header} variants={fadeUp}>
-        <span>{today}</span>
-        <h1>{greeting}, {firstName} 👋</h1>
+        <div>
+          <p className={styles.date}>{today}</p>
+          <h1 className={styles.greeting}>
+            {greeting}, {firstName} 👋
+          </h1>
+        </div>
       </motion.header>
 
       {/* Quote */}
@@ -78,7 +78,9 @@ export default function TodayPage() {
         ) : habits.length === 0 ? (
           <p className={styles.empty}>
             No habits yet —{' '}
-            <a href="/habits" className={styles.link}>add one</a>
+            <a href="/habits" className={styles.link}>
+              add one
+            </a>
           </p>
         ) : (
           <div className={styles.list}>

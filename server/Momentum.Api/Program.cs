@@ -18,12 +18,12 @@ builder.Services.AddHangfireServices(builder.Configuration);
 builder.Services.AddCorsPolicy(builder.Configuration);
 
 // ── App services ───────────────────────────────────────────────
-builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<FrequencyService>();
-builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<GoalService>();
 builder.Services.AddScoped<HabitService>();
+builder.Services.AddScoped<FrequencyService>();
+builder.Services.AddScoped<ProgressService>();
+builder.Services.AddScoped<MigrationService>();
+builder.Services.AddScoped<BackgroundJobService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -42,7 +42,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -71,7 +71,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
                 checks = report.Entries.Select(e => new
                 {
                     name = e.Key,
-                    status = e.Value.Status.ToString()
+                    status = e.Value.Status.ToString(),
                 }),
             }));
     }
