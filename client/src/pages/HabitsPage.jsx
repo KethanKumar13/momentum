@@ -13,7 +13,11 @@ const stagger = {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.3, ease: 'easeOut' },
+  },
 }
 
 export default function HabitsPage() {
@@ -42,65 +46,67 @@ export default function HabitsPage() {
   }
 
   return (
-    <motion.div
-      className={styles.inner}
-      variants={stagger}
-      initial="hidden"
-      animate="show"
-    >
-      <motion.header className={styles.header} variants={fadeUp}>
-        <div>
-          <p className={styles.sub}>Your habits</p>
-          <h1 className={styles.heading}>Habits</h1>
-          <p className={styles.meta}>
-            {doneCount} of {habits.length} completed today
-          </p>
-        </div>
+    <>
+      <motion.div
+        className={styles.inner}
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.header className={styles.header} variants={fadeUp}>
+          <div>
+            <p className={styles.sub}>Your habits</p>
+            <h1 className={styles.heading}>Habits</h1>
+            <p className={styles.meta}>
+              {doneCount} of {habits.length} completed today
+            </p>
+          </div>
 
-        <button
-          className={styles.addBtn}
-          onClick={() => setModalOpen(true)}
-        >
-          <Plus size={16} />
-          New habit
-        </button>
-      </motion.header>
-
-      {/* Filter tabs */}
-      <motion.div className={styles.filters} variants={fadeUp}>
-        {categories.map((cat) => (
           <button
-            key={cat}
-            className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
-            onClick={() => setFilter(cat)}
+            className={styles.addBtn}
+            onClick={() => setModalOpen(true)}
           >
-            {cat}
+            <Plus size={16} />
+            New habit
           </button>
-        ))}
+        </motion.header>
+
+        {/* Filter tabs */}
+        <motion.div className={styles.filters} variants={fadeUp}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
+              onClick={() => setFilter(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* List */}
+        <motion.div className={styles.list} variants={stagger}>
+          {isLoading ? (
+            <p className={styles.empty}>Loading…</p>
+          ) : filtered.length === 0 ? (
+            <motion.p className={styles.empty} variants={fadeUp}>
+              No habits yet. Add your first one!
+            </motion.p>
+          ) : (
+            filtered.map((habit) => (
+              <motion.div key={habit.id} variants={fadeUp}>
+                <HabitCard habit={habit} onEdit={handleEdit} />
+              </motion.div>
+            ))
+          )}
+        </motion.div>
       </motion.div>
 
-      {/* List */}
-      <motion.div className={styles.list} variants={stagger}>
-        {isLoading ? (
-          <p className={styles.empty}>Loading…</p>
-        ) : filtered.length === 0 ? (
-          <motion.p className={styles.empty} variants={fadeUp}>
-            No habits yet. Add your first one!
-          </motion.p>
-        ) : (
-          filtered.map((habit) => (
-            <motion.div key={habit.id} variants={fadeUp}>
-              <HabitCard habit={habit} onEdit={handleEdit} />
-            </motion.div>
-          ))
-        )}
-      </motion.div>
-    </motion.div>
-
-    <HabitFormModal
-      open={modalOpen}
-      onClose={handleClose}
-      habit={editingHabit}
-    />
+      <HabitFormModal
+        open={modalOpen}
+        onClose={handleClose}
+        habit={editingHabit}
+      />
+    </>
   )
 }
