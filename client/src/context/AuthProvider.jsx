@@ -1,13 +1,11 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { AuthContext } from './AuthContext'
 import { authService } from '../services/authService'
 
-const AuthContext = createContext(null)
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user,    setUser]    = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // ── Boot — check if already logged in ────────────────────
   useEffect(() => {
     authService.me()
       .then(setUser)
@@ -16,15 +14,15 @@ export function AuthProvider({ children }) {
   }, [])
 
   const signup = useCallback(async (data) => {
-    const user = await authService.signup(data)
-    setUser(user)
-    return user
+    const u = await authService.signup(data)
+    setUser(u)
+    return u
   }, [])
 
   const login = useCallback(async (data) => {
-    const user = await authService.login(data)
-    setUser(user)
-    return user
+    const u = await authService.login(data)
+    setUser(u)
+    return u
   }, [])
 
   const logout = useCallback(async () => {
@@ -37,16 +35,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuthContext() {
-  const ctx = useContext(AuthContext)
-
-  if (!ctx) {
-    throw new Error(
-      'useAuthContext must be used inside <AuthProvider>'
-    )
-  }
-
-  return ctx
 }

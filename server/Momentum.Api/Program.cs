@@ -9,10 +9,8 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Serilog ────────────────────────────────────────────────────
 builder.Host.AddSerilog();
 
-// ── Services ───────────────────────────────────────────────────
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddIdentityServices();
 builder.Services.AddJwtAuth(builder.Configuration);
@@ -22,42 +20,28 @@ builder.Services.AddCorsPolicy(builder.Configuration);
 // ── App services ───────────────────────────────────────────────
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<FrequencyService>();
+builder.Services.AddScoped<ProgressService>();
+builder.Services.AddScoped<GoalService>();
+builder.Services.AddScoped<HabitService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new()
-    {
-        Title = "Momentum API",
-        Version = "v1"
-    });
-
-    // Cookie auth for Swagger UI
-    c.AddSecurityDefinition("cookieAuth", new()
-    {
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-        In = Microsoft.OpenApi.Models.ParameterLocation.Cookie,
-        Name = "access_token",
-    });
-});
+    c.SwaggerDoc("v1", new() { Title = "Momentum API", Version = "v1" }));
 
 builder.Services
     .AddHealthChecks()
-    .AddNpgSql(
-        builder.Configuration.GetConnectionString("Postgres")!
-    );
+    .AddNpgSql(builder.Configuration.GetConnectionString("Postgres")!);
 
 var app = builder.Build();
 
-// ── Auto-migrate on startup ────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
-// ── Middleware pipeline ────────────────────────────────────────
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -70,7 +54,6 @@ app.UseSerilogRequestLogging();
 app.UseCors("MomentumCors");
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseHangfireDashboard("/hangfire");
 
 app.MapControllers();
@@ -88,10 +71,9 @@ app.MapHealthChecks("/health", new HealthCheckOptions
                 checks = report.Entries.Select(e => new
                 {
                     name = e.Key,
-                    status = e.Value.Status.ToString(),
+                    status = e.Value.Status.ToString()
                 }),
-            })
-        );
+            }));
     }
 });
 

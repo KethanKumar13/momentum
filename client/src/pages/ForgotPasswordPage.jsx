@@ -26,14 +26,20 @@ export function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div>
-        <h1>Check your inbox</h1>
+      <div className={styles.page}>
+        <h1 className={styles.heading}>
+          Check your inbox
+        </h1>
 
         <p className={styles.sub}>
-          If {email} is registered, you'll receive a reset link shortly.
+          If {email} is registered, you&apos;ll receive a reset
+          link shortly.
         </p>
 
-        <Link to="/login" className={styles.link}>
+        <Link
+          to="/login"
+          className={styles.link}
+        >
           Back to sign in
         </Link>
       </div>
@@ -41,20 +47,29 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div>
-      <h1>Reset password</h1>
+    <div className={styles.page}>
+      <h1 className={styles.heading}>
+        Reset password
+      </h1>
 
       <p className={styles.sub}>
-        Enter your email and we'll send a reset link.
+        Enter your email and we&apos;ll send a reset link.
       </p>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form
+        className={styles.form}
+        onSubmit={handleSubmit}
+      >
         {error && (
-          <p className={styles.error}>{error}</p>
+          <p className={styles.error}>
+            {error}
+          </p>
         )}
 
         <label className={styles.field}>
-          <span className={styles.label}>Email</span>
+          <span className={styles.label}>
+            Email
+          </span>
 
           <input
             className={styles.input}
@@ -75,7 +90,9 @@ export function ForgotPasswordPage() {
           className={styles.submitBtn}
           disabled={loading}
         >
-          {loading ? 'Sending…' : 'Send reset link'}
+          {loading
+            ? 'Sending…'
+            : 'Send reset link'}
         </button>
 
         <Link
