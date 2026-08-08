@@ -12,7 +12,6 @@
   gap: var(--sp-6);
 }
 
-/* ── Header ───────────────────────── */
 .header {
   display: flex;
   align-items: flex-start;
@@ -34,7 +33,6 @@
   margin: 0;
 }
 
-/* ── Quote ────────────────────────── */
 .quote {
   margin: 0;
   padding: var(--sp-4) var(--sp-5);
@@ -57,7 +55,6 @@
   font-weight: 500;
 }
 
-/* ── Section ──────────────────────── */
 .sectionTitle {
   font-size: var(--text-sm);
   font-weight: 700;
@@ -65,6 +62,20 @@
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
   margin: 0 0 var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.badge {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 99px;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .section {
@@ -78,11 +89,22 @@
   gap: var(--sp-2);
 }
 
-/* ── Two-column grid ──────────────── */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-6);
+.loading,
+.empty {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  padding: var(--sp-6) 0;
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.timerSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 @media (max-width: 640px) {
@@ -90,18 +112,7 @@
     padding: var(--sp-4) var(--sp-4) var(--sp-20);
   }
 
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
   .greeting {
     font-size: var(--text-2xl);
   }
-}
-
-/* ── Focus timer ──────────────────── */
-.timerSection {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
 }

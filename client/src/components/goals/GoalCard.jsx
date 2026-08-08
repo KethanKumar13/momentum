@@ -1,11 +1,10 @@
-import { Pencil, Trash2, Plus } from 'lucide-react'
-import { useDeleteGoal, useUpdateGoal } from '@/hooks/useGoals'
+import { Pencil, Trash2 } from 'lucide-react'
+import { useDeleteGoal } from '@/hooks/useGoals'
 import { GoalProgressBar } from './GoalProgressBar'
 import styles from './GoalCard.module.css'
 
 export function GoalCard({ goal, onEdit }) {
   const deleteGoal = useDeleteGoal()
-  const updateGoal = useUpdateGoal()
 
   const pct = goal.progressPct ?? 0
   const isDone = pct >= 100
@@ -16,24 +15,15 @@ export function GoalCard({ goal, onEdit }) {
     }
   }
 
-  function handleIncrement() {
-    const newPct = Math.min(100, pct + 5)
-
-    updateGoal.mutate({
-      id: goal.id,
-      data: { progressPct: newPct },
-    })
-  }
-
   return (
-    <article
-      className={`${styles.card} ${isDone ? styles.done : ''}`}
-    >
+    <article className={`${styles.card} ${isDone ? styles.done : ''}`}>
       <div className={styles.top}>
         <div className={styles.meta}>
-          <span>{goal.category}</span>
-          <span>·</span>
-          <span>{goal.status}</span>
+          {goal.category}
+          {' · '}
+          <span className={`${styles.status} ${styles[goal.status]}`}>
+            {goal.status}
+          </span>
         </div>
 
         <div className={styles.actions}>
@@ -58,39 +48,40 @@ export function GoalCard({ goal, onEdit }) {
         </div>
       </div>
 
-      <h3 className={styles.title}>
-        {isDone && (
-          <span className={styles.badge}>
-            ✓ Done
-          </span>
-        )}
-
-        {goal.title}
-      </h3>
-
-      {goal.why && (
-        <p className={styles.description}>
-          {goal.why}
+      {goal.targetDate && (
+        <p className={styles.targetDate}>
+          📅 {new Date(goal.targetDate).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          })}
         </p>
       )}
 
-      <GoalProgressBar
-        progress={pct}
-        target={100}
-      />
+      <h3 className={styles.title}>{goal.title}</h3>
 
-      {!isDone && (
-        <button
-          type="button"
-          className={styles.incrementBtn}
-          onClick={handleIncrement}
-          disabled={updateGoal.isPending}
-        >
-          <Plus size={14} />
-          {updateGoal.isPending
-            ? 'Updating…'
-            : 'Log progress'}
-        </button>
+      {goal.why && (
+        <p className={styles.description}>{goal.why}</p>
+      )}
+
+      <GoalProgressBar progress={pct} target={100} />
+
+      {isDone && (
+        <p className={styles.doneLabel}>🎉 Completed!</p>
+      )}
+
+      {goal.linkedHabits?.length > 0 && (
+        <div className={styles.linkedHabits}>
+          {goal.linkedHabits.map((h) => (
+            <span
+              key={h.id}
+              className={styles.habitChip}
+              style={{ borderColor: h.color }}
+            >
+              {h.icon ?? '⚡'} {h.title}
+            </span>
+          ))}
+        </div>
       )}
     </article>
   )

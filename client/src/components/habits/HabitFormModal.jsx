@@ -3,36 +3,78 @@ import { X } from 'lucide-react'
 import { useCreateHabit, useUpdateHabit } from '@/hooks/useHabits'
 import styles from './HabitFormModal.module.css'
 
-const FREQUENCY_TYPES = [
-  'daily',
-  'weekly_count',
-  'specific_days',
-]
+const FREQUENCY_TYPES = ['daily', 'weekly_count', 'specific_days']
+const ICONS = ['⚡', '🧘', '📖', '🚶', '💧', '💪', '🎯', '✍️', '🏃', '🥗', '😴', '🎸']
+const COLORS = ['#7C5CFF', '#22C55E', '#F59E0B', '#EF4444', '#3B82F6', '#EC4899', '#14B8A6']
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-const ICONS = [
-  '⚡',
-  '🧘',
-  '📖',
-  '🚶',
-  '💧',
-  '💪',
-  '🎯',
-  '✍️',
-  '🏃',
-  '🥗',
-  '😴',
-  '🎸',
-]
+function FrequencyConfigInput({ frequencyType, value, onChange }) {
+  let config = {}
 
-const COLORS = [
-  '#7C5CFF',
-  '#22C55E',
-  '#F59E0B',
-  '#EF4444',
-  '#3B82F6',
-  '#EC4899',
-  '#14B8A6',
-]
+  try {
+    config = JSON.parse(value || '{}')
+  } catch {
+    /* ignore */
+  }
+
+  if (frequencyType === 'daily') {
+    return <p className={styles.hint}>Runs every day. No extra config needed.</p>
+  }
+
+  if (frequencyType === 'weekly_count') {
+    return (
+      <label className={styles.field}>
+        <span className={styles.label}>Times per week</span>
+        <input
+          className={styles.input}
+          type="number"
+          min={1}
+          max={7}
+          value={config.count ?? 3}
+          onChange={(e) =>
+            onChange(JSON.stringify({ count: Number(e.target.value) }))
+          }
+        />
+      </label>
+    )
+  }
+
+  if (frequencyType === 'specific_days') {
+    const selected = config.days ?? []
+
+    function toggle(iso) {
+      const next = selected.includes(iso)
+        ? selected.filter(d => d !== iso)
+        : [...selected, iso]
+
+      onChange(JSON.stringify({ days: next.sort() }))
+    }
+
+    return (
+      <div className={styles.field}>
+        <span className={styles.label}>Which days?</span>
+        <div className={styles.dayGrid}>
+          {DAYS.map((label, i) => {
+            const iso = i + 1
+
+            return (
+              <button
+                key={iso}
+                type="button"
+                className={`${styles.dayBtn} ${selected.includes(iso) ? styles.dayActive : ''}`}
+                onClick={() => toggle(iso)}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  return null
+}
 
 export function HabitFormModal({ open, onClose, habit }) {
   const createHabit = useCreateHabit()
@@ -65,9 +107,21 @@ export function HabitFormModal({ open, onClose, habit }) {
   const [form, setForm] = useState(initialForm)
 
   function set(key, value) {
-    setForm((current) => ({
-      ...current,
-      [key]: value,
+    setForm(cur => ({ ...cur, [key]: value }))
+  }
+
+  function setFrequencyType(ft) {
+    const defaultConfig =
+      ft === 'weekly_count'
+        ? JSON.stringify({ count: 3 })
+        : ft === 'specific_days'
+          ? JSON.stringify({ days: [1, 2, 3, 4, 5] })
+          : '{}'
+
+    setForm(cur => ({
+      ...cur,
+      frequencyType: ft,
+      frequencyConfig: defaultConfig,
     }))
   }
 
@@ -85,10 +139,7 @@ export function HabitFormModal({ open, onClose, habit }) {
     }
 
     if (habit) {
-      await updateHabit.mutateAsync({
-        id: habit.id,
-        data: payload,
-      })
+      await updateHabit.mutateAsync({ id: habit.id, data: payload })
     } else {
       await createHabit.mutateAsync(payload)
     }
@@ -98,22 +149,16 @@ export function HabitFormModal({ open, onClose, habit }) {
 
   if (!open) return null
 
-  const isPending =
-    createHabit.isPending ||
-    updateHabit.isPending
+  const isPending = createHabit.isPending || updateHabit.isPending
 
   return (
     <div
       className={styles.overlay}
-      onClick={(e) =>
-        e.target === e.currentTarget && onClose()
-      }
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2 className={styles.title}>
-            {habit ? 'Edit habit' : 'New habit'}
-          </h2>
+          <h2>{habit ? 'Edit habit' : 'New habit'}</h2>
 
           <button
             type="button"
@@ -125,29 +170,17 @@ export function HabitFormModal({ open, onClose, habit }) {
           </button>
         </div>
 
-        <form
-          className={styles.form}
-          onSubmit={handleSubmit}
-        >
-          {/* Icon picker */}
+        <form className={styles.form} onSubmit={handleSubmit}>
+          {/* Icon */}
           <div className={styles.field}>
-            <span className={styles.label}>
-              Icon
-            </span>
-
+            <span className={styles.label}>Icon</span>
             <div className={styles.iconGrid}>
               {ICONS.map((icon) => (
                 <button
                   key={icon}
                   type="button"
-                  className={`${styles.iconBtn} ${
-                    form.icon === icon
-                      ? styles.iconActive
-                      : ''
-                  }`}
-                  onClick={() =>
-                    set('icon', icon)
-                  }
+                  className={`${styles.iconBtn} ${form.icon === icon ? styles.iconActive : ''}`}
+                  onClick={() => set('icon', icon)}
                 >
                   {icon}
                 </button>
@@ -157,96 +190,65 @@ export function HabitFormModal({ open, onClose, habit }) {
 
           {/* Title */}
           <label className={styles.field}>
-            <span className={styles.label}>
-              Title *
-            </span>
-
+            <span className={styles.label}>Title *</span>
             <input
               className={styles.input}
               value={form.title}
-              onChange={(e) =>
-                set('title', e.target.value)
-              }
+              onChange={(e) => set('title', e.target.value)}
               required
               maxLength={200}
+              autoFocus
             />
           </label>
 
-          {/* Type + Frequency */}
+          {/* Type + Frequency type */}
           <div className={styles.row}>
             <label className={styles.field}>
-              <span className={styles.label}>
-                Type
-              </span>
-
+              <span className={styles.label}>Type</span>
               <select
                 className={styles.select}
                 value={form.type}
-                onChange={(e) =>
-                  set('type', e.target.value)
-                }
+                onChange={(e) => set('type', e.target.value)}
               >
-                <option value="build">
-                  Build
-                </option>
-
-                <option value="break">
-                  Break
-                </option>
+                <option value="build">Build</option>
+                <option value="break">Break</option>
               </select>
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>
-                Frequency
-              </span>
-
+              <span className={styles.label}>Frequency</span>
               <select
                 className={styles.select}
                 value={form.frequencyType}
-                onChange={(e) =>
-                  set(
-                    'frequencyType',
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setFrequencyType(e.target.value)}
               >
-                {FREQUENCY_TYPES.map(
-                  (frequency) => (
-                    <option
-                      key={frequency}
-                      value={frequency}
-                    >
-                      {frequency.replace('_', ' ')}
-                    </option>
-                  )
-                )}
+                {FREQUENCY_TYPES.map((ft) => (
+                  <option key={ft} value={ft}>
+                    {ft.replace('_', ' ')}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
 
-          {/* Color picker */}
-          <div className={styles.field}>
-            <span className={styles.label}>
-              Color
-            </span>
+          {/* Dynamic frequency config */}
+          <FrequencyConfigInput
+            frequencyType={form.frequencyType}
+            value={form.frequencyConfig}
+            onChange={(v) => set('frequencyConfig', v)}
+          />
 
+          {/* Color */}
+          <div className={styles.field}>
+            <span className={styles.label}>Color</span>
             <div className={styles.colorRow}>
               {COLORS.map((color) => (
                 <button
                   key={color}
                   type="button"
-                  className={`${styles.colorBtn} ${
-                    form.color === color
-                      ? styles.colorActive
-                      : ''
-                  }`}
-                  style={{
-                    background: color,
-                  }}
-                  onClick={() =>
-                    set('color', color)
-                  }
+                  className={`${styles.colorBtn} ${form.color === color ? styles.colorActive : ''}`}
+                  style={{ background: color }}
+                  onClick={() => set('color', color)}
                 />
               ))}
             </div>

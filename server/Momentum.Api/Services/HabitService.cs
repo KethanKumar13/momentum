@@ -10,11 +10,9 @@ public class HabitService
     private readonly AppDbContext _db;
     private readonly FrequencyService _freq;
 
-    public HabitService(
-        AppDbContext db,
-        FrequencyService freq)
+    public HabitService(AppDbContext db, FrequencyService freq)
     {
-        _db = db;
+        _db   = db;
         _freq = freq;
     }
 
@@ -29,9 +27,7 @@ public class HabitService
             .OrderByDescending(h => h.CreatedAt)
             .ToListAsync();
 
-        return habits
-            .Select(h => ToResponse(h, today))
-            .ToList();
+        return habits.Select(h => ToResponse(h, today)).ToList();
     }
 
     // ── Get one ───────────────────────────────────────────────
@@ -41,12 +37,17 @@ public class HabitService
 
         var habit = await _db.Habits
             .Include(h => h.Logs)
-            .FirstOrDefaultAsync(
-                h => h.Id == id && h.UserId == userId)
+            .FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId)
             ?? throw new KeyNotFoundException("Habit not found.");
 
         return ToResponse(habit, today);
     }
+
+    // ── Get raw entity (for controller side-effects) ──────────
+    public async Task<Habit?> GetRawAsync(Guid id, Guid userId) =>
+        await _db.Habits
+            .AsNoTracking()
+            .FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId);
 
     // ── Create ────────────────────────────────────────────────
     public async Task<HabitResponse> CreateAsync(
@@ -55,24 +56,21 @@ public class HabitService
     {
         var habit = new Habit
         {
-            UserId = userId,
-            Title = req.Title,
-            Type = req.Type,
-            FrequencyType = req.FrequencyType,
+            UserId          = userId,
+            Title           = req.Title,
+            Type            = req.Type,
+            FrequencyType   = req.FrequencyType,
             FrequencyConfig = req.FrequencyConfig,
-            ReminderTime = req.ReminderTime,
-            Color = req.Color,
-            Icon = req.Icon,
-            GoalId = req.GoalId,
+            ReminderTime    = req.ReminderTime,
+            Color           = req.Color,
+            Icon            = req.Icon,
+            GoalId          = req.GoalId,
         };
 
         _db.Habits.Add(habit);
-
         await _db.SaveChangesAsync();
 
-        return ToResponse(
-            habit,
-            DateOnly.FromDateTime(DateTime.UtcNow));
+        return ToResponse(habit, DateOnly.FromDateTime(DateTime.UtcNow));
     }
 
     // ── Update ────────────────────────────────────────────────
@@ -85,36 +83,21 @@ public class HabitService
 
         var habit = await _db.Habits
             .Include(h => h.Logs)
-            .FirstOrDefaultAsync(
-                h => h.Id == id && h.UserId == userId)
+            .FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId)
             ?? throw new KeyNotFoundException("Habit not found.");
 
-        if (req.Title is not null)
-            habit.Title = req.Title;
+        if (req.Title           is not null) habit.Title           = req.Title;
+        if (req.Type            is not null) habit.Type            = req.Type;
+        if (req.FrequencyType   is not null) habit.FrequencyType   = req.FrequencyType;
+        if (req.FrequencyConfig is not null) habit.FrequencyConfig = req.FrequencyConfig;
+        if (req.ReminderTime.HasValue)       habit.ReminderTime    = req.ReminderTime;
+        if (req.Color           is not null) habit.Color            = req.Color;
+        if (req.Icon            is not null) habit.Icon             = req.Icon;
 
-        if (req.Type is not null)
-            habit.Type = req.Type;
-
-        if (req.FrequencyType is not null)
-            habit.FrequencyType = req.FrequencyType;
-
-        if (req.FrequencyConfig is not null)
-            habit.FrequencyConfig = req.FrequencyConfig;
-
-        if (req.ReminderTime.HasValue)
-            habit.ReminderTime = req.ReminderTime;
-
-        if (req.Color is not null)
-            habit.Color = req.Color;
-
-        if (req.Icon is not null)
-            habit.Icon = req.Icon;
-
-        habit.GoalId = req.GoalId;
+        habit.GoalId    = req.GoalId;
         habit.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
-
         return ToResponse(habit, today);
     }
 
@@ -122,13 +105,11 @@ public class HabitService
     public async Task ArchiveAsync(Guid id, Guid userId)
     {
         var habit = await _db.Habits
-            .FirstOrDefaultAsync(
-                h => h.Id == id && h.UserId == userId)
+            .FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId)
             ?? throw new KeyNotFoundException("Habit not found.");
 
         habit.ArchivedAt = DateTime.UtcNow;
-        habit.UpdatedAt = DateTime.UtcNow;
-
+        habit.UpdatedAt  = DateTime.UtcNow;
         await _db.SaveChangesAsync();
     }
 
@@ -136,13 +117,101 @@ public class HabitService
     public async Task DeleteAsync(Guid id, Guid userId)
     {
         var habit = await _db.Habits
-            .FirstOrDefaultAsync(
-                h => h.Id == id && h.UserId == userId)
+            .FirstOrDefaultAsync(h => h.Id == id && h.UserId == userId)
             ?? throw new KeyNotFoundException("Habit not found.");
 
         _db.Habits.Remove(habit);
+        await _db.SaveChangesAsync();
+    }
+
+    // ── Get logs ──────────────────────────────────────────────
+    public async Task<List<HabitLogResponse>> GetLogsAsync(
+        Guid habitId,
+        Guid userId)
+    {
+        var exists = await _db.Habits
+            .AnyAsync(h => h.Id == habitId && h.UserId == userId);
+
+        if (!exists)
+            throw new KeyNotFoundException("Habit not found.");
+
+        var logs = await _db.HabitLogs
+            .Where(l => l.HabitId == habitId)
+            .OrderByDescending(l => l.Date)
+            .ToListAsync();
+
+        return logs.Select(ToLogResponse).ToList();
+    }
+
+    // ── Log (upsert) ──────────────────────────────────────────
+    public async Task<HabitLogResponse> LogAsync(
+        Guid habitId,
+        LogHabitRequest req,
+        Guid userId)
+    {
+        var habit = await _db.Habits
+            .FirstOrDefaultAsync(h => h.Id == habitId && h.UserId == userId)
+            ?? throw new KeyNotFoundException("Habit not found.");
+
+        var date = req.Date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var log = await _db.HabitLogs
+            .FirstOrDefaultAsync(l => l.HabitId == habitId && l.Date == date);
+
+        if (log is null)
+        {
+            log = new HabitLog
+            {
+                HabitId = habitId,
+                UserId  = userId,
+                Date    = date,
+                Status  = req.Status,
+                Note    = req.Note,
+            };
+
+            _db.HabitLogs.Add(log);
+        }
+        else
+        {
+            if (log.Status == req.Status && req.Status == "done")
+            {
+                _db.HabitLogs.Remove(log);
+                await _db.SaveChangesAsync();
+
+                return new HabitLogResponse(
+                    Guid.Empty,
+                    habitId,
+                    date,
+                    "none",
+                    null,
+                    DateTime.UtcNow);
+            }
+
+            log.Status = req.Status;
+            log.Note   = req.Note;
+        }
 
         await _db.SaveChangesAsync();
+        return ToLogResponse(log);
+    }
+
+    // ── Unlog ─────────────────────────────────────────────────
+    public async Task UnlogAsync(
+        Guid habitId,
+        DateOnly date,
+        Guid userId)
+    {
+        var log = await _db.HabitLogs
+            .FirstOrDefaultAsync(l =>
+                l.HabitId == habitId &&
+                l.Date    == date &&
+                l.UserId  == userId);
+
+        if (log is not null)
+        {
+            _db.HabitLogs.Remove(log);
+            await _db.SaveChangesAsync();
+        }
     }
 
     // ── Streak helpers ────────────────────────────────────────
@@ -156,7 +225,7 @@ public class HabitService
             .ToHashSet();
 
         int streak = 0;
-        var day = today;
+        var day    = today;
 
         while (doneDates.Contains(day))
         {
@@ -203,20 +272,29 @@ public class HabitService
     private HabitResponse ToResponse(
         Habit h,
         DateOnly today) => new(
-            h.Id,
-            h.Title,
-            h.Type,
-            h.FrequencyType,
-            h.FrequencyConfig,
-            h.ReminderTime,
-            h.Color,
-            h.Icon,
-            h.GoalId,
-            _freq.IsDueToday(h, today),
-            ComputeCurrentStreak(h, today),
-            ComputeLongestStreak(h),
-            h.ArchivedAt,
-            h.CreatedAt,
-            h.UpdatedAt
-        );
+        h.Id,
+        h.Title,
+        h.Type,
+        h.FrequencyType,
+        h.FrequencyConfig,
+        h.ReminderTime,
+        h.Color,
+        h.Icon,
+        h.GoalId,
+        _freq.IsDueToday(h, today),
+        ComputeCurrentStreak(h, today),
+        ComputeLongestStreak(h),
+        h.ArchivedAt,
+        h.CreatedAt,
+        h.UpdatedAt
+    );
+
+    private static HabitLogResponse ToLogResponse(HabitLog l) => new(
+        l.Id,
+        l.HabitId,
+        l.Date,
+        l.Status,
+        l.Note,
+        l.CreatedAt
+    );
 }

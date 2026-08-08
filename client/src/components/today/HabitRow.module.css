@@ -8,7 +8,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
   text-align: left;
   color: var(--text-primary);
 }
@@ -21,6 +21,11 @@
 .row.done {
   border-color: var(--color-success, #4ade80);
   background: color-mix(in srgb, var(--color-success, #4ade80) 8%, var(--bg-surface));
+}
+
+.row.loading {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .icon {
