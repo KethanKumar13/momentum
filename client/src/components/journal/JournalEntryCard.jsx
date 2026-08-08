@@ -24,28 +24,19 @@ export function JournalEntryCard({ entry, onEdit }) {
 
   // Strip HTML tags for preview
   const preview = entry.content
-    ? entry.content
-        .replace(/<[^>]*>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
+    ? entry.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
     : ''
 
   return (
     <article className={styles.card}>
-      <div className={styles.top}>
+      <div className={styles.header}>
         <div className={styles.meta}>
-          <span>
-            {format(
-              new Date(`${entry.date}T00:00:00`),
-              'EEE, MMM d'
-            )}
+          <span className={styles.date}>
+            {format(new Date(`${entry.date}T00:00:00`), 'EEE, MMM d')}
           </span>
 
           {mood && (
-            <span
-              className={styles.mood}
-              title={mood.label}
-            >
+            <span className={styles.mood} title={mood.label}>
               {mood.emoji}
             </span>
           )}
@@ -74,16 +65,12 @@ export function JournalEntryCard({ entry, onEdit }) {
       </div>
 
       {entry.title && (
-        <h3 className={styles.title}>
-          {entry.title}
-        </h3>
+        <h3 className={styles.title}>{entry.title}</h3>
       )}
 
       {preview && (
         <p className={styles.body}>
-          {preview.length > 200
-            ? `${preview.slice(0, 200)}…`
-            : preview}
+          {preview.length > 200 ? `${preview.slice(0, 200)}…` : preview}
         </p>
       )}
 
@@ -93,10 +80,7 @@ export function JournalEntryCard({ entry, onEdit }) {
             .split(',')
             .filter(Boolean)
             .map((tag) => (
-              <span
-                key={tag.trim()}
-                className={styles.tag}
-              >
+              <span key={tag.trim()} className={styles.tag}>
                 #{tag.trim()}
               </span>
             ))}

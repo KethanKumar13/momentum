@@ -1,4 +1,4 @@
-.overlay {
+﻿.overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -12,8 +12,8 @@
 .panel {
   width: min(600px, 100vw);
   height: 100dvh;
-  background: var(--surface-1);
-  border-left: 1px solid var(--border);
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   animation: slideIn 0.2s ease;
@@ -22,11 +22,20 @@
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: var(--sp-5) var(--sp-6);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
+  gap: var(--sp-3);
+}
+
+.sub {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 2px;
 }
 
 .title {
@@ -34,6 +43,12 @@
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+}
+
+.entryDate {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 2px 0 0;
 }
 
 .close {
@@ -47,20 +62,18 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
+  flex-shrink: 0;
   transition: background 0.15s;
 }
 
 .close:hover {
-  background: var(--surface-2);
+  background: var(--bg-elevated);
 }
 
 .body {
   flex: 1;
   overflow-y: auto;
   padding: var(--sp-6);
-}
-
-.form {
   display: flex;
   flex-direction: column;
   gap: var(--sp-5);
@@ -78,92 +91,143 @@
   color: var(--text-secondary);
 }
 
-.input,
-.textarea {
+.input {
   width: 100%;
   padding: var(--sp-2) var(--sp-3);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: var(--text-sm);
-  font-family: var(--font-sans);
+  font-family: inherit;
   transition: border-color 0.15s;
-}
-
-.textarea {
-  resize: vertical;
-  line-height: 1.7;
-}
-
-.input:focus,
-.textarea:focus {
   outline: none;
+}
+
+.input:focus {
   border-color: var(--color-primary);
 }
 
-.tagWrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  padding: var(--sp-2);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+/* ── Tiptap editor ───────────────────────────── */
+.editorWrap {
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  min-height: 40px;
-  align-items: center;
-  transition: border-color 0.15s;
+  overflow: hidden;
+  background: var(--bg-elevated);
 }
 
-.tagWrap:focus-within {
+.editorWrap:focus-within {
   border-color: var(--color-primary);
 }
 
-.tag {
-  display: inline-flex;
+.toolbar {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: var(--color-primary-muted);
-  color: var(--color-primary);
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: 500;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
 }
 
-.tagRemove {
+.toolBtn {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
   border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--color-primary);
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: 0;
-  line-height: 1;
+  transition: background 0.1s, color 0.1s;
 }
 
-.tagInput {
-  flex: 1;
-  min-width: 120px;
-  border: none;
-  background: transparent;
+.toolBtn:hover {
+  background: var(--bg-elevated);
   color: var(--text-primary);
+}
+
+.toolBtn.toolActive {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.toolDivider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-subtle);
+  margin: 0 var(--sp-1);
+}
+
+.editor {
+  padding: var(--sp-3) var(--sp-4);
+  min-height: 180px;
+  max-height: 360px;
+  overflow-y: auto;
   font-size: var(--text-sm);
-  font-family: var(--font-sans);
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+/* Tiptap ProseMirror resets */
+.editor :global(.ProseMirror) {
   outline: none;
 }
 
+.editor :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+.editor :global(ul),
+.editor :global(ol) {
+  padding-left: var(--sp-5);
+  margin: var(--sp-2) 0;
+}
+
+.editor :global(li) {
+  margin: var(--sp-1) 0;
+}
+
+/* ── Footer ──────────────────────────────────── */
 .footer {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--sp-3);
-  padding-top: var(--sp-2);
+  padding: var(--sp-4) var(--sp-6);
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.deleteBtn {
+  margin-right: auto;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--color-danger, #ef4444);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-danger, #ef4444);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deleteBtn:hover {
+  background: color-mix(
+    in srgb,
+    var(--color-danger, #ef4444) 8%,
+    transparent
+  );
 }
 
 .cancelBtn {
   padding: var(--sp-2) var(--sp-4);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--text-secondary);
@@ -173,7 +237,7 @@
 }
 
 .cancelBtn:hover {
-  background: var(--surface-2);
+  background: var(--bg-elevated);
 }
 
 .submitBtn {
@@ -188,8 +252,13 @@
   transition: opacity 0.15s;
 }
 
-.submitBtn:hover {
+.submitBtn:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @keyframes fadeIn {

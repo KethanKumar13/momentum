@@ -1,14 +1,43 @@
 ﻿import { useMemo } from 'react'
 import { useInsightsData } from './useInsightsData'
+import { useJournalEntries } from './useJournal'
 
-/**
- * Thin adapter - keeps InsightsPage.jsx interface identical
- * while pulling from the real API instead of Zustand.
- */
+const MOODS = [
+  { value: 'great', emoji: '😄', label: 'Great' },
+  { value: 'good', emoji: '🙂', label: 'Good' },
+  { value: 'okay', emoji: '😐', label: 'Okay' },
+  { value: 'bad', emoji: '😔', label: 'Bad' },
+  { value: 'awful', emoji: '😢', label: 'Awful' },
+]
+
 export function useInsights(days = 35) {
   const { data, isLoading, isError } = useInsightsData(days)
 
+  // Wire journal entries for mood chart
+  const { data: journalEntries = [] } = useJournalEntries()
+
   return useMemo(() => {
+    // ── Mood chart from real journal data ─────────────────────
+    const moodCounts = MOODS.map((mood) => ({
+      ...mood,
+      count: journalEntries.filter((e) => e.mood === mood.value).length,
+    }))
+
+    const dominantMood = moodCounts.reduce(
+      (best, mood) => (mood.count > best.count ? mood : best),
+      moodCounts[0]
+    )
+
+    const totalEntries = journalEntries.length
+    const now = Date.now()
+
+    const entriesThisWeek = journalEntries.filter((e) => {
+      const diff =
+        now - new Date(`${e.date}T00:00:00`).getTime()
+
+      return diff < 7 * 86_400_000
+    }).length
+
     if (!data) {
       return {
         isLoading,
@@ -19,27 +48,28 @@ export function useInsights(days = 35) {
         completionRate: 0,
         longestStreak: 0,
         currentStreak: 0,
-
         topHabits: [],
         heatmapDays: [],
-
         totalGoals: 0,
         completedGoals: 0,
         avgGoalProgress: 0,
-
         totalLogs: 0,
         goals: [],
 
-        // Legacy Zustand fields kept for MoodChart.
-        // Will be wired in the Journal module.
-        moodCounts: [],
-        dominantMood: null,
-        totalEntries: 0,
-        entriesThisWeek: 0,
+        // Journal data
+        moodCounts,
+        dominantMood: totalEntries > 0 ? dominantMood : null,
+        totalEntries,
+        entriesThisWeek,
       }
     }
 
-    const { summary, heatmap, topHabits, goals } = data
+    const {
+      summary,
+      heatmap,
+      topHabits,
+      goals,
+    } = data
 
     return {
       isLoading,
@@ -51,11 +81,9 @@ export function useInsights(days = 35) {
       completionRate: summary.completionRatePct,
       longestStreak: summary.longestStreak,
       currentStreak: summary.currentStreak,
-
       totalGoals: summary.totalGoals,
       completedGoals: summary.completedGoals,
       avgGoalProgress: summary.avgGoalProgressPct,
-
       totalLogs: summary.totalHabitLogsAllTime,
 
       // Heatmap
@@ -69,17 +97,15 @@ export function useInsights(days = 35) {
         max: d.total,
       })),
 
-      // Top habits
+      // Top habits + goals
       topHabits,
-
-      // Goals
       goals,
 
-      // Journal - not wired yet
-      moodCounts: [],
-      dominantMood: null,
-      totalEntries: 0,
-      entriesThisWeek: 0,
+      // ── Journal — now wired to real data ───────────────────
+      moodCounts,
+      dominantMood: totalEntries > 0 ? dominantMood : null,
+      totalEntries,
+      entriesThisWeek,
     }
-  }, [data, isLoading, isError])
+  }, [data, isLoading, isError, journalEntries])
 }
