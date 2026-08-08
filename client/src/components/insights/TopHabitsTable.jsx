@@ -3,7 +3,7 @@ import styles from './TopHabitsTable.module.css'
 
 export function TopHabitsTable({ habits }) {
   return (
-    <div className={styles.table}>
+    <div className={styles.wrap}>
       {habits.map((habit, index) => (
         <div className={styles.row} key={habit.id}>
           <span className={styles.rank}>
@@ -19,7 +19,6 @@ export function TopHabitsTable({ habits }) {
 
           <div className={styles.info}>
             <p className={styles.label}>{habit.title}</p>
-
             <p className={styles.category}>
               {habit.consistencyPct}% consistent · {habit.totalLogs} logs
             </p>
