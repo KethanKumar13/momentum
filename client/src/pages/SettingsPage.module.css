@@ -1,0 +1,296 @@
+﻿.inner {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.header {
+  margin-bottom: var(--sp-2);
+}
+
+.sub {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 var(--sp-1);
+}
+
+.heading {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ── Section ─────────────────────────────────── */
+.section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-secondary);
+}
+
+.sectionTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sectionDesc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Profile ─────────────────────────────────── */
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profileName {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.profileEmail {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.planBadge {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.planFree {
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.planPro {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+/* ── Upgrade box ─────────────────────────────── */
+.upgradeBox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.upgradeIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.upgradeTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.upgradeSub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.upgradeBtn {
+  margin-left: auto;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.upgradeBtn:hover {
+  opacity: 0.9;
+}
+
+.limitsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.limitDivider {
+  color: var(--border-default);
+}
+
+/* ── Notifications notice ────────────────────── */
+.noticeBox {
+  padding: var(--sp-4);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.noticeBox p {
+  margin: 0;
+}
+
+.noticeSmall {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* ── Export ──────────────────────────────────── */
+.exportRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+
+.exportCard {
+  padding: var(--sp-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.exportTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.exportSub {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.exportBtn {
+  margin-top: auto;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: var(--bg-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.exportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Danger zone ─────────────────────────────── */
+.dangerSection {
+  border-color: color-mix(
+    in srgb,
+    var(--color-danger, #ef4444) 30%,
+    transparent
+  );
+}
+
+.dangerIcon {
+  color: var(--color-danger, #ef4444);
+}
+
+.dangerTitle {
+  color: var(--color-danger, #ef4444);
+}
+
+.deleteBtn {
+  align-self: flex-start;
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--color-danger, #ef4444);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-danger, #ef4444);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.deleteBtn:hover {
+  background: color-mix(
+    in srgb,
+    var(--color-danger, #ef4444) 8%,
+    transparent
+  );
+}
+
+@media (max-width: 640px) {
+  .inner {
+    padding: var(--sp-4) var(--sp-4) var(--sp-20);
+  }
+
+  .exportRow {
+    grid-template-columns: 1fr;
+  }
+}

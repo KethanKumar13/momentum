@@ -1,4 +1,4 @@
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Data;
@@ -13,7 +13,8 @@ public static class ServiceExtensions
         IConfiguration config)
     {
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("Postgres")));
+            options.UseNpgsql(
+                config.GetConnectionString("Postgres")));
 
         return services;
     }
@@ -22,8 +23,11 @@ public static class ServiceExtensions
         this IServiceCollection services,
         IConfiguration config)
     {
+        // FIX: use new options-based overload (no more CS0618 warning)
         services.AddHangfire(cfg =>
-            cfg.UsePostgreSqlStorage(config.GetConnectionString("Postgres")));
+            cfg.UsePostgreSqlStorage(o =>
+                o.UseNpgsqlConnection(
+                    config.GetConnectionString("Postgres")!)));
 
         services.AddHangfireServer();
 

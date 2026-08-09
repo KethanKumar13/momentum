@@ -1,11 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+﻿import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { habitLogService } from '../services/habitLogService'
 import { HABITS_KEY } from './useHabits'
+import { track } from '../lib/analytics'
 
-/**
- * Logs (or toggles) a habit for today.
- * Invalidates habits list so isDueToday + streak update instantly.
- */
 export function useLogHabit() {
   const qc = useQueryClient()
 
@@ -14,8 +11,9 @@ export function useLogHabit() {
       habitLogService.log(habitId, { status, note, date }),
 
     onMutate: async ({ habitId }) => {
-      // Optimistic update — flip isDueToday / completedToday immediately
-      await qc.cancelQueries({ queryKey: HABITS_KEY })
+      await qc.cancelQueries({
+        queryKey: HABITS_KEY,
+      })
 
       const prev = qc.getQueryData(HABITS_KEY)
 
@@ -31,19 +29,29 @@ export function useLogHabit() {
     },
 
     onError: (_err, _vars, ctx) => {
-      if (ctx?.prev) qc.setQueryData(HABITS_KEY, ctx.prev)
+      if (ctx?.prev) {
+        qc.setQueryData(HABITS_KEY, ctx.prev)
+      }
+    },
+
+    onSuccess: (_data, vars) => {
+      track('habit_checked', {
+        status: vars.status ?? 'done',
+      })
     },
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: HABITS_KEY })
-      qc.invalidateQueries({ queryKey: ['goals'] })
+      qc.invalidateQueries({
+        queryKey: HABITS_KEY,
+      })
+
+      qc.invalidateQueries({
+        queryKey: ['goals'],
+      })
     },
   })
 }
 
-/**
- * Remove a log entry for a specific date.
- */
 export function useUnlogHabit() {
   const qc = useQueryClient()
 
@@ -52,8 +60,13 @@ export function useUnlogHabit() {
       habitLogService.unlog(habitId, date),
 
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: HABITS_KEY })
-      qc.invalidateQueries({ queryKey: ['goals'] })
+      qc.invalidateQueries({
+        queryKey: HABITS_KEY,
+      })
+
+      qc.invalidateQueries({
+        queryKey: ['goals'],
+      })
     },
   })
 }
