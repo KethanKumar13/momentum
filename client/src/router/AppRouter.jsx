@@ -18,9 +18,9 @@ import GoalsPage from '../pages/GoalsPage.jsx'
 import InsightsPage from '../pages/InsightsPage.jsx'
 import JournalPage from '../pages/JournalPage.jsx'
 import ReviewPage from '../pages/ReviewPage.jsx'
+import SettingsPage from '../pages/SettingsPage.jsx'
 // ──────────────────────────────────────────────────────────────
 
-import { SettingsPage } from '../pages/SettingsPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { UIShowcasePage } from '../pages/dev/UIShowcasePage'
 
@@ -34,14 +34,8 @@ export function AppRouter() {
           </Route>
 
           <Route element={<AuthLayout />}>
-            <Route
-              path="/login"
-              element={<LoginPage />}
-            />
-            <Route
-              path="/signup"
-              element={<SignupPage />}
-            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route
               path="/forgot-password"
               element={<ForgotPasswordPage />}
@@ -55,45 +49,17 @@ export function AppRouter() {
               </ProtectedRoute>
             }
           >
-            <Route
-              path="/today"
-              element={<TodayPage />}
-            />
-            <Route
-              path="/habits"
-              element={<HabitsPage />}
-            />
-            <Route
-              path="/goals"
-              element={<GoalsPage />}
-            />
-            <Route
-              path="/journal"
-              element={<JournalPage />}
-            />
-            <Route
-              path="/review"
-              element={<ReviewPage />}
-            />
-            <Route
-              path="/insights"
-              element={<InsightsPage />}
-            />
-            <Route
-              path="/settings"
-              element={<SettingsPage />}
-            />
+            <Route index path="/today" element={<TodayPage />} />
+            <Route path="/habits" element={<HabitsPage />} />
+            <Route path="/goals" element={<GoalsPage />} />
+            <Route path="/journal" element={<JournalPage />} />
+            <Route path="/review" element={<ReviewPage />} />
+            <Route path="/insights" element={<InsightsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
-          <Route
-            path="/dev/ui"
-            element={<UIShowcasePage />}
-          />
-
-          <Route
-            path="*"
-            element={<NotFoundPage />}
-          />
+          <Route path="/dev/ui" element={<UIShowcasePage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

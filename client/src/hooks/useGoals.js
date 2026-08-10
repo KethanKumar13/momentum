@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+﻿import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { goalService } from '../services/goalService'
+import { track } from '../lib/analytics'
 
 export const GOALS_KEY = ['goals']
 
@@ -15,8 +16,10 @@ export function useCreateGoal() {
 
   return useMutation({
     mutationFn: goalService.create,
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: GOALS_KEY }),
+    onSuccess: (_data, vars) => {
+      track('goal_created', { category: vars.category })
+      qc.invalidateQueries({ queryKey: GOALS_KEY })
+    },
   })
 }
 
@@ -24,8 +27,7 @@ export function useUpdateGoal() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }) =>
-      goalService.update(id, data),
+    mutationFn: ({ id, data }) => goalService.update(id, data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: GOALS_KEY }),
   })

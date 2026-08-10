@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Data;
 using Momentum.Api.Domain;
@@ -8,10 +9,19 @@ namespace Momentum.Api.Services;
 public class GoalService
 {
     private readonly AppDbContext _db;
+    private readonly UserManager<User> _users;
+    private readonly PlanGatingService _gating;
 
-    public GoalService(AppDbContext db) => _db = db;
+    public GoalService(
+        AppDbContext db,
+        UserManager<User> users,
+        PlanGatingService gating)
+    {
+        _db = db;
+        _users = users;
+        _gating = gating;
+    }
 
-    // ── List ──────────────────────────────────────────────────
     public async Task<List<GoalResponse>> GetAllAsync(Guid userId)
     {
         var goals = await _db.Goals
@@ -23,7 +33,6 @@ public class GoalService
         return goals.Select(ToResponse).ToList();
     }
 
-    // ── Get one ───────────────────────────────────────────────
     public async Task<GoalResponse> GetAsync(Guid id, Guid userId)
     {
         var goal = await _db.Goals
@@ -34,11 +43,17 @@ public class GoalService
         return ToResponse(goal);
     }
 
-    // ── Create ────────────────────────────────────────────────
     public async Task<GoalResponse> CreateAsync(
         CreateGoalRequest req,
         Guid userId)
     {
+        // ── Plan gating ───────────────────────────────────────
+        var user = await _users.FindByIdAsync(userId.ToString())
+            ?? throw new KeyNotFoundException("User not found.");
+
+        await _gating.AssertCanCreateGoalAsync(userId, user.Plan);
+        // ─────────────────────────────────────────────────────
+
         var goal = new Goal
         {
             UserId = userId,
@@ -55,7 +70,6 @@ public class GoalService
         return ToResponse(goal);
     }
 
-    // ── Update ────────────────────────────────────────────────
     public async Task<GoalResponse> UpdateAsync(
         Guid id,
         UpdateGoalRequest req,
@@ -63,8 +77,7 @@ public class GoalService
     {
         var goal = await _db.Goals
             .Include(g => g.Habits)
-            .FirstOrDefaultAsync(
-                g => g.Id == id && g.UserId == userId)
+            .FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId)
             ?? throw new KeyNotFoundException("Goal not found.");
 
         if (req.Title is not null)
@@ -92,20 +105,16 @@ public class GoalService
         return ToResponse(goal);
     }
 
-    // ── Delete ────────────────────────────────────────────────
     public async Task DeleteAsync(Guid id, Guid userId)
     {
         var goal = await _db.Goals
-            .FirstOrDefaultAsync(
-                g => g.Id == id && g.UserId == userId)
+            .FirstOrDefaultAsync(g => g.Id == id && g.UserId == userId)
             ?? throw new KeyNotFoundException("Goal not found.");
 
         _db.Goals.Remove(goal);
-
         await _db.SaveChangesAsync();
     }
 
-    // ── Map ───────────────────────────────────────────────────
     private static GoalResponse ToResponse(Goal g) => new(
         g.Id,
         g.Title,
