@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,23 +10,22 @@ namespace Momentum.Api.Services;
 public class TokenService
 {
     private readonly IConfiguration _config;
+    private readonly IWebHostEnvironment _env;
 
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, IWebHostEnvironment env)
     {
         _config = config;
+        _env = env;
     }
 
     // ── Access token — 15 minutes, JWT ───────────────────────
     public string GenerateAccessToken(User user)
     {
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
-        );
+            Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
 
         var creds = new SigningCredentials(
-            key,
-            SecurityAlgorithms.HmacSha256
-        );
+            key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
@@ -42,24 +41,18 @@ public class TokenService
             audience: _config["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(15),
-            signingCredentials: creds
-        );
+            signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     // ── Refresh token — 30 days, opaque ──────────────────────
-    public RefreshToken GenerateRefreshToken(Guid userId)
+    public RefreshToken GenerateRefreshToken(Guid userId) => new()
     {
-        return new RefreshToken
-        {
-            UserId = userId,
-            Token = Convert.ToBase64String(
-                RandomNumberGenerator.GetBytes(64)
-            ),
-            ExpiresAt = DateTime.UtcNow.AddDays(30),
-        };
-    }
+        UserId = userId,
+        Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+        ExpiresAt = DateTime.UtcNow.AddDays(30),
+    };
 
     // ── Set tokens as httpOnly cookies ───────────────────────
     public void SetTokenCookies(
@@ -67,18 +60,19 @@ public class TokenService
         string accessToken,
         string refreshToken)
     {
+        var isProd = _env.IsProduction();
+
         response.Cookies.Append(
             "access_token",
             accessToken,
             new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax,
+                Secure = isProd,
+                SameSite = isProd ? SameSiteMode.None : SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(15),
                 Path = "/",
-            }
-        );
+            });
 
         response.Cookies.Append(
             "refresh_token",
@@ -86,17 +80,27 @@ public class TokenService
             new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax,
+                Secure = isProd,
+                SameSite = isProd ? SameSiteMode.None : SameSiteMode.Lax,
                 Expires = DateTimeOffset.UtcNow.AddDays(30),
-                Path = "/api/auth",
-            }
-        );
+                Path = "/",   // was /api/auth — broadened so refresh always sends it
+            });
     }
 
     public void ClearTokenCookies(HttpResponse response)
     {
-        response.Cookies.Delete("access_token");
-        response.Cookies.Delete("refresh_token");
+        response.Cookies.Delete("access_token", new CookieOptions { Path = "/" });
+        response.Cookies.Delete("refresh_token", new CookieOptions { Path = "/" });
+    }
+
+    // ── Helper for controllers ───────────────────────────────
+    public static Guid GetUserId(ClaimsPrincipal user)
+    {
+        var id = user.FindFirstValue("sub")
+              ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return Guid.TryParse(id, out var guid)
+            ? guid
+            : throw new UnauthorizedAccessException("No user id in token.");
     }
 }

@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Data;
 using Momentum.Api.Domain;
@@ -9,16 +10,30 @@ public class InsightsService
 {
     private readonly AppDbContext _db;
     private readonly FrequencyService _freq;
+    private readonly StreakService _streaks;
+    private readonly TimezoneService _tz;
+    private readonly UserManager<User> _users;
 
-    public InsightsService(AppDbContext db, FrequencyService freq)
+    public InsightsService(
+        AppDbContext db,
+        FrequencyService freq,
+        StreakService streaks,
+        TimezoneService tz,
+        UserManager<User> users)
     {
         _db = db;
         _freq = freq;
+        _streaks = streaks;
+        _tz = tz;
+        _users = users;
     }
 
     public async Task<InsightsResponse> GetAsync(Guid userId, int days = 35)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var user = await _users.FindByIdAsync(userId.ToString())
+            ?? throw new KeyNotFoundException("User not found.");
+
+        var today = _tz.Today(user);
         var startDate = today.AddDays(-(days - 1));
 
         var habits = await _db.Habits
@@ -39,11 +54,11 @@ public class InsightsService
             : 0;
 
         var longestStreak = habits.Count > 0
-            ? habits.Max(h => ComputeLongestStreak(h))
+            ? habits.Max(_streaks.LongestStreak)
             : 0;
 
         var currentBestStreak = habits.Count > 0
-            ? habits.Max(h => ComputeCurrentStreak(h, today))
+            ? habits.Max(h => _streaks.CurrentStreak(h, today))
             : 0;
 
         var completedGoals = goals.Count(g => g.ProgressPct >= 100);
@@ -63,8 +78,7 @@ public class InsightsService
             TotalGoals: goals.Count,
             CompletedGoals: completedGoals,
             AvgGoalProgressPct: avgGoalProgress,
-            TotalHabitLogsAllTime: totalLogs
-        );
+            TotalHabitLogsAllTime: totalLogs);
 
         var heatmap = Enumerable.Range(0, days)
             .Select(i =>
@@ -72,43 +86,33 @@ public class InsightsService
                 var date = startDate.AddDays(i);
 
                 var count = habits.Count(h =>
-                    h.Logs.Any(l => l.Date == date && l.Status == "done"));
+                    h.Logs.Any(l =>
+                        l.Date == date &&
+                        l.Status == "done"));
 
-                return new HeatmapDayResponse(date, count, habits.Count);
+                return new HeatmapDayResponse(
+                    date,
+                    count,
+                    habits.Count);
             })
             .ToList();
 
         var last30Start = today.AddDays(-29);
 
-        var last30Days = Enumerable.Range(0, 30)
-            .Select(i => last30Start.AddDays(i))
-            .ToList();
-
         var topHabits = habits
-            .Select(h =>
-            {
-                var dueDays = last30Days.Count(d => _freq.IsDueToday(h, d));
-
-                var doneDays = h.Logs.Count(l =>
-                    l.Date >= last30Start &&
-                    l.Date <= today &&
-                    l.Status == "done");
-
-                var consistency = dueDays > 0
-                    ? Math.Round((double)doneDays / dueDays * 100, 1)
-                    : 0;
-
-                return new HabitStreakResponse(
-                    Id: h.Id,
-                    Title: h.Title,
-                    Icon: h.Icon,
-                    Color: h.Color,
-                    CurrentStreak: ComputeCurrentStreak(h, today),
-                    LongestStreak: ComputeLongestStreak(h),
-                    TotalLogs: h.Logs.Count,
-                    ConsistencyPct: consistency
-                );
-            })
+            .Select(h => new HabitStreakResponse(
+                Id: h.Id,
+                Title: h.Title,
+                Icon: h.Icon,
+                Color: h.Color,
+                CurrentStreak: _streaks.CurrentStreak(h, today),
+                LongestStreak: _streaks.LongestStreak(h),
+                TotalLogs: h.Logs.Count,
+                ConsistencyPct: _streaks.ConsistencyPct(
+                    h,
+                    last30Start,
+                    today,
+                    _freq)))
             .OrderByDescending(h => h.CurrentStreak)
             .ThenByDescending(h => h.ConsistencyPct)
             .Take(5)
@@ -122,66 +126,13 @@ public class InsightsService
                 Category: g.Category,
                 Status: g.Status,
                 ProgressPct: g.ProgressPct,
-                LinkedHabitsCount: g.Habits.Count
-            ))
+                LinkedHabitsCount: g.Habits.Count))
             .ToList();
 
         return new InsightsResponse(
             summary,
             heatmap,
             topHabits,
-            goalList
-        );
-    }
-
-    private static int ComputeCurrentStreak(Habit habit, DateOnly today)
-    {
-        var doneDates = habit.Logs
-            .Where(l => l.Status is "done" or "skip")
-            .Select(l => l.Date)
-            .ToHashSet();
-
-        int streak = 0;
-        var day = today;
-
-        while (doneDates.Contains(day))
-        {
-            streak++;
-            day = day.AddDays(-1);
-        }
-
-        return streak;
-    }
-
-    private static int ComputeLongestStreak(Habit habit)
-    {
-        var doneDates = habit.Logs
-            .Where(l => l.Status is "done" or "skip")
-            .Select(l => l.Date)
-            .OrderBy(d => d)
-            .ToList();
-
-        if (!doneDates.Any())
-            return 0;
-
-        int longest = 1;
-        int current = 1;
-
-        for (int i = 1; i < doneDates.Count; i++)
-        {
-            if (doneDates[i] == doneDates[i - 1].AddDays(1))
-            {
-                current++;
-
-                if (current > longest)
-                    longest = current;
-            }
-            else
-            {
-                current = 1;
-            }
-        }
-
-        return longest;
+            goalList);
     }
 }

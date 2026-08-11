@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Momentum.Api.Data;
 using Momentum.Api.Domain;
@@ -11,27 +11,28 @@ public class AuthService
     private readonly UserManager<User> _userManager;
     private readonly AppDbContext _db;
     private readonly TokenService _tokens;
+    private readonly EmailService _email;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         UserManager<User> userManager,
         AppDbContext db,
         TokenService tokens,
+        EmailService email,
         ILogger<AuthService> logger)
     {
         _userManager = userManager;
         _db = db;
         _tokens = tokens;
+        _email = email;
         _logger = logger;
     }
 
     // ── Signup ────────────────────────────────────────────────
-    public async Task<(User user, string access, string refresh)> SignupAsync(
-        SignupRequest req)
+    public async Task<(User user, string access, string refresh)> SignupAsync(SignupRequest req)
     {
         if (await _userManager.FindByEmailAsync(req.Email) is not null)
-            throw new ArgumentException(
-                "An account with this email already exists.");
+            throw new ArgumentException("An account with this email already exists.");
 
         var user = new User
         {
@@ -41,54 +42,38 @@ public class AuthService
         };
 
         var result = await _userManager.CreateAsync(user, req.Password);
-
         if (!result.Succeeded)
-        {
-            var errors = string.Join(
-                ", ",
-                result.Errors.Select(e => e.Description));
-
-            throw new ArgumentException(errors);
-        }
+            throw new ArgumentException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
         return await IssueTokensAsync(user);
     }
 
     // ── Login ─────────────────────────────────────────────────
-    public async Task<(User user, string access, string refresh)> LoginAsync(
-        LoginRequest req)
+    public async Task<(User user, string access, string refresh)> LoginAsync(LoginRequest req)
     {
         var user = await _userManager.FindByEmailAsync(req.Email)
-            ?? throw new UnauthorizedAccessException(
-                "Invalid email or password.");
+            ?? throw new UnauthorizedAccessException("Invalid email or password.");
 
         if (!await _userManager.CheckPasswordAsync(user, req.Password))
-            throw new UnauthorizedAccessException(
-                "Invalid email or password.");
+            throw new UnauthorizedAccessException("Invalid email or password.");
 
         return await IssueTokensAsync(user);
     }
 
     // ── Refresh ───────────────────────────────────────────────
-    public async Task<(User user, string access, string refresh)> RefreshAsync(
-        string rawToken)
+    public async Task<(User user, string access, string refresh)> RefreshAsync(string rawToken)
     {
         var stored = await _db.RefreshTokens
             .Include(t => t.User)
             .FirstOrDefaultAsync(t => t.Token == rawToken)
-            ?? throw new UnauthorizedAccessException(
-                "Invalid refresh token.");
+            ?? throw new UnauthorizedAccessException("Invalid refresh token.");
 
         if (!stored.IsActive)
-            throw new UnauthorizedAccessException(
-                "Refresh token has expired or been revoked.");
+            throw new UnauthorizedAccessException("Refresh token has expired or been revoked.");
 
-        // Rotate — revoke old, issue new
         stored.RevokedAt = DateTime.UtcNow;
 
-        var (user, access, newRefresh) =
-            await IssueTokensAsync(stored.User);
-
+        var (user, access, newRefresh) = await IssueTokensAsync(stored.User);
         await _db.SaveChangesAsync();
 
         return (user, access, newRefresh);
@@ -108,23 +93,20 @@ public class AuthService
     }
 
     // ── Forgot password ───────────────────────────────────────
-    public async Task<string> ForgotPasswordAsync(string email)
+    public async Task ForgotPasswordAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
+        if (user is null) return;   // silent — don't reveal account existence
 
-        if (user is null)
-            return "";
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        var token =
-            await _userManager.GeneratePasswordResetTokenAsync(user);
+        await _email.SendPasswordResetAsync(
+            toEmail: user.Email!,
+            name: user.Name ?? "there",
+            email: user.Email!,
+            token: token);
 
-        _logger.LogInformation(
-            "Password reset token for {Email}: {Token}",
-            email,
-            token);
-
-        // TODO Day 17: send via Resend email
-        return token;
+        _logger.LogInformation("Password reset email sent to {Email}", email);
     }
 
     // ── Reset password ────────────────────────────────────────
@@ -133,29 +115,44 @@ public class AuthService
         var user = await _userManager.FindByEmailAsync(req.Email)
             ?? throw new KeyNotFoundException("User not found.");
 
-        var result = await _userManager.ResetPasswordAsync(
-            user,
-            req.Token,
-            req.Password);
+        var result = await _userManager.ResetPasswordAsync(user, req.Token, req.Password);
 
         if (!result.Succeeded)
-        {
-            var errors = string.Join(
-                ", ",
-                result.Errors.Select(e => e.Description));
-
-            throw new ArgumentException(errors);
-        }
+            throw new ArgumentException(string.Join(", ", result.Errors.Select(e => e.Description)));
     }
 
-    // ── Internal: issue access + refresh tokens ───────────────
+    // ── Google OAuth: find or create user ─────────────────────
+    public async Task<(User user, string access, string refresh)> LoginOrCreateGoogleAsync(
+        string email,
+        string? name)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+        {
+            user = new User
+            {
+                UserName = email,
+                Email = email,
+                Name = name,
+                EmailConfirmed = true,   // trusted from Google
+            };
+
+            var result = await _userManager.CreateAsync(user);
+            if (!result.Succeeded)
+                throw new ArgumentException(string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+
+        return await IssueTokensAsync(user);
+    }
+
+    // ── Internal ──────────────────────────────────────────────
     private async Task<(User, string, string)> IssueTokensAsync(User user)
     {
         var access = _tokens.GenerateAccessToken(user);
         var refresh = _tokens.GenerateRefreshToken(user.Id);
 
         _db.RefreshTokens.Add(refresh);
-
         await _db.SaveChangesAsync();
 
         return (user, access, refresh.Token);

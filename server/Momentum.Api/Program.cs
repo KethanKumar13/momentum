@@ -38,12 +38,16 @@ builder.Services.AddTransient<IResend, ResendClient>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<FrequencyService>();
+builder.Services.AddScoped<StreakService>();
+builder.Services.AddScoped<TimezoneService>();
 builder.Services.AddScoped<ProgressService>();
 builder.Services.AddScoped<GoalService>();
 builder.Services.AddScoped<HabitService>();
 builder.Services.AddScoped<InsightsService>();
 builder.Services.AddScoped<JournalService>();
 builder.Services.AddScoped<WeeklyReviewService>();
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<CheckinService>();
 
 // Day 17
 builder.Services.AddScoped<EmailService>();
@@ -51,6 +55,9 @@ builder.Services.AddScoped<PlanGatingService>();
 builder.Services.AddScoped<ExportService>();
 builder.Services.AddScoped<ReminderJob>();
 builder.Services.AddScoped<WeeklyReviewNudgeJob>();
+
+// Dashboard auth filter
+builder.Services.AddSingleton<HangfireAuthFilter>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -70,8 +77,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
-// ── Register Hangfire recurring jobs (AFTER app.Build()) ───────
-// FIX: use IRecurringJobManager from DI — NOT the static RecurringJob class
+// ── Register Hangfire recurring jobs ───────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var jobs = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
@@ -79,13 +85,13 @@ using (var scope = app.Services.CreateScope())
     jobs.AddOrUpdate<ReminderJob>(
         "daily-reminder",
         job => job.RunAsync(),
-        "0 8 * * *",                                        // daily 08:00 UTC
+        "0 8 * * *",
         new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
     jobs.AddOrUpdate<WeeklyReviewNudgeJob>(
         "weekly-review-nudge",
         job => job.RunAsync(),
-        "0 18 * * 0",                                       // Sunday 18:00 UTC
+        "0 18 * * 0",
         new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 }
 
@@ -103,7 +109,11 @@ app.UseSerilogRequestLogging();
 app.UseCors("MomentumCors");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHangfireDashboard("/hangfire");
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[] { app.Services.GetRequiredService<HangfireAuthFilter>() }
+});
 
 app.MapControllers();
 
