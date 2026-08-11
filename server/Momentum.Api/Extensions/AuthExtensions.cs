@@ -1,4 +1,7 @@
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -9,8 +12,7 @@ namespace Momentum.Api.Extensions;
 
 public static class AuthExtensions
 {
-    public static IServiceCollection AddIdentityServices(
-        this IServiceCollection services)
+    public static IServiceCollection AddIdentityServices(this IServiceCollection services)
     {
         services
             .AddIdentity<User, IdentityRole<Guid>>(options =>
@@ -31,30 +33,65 @@ public static class AuthExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var key = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key is missing.");
+        var key = configuration["Jwt:Key"]
+            ?? throw new InvalidOperationException("JWT key is missing.");
 
-        services
-            .AddAuthentication(options =>
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+        var authBuilder = services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        });
+
+        authBuilder.AddJwtBearer(options =>
+        {
+            options.MapInboundClaims = false;
+
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                NameClaimType = "sub",
+                ValidIssuer = configuration["Jwt:Issuer"],
+                ValidAudience = configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+            };
+
+            options.Events = new JwtBearerEvents
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                OnMessageReceived = ctx =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
+                    if (ctx.Request.Cookies.TryGetValue("access_token", out var token)
+                        && !string.IsNullOrEmpty(token))
+                    {
+                        ctx.Token = token;
+                    }
 
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
+                    return Task.CompletedTask;
+                }
+            };
+        });
 
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(key))
-                };
+        // Cookie scheme is needed to hold the temporary Google external identity.
+        authBuilder.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var googleClientId = configuration["Google:ClientId"];
+        var googleClientSecret = configuration["Google:ClientSecret"];
+
+        if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+        {
+            authBuilder.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+            {
+                options.ClientId = googleClientId;
+                options.ClientSecret = googleClientSecret;
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.CallbackPath = "/signin-google";
             });
+        }
 
         services.AddAuthorization();
 

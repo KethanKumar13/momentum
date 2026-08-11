@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { format } from 'date-fns'
 import { useGreeting } from '@/hooks/useGreeting'
-import { useHabits } from '@/hooks/useHabits'
+import { useToday } from '@/hooks/useToday'
 import { useAuth } from '@/hooks/useAuth'
 import { DailySummaryCard } from '@/components/today/DailySummaryCard'
 import { HabitRow } from '@/components/today/HabitRow'
@@ -26,10 +26,17 @@ export default function TodayPage() {
   const { user } = useAuth()
   const firstName = user?.name?.split(' ')[0] ?? 'there'
   const { greeting, quote } = useGreeting(firstName)
-  const { data: habits = [], isLoading } = useHabits()
+
+  const { data, isLoading, isError } = useToday()
+
+  const habits = Array.isArray(data?.habits) ? data.habits : []
+  const tasks = Array.isArray(data?.tasks) ? data.tasks : []
 
   const today = format(new Date(), 'EEEE, MMMM d')
-  const doneCount = habits.filter(h => !h.isDueToday).length
+
+  const doneCount = habits.filter(
+    (h) => h.todayLog?.status === 'done' || h.completedToday
+  ).length
 
   return (
     <motion.div
@@ -56,10 +63,7 @@ export default function TodayPage() {
 
       {/* Summary */}
       <motion.section variants={fadeUp} aria-label="Daily summary">
-        <DailySummaryCard
-          habitsTotal={habits.length}
-          habitsDone={doneCount}
-        />
+        <DailySummaryCard habits={habits} tasks={tasks} />
       </motion.section>
 
       {/* Today's Habits */}
@@ -75,9 +79,13 @@ export default function TodayPage() {
 
         {isLoading ? (
           <p className={styles.loading}>Loading habits…</p>
+        ) : isError ? (
+          <p className={styles.empty}>
+            Unable to load today&apos;s habits. Please refresh the page.
+          </p>
         ) : habits.length === 0 ? (
           <p className={styles.empty}>
-            No habits yet —{' '}
+            No habits due today —{' '}
             <a href="/habits" className={styles.link}>
               add one
             </a>

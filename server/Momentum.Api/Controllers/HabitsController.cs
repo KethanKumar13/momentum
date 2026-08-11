@@ -1,5 +1,4 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Api.DTOs;
 using Momentum.Api.Services;
@@ -15,44 +14,36 @@ public class HabitsController : ControllerBase
 
     public HabitsController(HabitService habits) => _habits = habits;
 
-    private Guid UserId => Guid.Parse(
-        User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? User.FindFirstValue("sub")
-        ?? throw new UnauthorizedAccessException()
-    );
+    private Guid UserId => TokenService.GetUserId(User);
 
-    // GET /api/habits
     [HttpGet]
     public async Task<IActionResult> List() =>
         Ok(await _habits.GetAllAsync(UserId));
 
-    // GET /api/habits/{id}
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id) =>
         Ok(await _habits.GetAsync(id, UserId));
 
-    // POST /api/habits
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateHabitRequest req)
+    public async Task<IActionResult> Create([FromBody] CreateHabitRequest req)
     {
         var habit = await _habits.CreateAsync(req, UserId);
-
-        return CreatedAtAction(
-            nameof(Get),
-            new { id = habit.Id },
-            habit
-        );
+        return CreatedAtAction(nameof(Get), new { id = habit.Id }, habit);
     }
 
-    // PATCH /api/habits/{id}
     [HttpPatch("{id:guid}")]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] UpdateHabitRequest req) =>
         Ok(await _habits.UpdateAsync(id, req, UserId));
 
-    // DELETE /api/habits/{id}
+    [HttpPost("{id:guid}/archive")]
+    public async Task<IActionResult> Archive(Guid id)
+    {
+        await _habits.ArchiveAsync(id, UserId);
+        return NoContent();
+    }
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -60,11 +51,19 @@ public class HabitsController : ControllerBase
         return NoContent();
     }
 
-    // PATCH /api/habits/{id}/archive
-    [HttpPatch("{id:guid}/archive")]
-    public async Task<IActionResult> Archive(Guid id)
+    // GET /api/habits/{id}/heatmap?year=2026
+    [HttpGet("{id:guid}/heatmap")]
+    public async Task<IActionResult> Heatmap(
+        Guid id,
+        [FromQuery] int? year)
     {
-        await _habits.ArchiveAsync(id, UserId);
-        return NoContent();
+        var y = year ?? DateTime.UtcNow.Year;
+        var data = await _habits.GetHeatmapAsync(id, UserId, y);
+
+        return Ok(new
+        {
+            year = y,
+            days = data
+        });
     }
 }

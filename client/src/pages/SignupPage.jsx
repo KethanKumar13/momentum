@@ -1,4 +1,5 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
+import { GoogleButton } from '../components/auth/GoogleButton'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../hooks/useAuth'
 import styles from './AuthPage.module.css'
@@ -43,10 +44,8 @@ export function SignupPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <h1 className={styles.heading}>
-        Create your account
-      </h1>
+    <div>
+      <h1>Create your account</h1>
 
       <p className={styles.sub}>
         Already have an account?{' '}
@@ -57,6 +56,18 @@ export function SignupPage() {
           Sign in
         </Link>
       </p>
+
+      <GoogleButton />
+
+      <div
+        style={{
+          margin: '16px 0',
+          color: 'var(--text-muted)',
+          textAlign: 'center',
+        }}
+      >
+        or
+      </div>
 
       <form
         className={styles.form}

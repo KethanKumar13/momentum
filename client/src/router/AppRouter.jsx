@@ -11,15 +11,15 @@ import { LoginPage } from '../pages/LoginPage'
 import { SignupPage } from '../pages/SignupPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 
-// ── Default exports (API-wired pages) ─────────────────────────
 import TodayPage from '../pages/TodayPage.jsx'
 import HabitsPage from '../pages/HabitsPage.jsx'
+import HabitDetailPage from '../pages/HabitDetailPage.jsx'
 import GoalsPage from '../pages/GoalsPage.jsx'
+import GoalDetailPage from '../pages/GoalDetailPage.jsx'
 import InsightsPage from '../pages/InsightsPage.jsx'
 import JournalPage from '../pages/JournalPage.jsx'
 import ReviewPage from '../pages/ReviewPage.jsx'
 import SettingsPage from '../pages/SettingsPage.jsx'
-// ──────────────────────────────────────────────────────────────
 
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { UIShowcasePage } from '../pages/dev/UIShowcasePage'
@@ -36,10 +36,7 @@ export function AppRouter() {
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route
-              path="/forgot-password"
-              element={<ForgotPasswordPage />}
-            />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Route>
 
           <Route
@@ -51,7 +48,9 @@ export function AppRouter() {
           >
             <Route index path="/today" element={<TodayPage />} />
             <Route path="/habits" element={<HabitsPage />} />
+            <Route path="/habits/:id" element={<HabitDetailPage />} />
             <Route path="/goals" element={<GoalsPage />} />
+            <Route path="/goals/:id" element={<GoalDetailPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/insights" element={<InsightsPage />} />
