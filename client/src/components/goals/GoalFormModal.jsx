@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { X } from 'lucide-react'
 import { useCreateGoal, useUpdateGoal } from '@/hooks/useGoals'
+import { capture, EVENTS } from '@/lib/analytics'
 import styles from './GoalFormModal.module.css'
 
 const CATEGORIES = [
@@ -12,17 +13,9 @@ const CATEGORIES = [
   'Personal',
 ]
 
-const STATUSES = [
-  'active',
-  'paused',
-  'done',
-]
+const STATUSES = ['active', 'paused', 'done']
 
-export function GoalFormModal({
-  open,
-  onClose,
-  goal,
-}) {
+export function GoalFormModal({ open, onClose, goal }) {
   const createGoal = useCreateGoal()
   const updateGoal = useUpdateGoal()
 
@@ -49,10 +42,7 @@ export function GoalFormModal({
   const [form, setForm] = useState(initialForm)
 
   function set(key, value) {
-    setForm((current) => ({
-      ...current,
-      [key]: value,
-    }))
+    setForm((current) => ({ ...current, [key]: value }))
   }
 
   async function handleSubmit(e) {
@@ -66,30 +56,48 @@ export function GoalFormModal({
       status: form.status,
     }
 
-    if (goal) {
-      await updateGoal.mutateAsync({
-        id: goal.id,
-        data: payload,
-      })
-    } else {
-      await createGoal.mutateAsync(payload)
-    }
+    try {
+      if (goal) {
+        const updated = await updateGoal.mutateAsync({
+          id: goal.id,
+          data: payload,
+        })
 
-    onClose()
+        capture(EVENTS.GOAL_UPDATED, {
+          goal_id: goal.id,
+          category: payload.category,
+        })
+
+        onClose()
+        return updated
+      }
+
+      const created = await createGoal.mutateAsync(payload)
+
+      capture(EVENTS.GOAL_CREATED, {
+        category: payload.category,
+        has_target_date: Boolean(payload.targetDate),
+      })
+
+      onClose()
+      return created
+    } catch (err) {
+      capture('goal_save_failed', {
+        reason: err.response?.data?.message ?? 'unknown',
+      })
+
+      throw err
+    }
   }
 
   if (!open) return null
 
-  const isPending =
-    createGoal.isPending ||
-    updateGoal.isPending
+  const isPending = createGoal.isPending || updateGoal.isPending
 
   return (
     <div
       className={styles.overlay}
-      onClick={(e) =>
-        e.target === e.currentTarget && onClose()
-      }
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className={styles.modal}
@@ -98,10 +106,7 @@ export function GoalFormModal({
         aria-labelledby="goal-form-title"
       >
         <div className={styles.header}>
-          <h2
-            id="goal-form-title"
-            className={styles.title}
-          >
+          <h2 id="goal-form-title" className={styles.title}>
             {goal ? 'Edit goal' : 'New goal'}
           </h2>
 
@@ -115,21 +120,13 @@ export function GoalFormModal({
           </button>
         </div>
 
-        <form
-          className={styles.form}
-          onSubmit={handleSubmit}
-        >
+        <form className={styles.form} onSubmit={handleSubmit}>
           <label className={styles.field}>
-            <span className={styles.label}>
-              Title *
-            </span>
-
+            <span className={styles.label}>Title *</span>
             <input
               className={styles.input}
               value={form.title}
-              onChange={(e) =>
-                set('title', e.target.value)
-              }
+              onChange={(e) => set('title', e.target.value)}
               required
               maxLength={200}
               autoFocus
@@ -137,38 +134,25 @@ export function GoalFormModal({
           </label>
 
           <label className={styles.field}>
-            <span className={styles.label}>
-              Why? (optional)
-            </span>
-
+            <span className={styles.label}>Why? (optional)</span>
             <textarea
               className={styles.textarea}
               rows={3}
               value={form.why}
-              onChange={(e) =>
-                set('why', e.target.value)
-              }
+              onChange={(e) => set('why', e.target.value)}
             />
           </label>
 
           <div className={styles.row}>
             <label className={styles.field}>
-              <span className={styles.label}>
-                Category
-              </span>
-
+              <span className={styles.label}>Category</span>
               <select
                 className={styles.select}
                 value={form.category}
-                onChange={(e) =>
-                  set('category', e.target.value)
-                }
+                onChange={(e) => set('category', e.target.value)}
               >
                 {CATEGORIES.map((category) => (
-                  <option
-                    key={category}
-                    value={category}
-                  >
+                  <option key={category} value={category}>
                     {category}
                   </option>
                 ))}
@@ -176,22 +160,14 @@ export function GoalFormModal({
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>
-                Status
-              </span>
-
+              <span className={styles.label}>Status</span>
               <select
                 className={styles.select}
                 value={form.status}
-                onChange={(e) =>
-                  set('status', e.target.value)
-                }
+                onChange={(e) => set('status', e.target.value)}
               >
                 {STATUSES.map((status) => (
-                  <option
-                    key={status}
-                    value={status}
-                  >
+                  <option key={status} value={status}>
                     {status}
                   </option>
                 ))}
@@ -200,17 +176,12 @@ export function GoalFormModal({
           </div>
 
           <label className={styles.field}>
-            <span className={styles.label}>
-              Target date (optional)
-            </span>
-
+            <span className={styles.label}>Target date (optional)</span>
             <input
               className={styles.input}
               type="date"
               value={form.targetDate}
-              onChange={(e) =>
-                set('targetDate', e.target.value)
-              }
+              onChange={(e) => set('targetDate', e.target.value)}
             />
           </label>
 
@@ -231,8 +202,8 @@ export function GoalFormModal({
               {isPending
                 ? 'Saving…'
                 : goal
-                  ? 'Save changes'
-                  : 'Create goal'}
+                ? 'Save changes'
+                : 'Create goal'}
             </button>
           </div>
         </form>

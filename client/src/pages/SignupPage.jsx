@@ -2,6 +2,7 @@
 import { GoogleButton } from '../components/auth/GoogleButton'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../hooks/useAuth'
+import { capture } from '../lib/analytics'
 import styles from './AuthPage.module.css'
 
 export function SignupPage() {
@@ -18,10 +19,7 @@ export function SignupPage() {
   const [loading, setLoading] = useState(false)
 
   function set(key, val) {
-    setForm((f) => ({
-      ...f,
-      [key]: val,
-    }))
+    setForm((f) => ({ ...f, [key]: val }))
     setError('')
   }
 
@@ -30,10 +28,16 @@ export function SignupPage() {
     setLoading(true)
     setError('')
 
+    capture('signup_started', { method: 'password' })
+
     try {
       await signup(form)
       navigate('/today', { replace: true })
     } catch (err) {
+      capture('signup_failed', {
+        reason: err.response?.data?.message ?? 'unknown',
+      })
+
       setError(
         err.response?.data?.message ??
           'Something went wrong. Please try again.'
@@ -49,10 +53,7 @@ export function SignupPage() {
 
       <p className={styles.sub}>
         Already have an account?{' '}
-        <Link
-          to="/login"
-          className={styles.link}
-        >
+        <Link to="/login" className={styles.link}>
           Sign in
         </Link>
       </p>
@@ -69,65 +70,43 @@ export function SignupPage() {
         or
       </div>
 
-      <form
-        className={styles.form}
-        onSubmit={handleSubmit}
-      >
-        {error && (
-          <p className={styles.error}>
-            {error}
-          </p>
-        )}
+      <form className={styles.form} onSubmit={handleSubmit}>
+        {error && <p className={styles.error}>{error}</p>}
 
         <label className={styles.field}>
-          <span className={styles.label}>
-            Full name
-          </span>
-
+          <span className={styles.label}>Full name</span>
           <input
             className={styles.input}
             type="text"
             placeholder="Kethan Kumar"
             value={form.name}
-            onChange={(e) =>
-              set('name', e.target.value)
-            }
+            onChange={(e) => set('name', e.target.value)}
             required
             autoComplete="name"
           />
         </label>
 
         <label className={styles.field}>
-          <span className={styles.label}>
-            Email
-          </span>
-
+          <span className={styles.label}>Email</span>
           <input
             className={styles.input}
             type="email"
             placeholder="you@email.com"
             value={form.email}
-            onChange={(e) =>
-              set('email', e.target.value)
-            }
+            onChange={(e) => set('email', e.target.value)}
             required
             autoComplete="email"
           />
         </label>
 
         <label className={styles.field}>
-          <span className={styles.label}>
-            Password
-          </span>
-
+          <span className={styles.label}>Password</span>
           <input
             className={styles.input}
             type="password"
             placeholder="Min 8 characters"
             value={form.password}
-            onChange={(e) =>
-              set('password', e.target.value)
-            }
+            onChange={(e) => set('password', e.target.value)}
             required
             autoComplete="new-password"
             minLength={8}
@@ -139,9 +118,7 @@ export function SignupPage() {
           className={styles.submitBtn}
           disabled={loading}
         >
-          {loading
-            ? 'Creating account…'
-            : 'Get started free'}
+          {loading ? 'Creating account…' : 'Get started free'}
         </button>
 
         <p
