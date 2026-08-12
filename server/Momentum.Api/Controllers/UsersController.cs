@@ -1,8 +1,8 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Api.Domain;
+using Momentum.Api.Services;
 
 namespace Momentum.Api.Controllers;
 
@@ -12,23 +12,25 @@ namespace Momentum.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
+    private readonly TokenService _tokens;
+    private readonly ILogger<UsersController> _logger;
 
-    public UsersController(UserManager<User> userManager)
+    public UsersController(
+        UserManager<User> userManager,
+        TokenService tokens,
+        ILogger<UsersController> logger)
     {
         _userManager = userManager;
+        _tokens = tokens;
+        _logger = logger;
     }
 
     // GET /api/me
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? User.FindFirstValue("sub");
-
-        if (userId is null)
-            return Unauthorized();
-
-        var user = await _userManager.FindByIdAsync(userId);
+        var userId = TokenService.GetUserId(User);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
             return NotFound();
@@ -42,5 +44,37 @@ public class UsersController : ControllerBase
             theme = user.Theme,
             timezone = user.Timezone,
         });
+    }
+
+    // DELETE /api/me — permanent account deletion (GDPR / DPDP)
+    [HttpDelete("me")]
+    public async Task<IActionResult> DeleteMe()
+    {
+        var userId = TokenService.GetUserId(User);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user is null)
+            return NotFound();
+
+        var result = await _userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            _logger.LogError(
+                "Failed to delete user {UserId}: {Errors}",
+                userId,
+                string.Join(", ", result.Errors.Select(e => e.Description)));
+
+            return StatusCode(500, new
+            {
+                message = "Failed to delete account. Please contact support."
+            });
+        }
+
+        _tokens.ClearTokenCookies(Response);
+
+        _logger.LogInformation("Account {UserId} deleted", userId);
+
+        return NoContent();
     }
 }

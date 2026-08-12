@@ -1,8 +1,10 @@
 ﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Download, Zap, User, Bell, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { exportService } from '@/services/exportService'
+import { capture, EVENTS } from '@/lib/analytics'
 import styles from './SettingsPage.module.css'
 
 const fadeUp = {
@@ -16,27 +18,35 @@ const fadeUp = {
 
 const stagger = {
   hidden: {},
-  show: {
-    transition: { staggerChildren: 0.06 },
-  },
+  show: { transition: { staggerChildren: 0.06 } },
+}
+
+const EXPORTERS = {
+  json: () => exportService.downloadJson(),
+  csv: () => exportService.downloadCsv(),
 }
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth()
+  const { user, deleteAccount } = useAuth()
+  const navigate = useNavigate()
 
   const [exporting, setExporting] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   async function handleExport(type) {
+    const fn = EXPORTERS[type]
+    if (!fn) return
+
     setExporting(type)
 
     try {
-      if (type === 'json') {
-        await exportService.downloadJson()
-      }
-
-      if (type === 'csv') {
-        await exportService.downloadCsv()
-      }
+      await fn()
+      capture(EVENTS.EXPORT_DOWNLOADED, { format: type })
+    } catch (err) {
+      capture('export_failed', {
+        format: type,
+        reason: err.response?.data?.message ?? 'unknown',
+      })
     } finally {
       setExporting(null)
     }
@@ -51,14 +61,21 @@ export default function SettingsPage() {
       return
     }
 
-    if (!confirm('Last chance — delete everything?')) {
-      return
-    }
+    if (!confirm('Last chance — delete everything?')) return
 
-    // TODO Day 18: call DELETE /api/users/me
-    alert(
-      'Account deletion coming soon. Contact support@momentum.app in the meantime.'
-    )
+    setDeleting(true)
+
+    try {
+      await deleteAccount()
+      navigate('/', { replace: true })
+    } catch (err) {
+      alert(
+        err.response?.data?.message ??
+          'Could not delete account. Please try again or contact support.'
+      )
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -68,13 +85,11 @@ export default function SettingsPage() {
       initial="hidden"
       animate="show"
     >
-      {/* Header */}
       <motion.header className={styles.header} variants={fadeUp}>
         <p className={styles.sub}>Preferences</p>
         <h1 className={styles.heading}>Settings</h1>
       </motion.header>
 
-      {/* Profile */}
       <motion.section className={styles.section} variants={fadeUp}>
         <div className={styles.sectionHeader}>
           <User size={16} />
@@ -91,7 +106,6 @@ export default function SettingsPage() {
             <p className={styles.profileEmail}>{user?.email ?? '—'}</p>
           </div>
 
-          {/* Plan badge */}
           <span
             className={`${styles.planBadge} ${
               user?.plan === 'pro'
@@ -117,6 +131,7 @@ export default function SettingsPage() {
             <button
               className={styles.upgradeBtn}
               type="button"
+              onClick={() => capture(EVENTS.CHECKOUT_STARTED)}
             >
               Upgrade →
             </button>
@@ -132,7 +147,6 @@ export default function SettingsPage() {
         )}
       </motion.section>
 
-      {/* Notifications */}
       <motion.section className={styles.section} variants={fadeUp}>
         <div className={styles.sectionHeader}>
           <Bell size={16} />
@@ -153,7 +167,6 @@ export default function SettingsPage() {
         </div>
       </motion.section>
 
-      {/* Data Export */}
       <motion.section className={styles.section} variants={fadeUp}>
         <div className={styles.sectionHeader}>
           <Download size={16} />
@@ -166,54 +179,32 @@ export default function SettingsPage() {
         </p>
 
         <div className={styles.exportRow}>
-          <div className={styles.exportCard}>
-            <p className={styles.exportTitle}>Full export</p>
-            <p className={styles.exportSub}>
-              Goals, habits, journal, reviews
-            </p>
+          <ExportCard
+            title="Full export"
+            sub="Goals, habits, journal, reviews"
+            format="json"
+            label="Download JSON"
+            exporting={exporting}
+            onExport={handleExport}
+          />
 
-            <button
-              type="button"
-              className={styles.exportBtn}
-              onClick={() => handleExport('json')}
-              disabled={exporting === 'json'}
-            >
-              {exporting === 'json'
-                ? 'Exporting…'
-                : 'Download JSON'}
-            </button>
-          </div>
-
-          <div className={styles.exportCard}>
-            <p className={styles.exportTitle}>Habit logs</p>
-            <p className={styles.exportSub}>
-              Every log entry in flat CSV
-            </p>
-
-            <button
-              type="button"
-              className={styles.exportBtn}
-              onClick={() => handleExport('csv')}
-              disabled={exporting === 'csv'}
-            >
-              {exporting === 'csv'
-                ? 'Exporting…'
-                : 'Download CSV'}
-            </button>
-          </div>
+          <ExportCard
+            title="Habit logs"
+            sub="Every log entry in flat CSV"
+            format="csv"
+            label="Download CSV"
+            exporting={exporting}
+            onExport={handleExport}
+          />
         </div>
       </motion.section>
 
-      {/* Danger zone */}
       <motion.section
         className={`${styles.section} ${styles.dangerSection}`}
         variants={fadeUp}
       >
         <div className={styles.sectionHeader}>
-          <Trash2
-            size={16}
-            className={styles.dangerIcon}
-          />
+          <Trash2 size={16} className={styles.dangerIcon} />
 
           <h2
             className={`${styles.sectionTitle} ${styles.dangerTitle}`}
@@ -231,10 +222,38 @@ export default function SettingsPage() {
           type="button"
           className={styles.deleteBtn}
           onClick={handleDeleteAccount}
+          disabled={deleting}
         >
-          Delete my account
+          {deleting ? 'Deleting…' : 'Delete my account'}
         </button>
       </motion.section>
     </motion.div>
+  )
+}
+
+function ExportCard({
+  title,
+  sub,
+  format,
+  label,
+  exporting,
+  onExport,
+}) {
+  const busy = exporting === format
+
+  return (
+    <div className={styles.exportCard}>
+      <p className={styles.exportTitle}>{title}</p>
+      <p className={styles.exportSub}>{sub}</p>
+
+      <button
+        type="button"
+        className={styles.exportBtn}
+        onClick={() => onExport(format)}
+        disabled={busy}
+      >
+        {busy ? 'Exporting…' : label}
+      </button>
+    </div>
   )
 }

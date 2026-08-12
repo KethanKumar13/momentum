@@ -58,14 +58,11 @@ export default function InsightsPage() {
       initial="hidden"
       animate="show"
     >
-      {/* Header */}
       <motion.header className={styles.header} variants={fadeUp}>
         <div>
           <p className={styles.sub}>Your data, your story</p>
           <h1 className={styles.heading}>Insights</h1>
-          <p className={styles.meta}>
-            Based on your habits &amp; goals
-          </p>
+          <p className={styles.meta}>Based on your habits &amp; goals</p>
         </div>
 
         <div className={styles.periodSelector}>
@@ -83,28 +80,19 @@ export default function InsightsPage() {
         </div>
       </motion.header>
 
-      {/* Loading */}
       {isLoading && (
-        <p className={styles.loading}>
-          Loading insights...
-        </p>
+        <p className={styles.loading}>Loading insights…</p>
       )}
 
-      {/* Error */}
       {isError && (
         <p className={styles.error}>
           Failed to load insights. Make sure the server is running.
         </p>
       )}
 
-      {/* Content */}
       {!isLoading && !isError && (
         <>
-          {/* Stat cards */}
-          <motion.div
-            className={styles.statsGrid}
-            variants={fadeUp}
-          >
+          <motion.div className={styles.statsGrid} variants={fadeUp}>
             <StatCard
               label="Today's completion"
               value={`${completionRate}%`}
@@ -137,29 +125,18 @@ export default function InsightsPage() {
             />
           </motion.div>
 
-          {/* Grid sections */}
           <div className={styles.grid}>
-            {/* Heatmap */}
-            <motion.section
-              className={styles.section}
-              variants={fadeUp}
-            >
+            <motion.section className={styles.section} variants={fadeUp}>
               <h2 className={styles.sectionTitle}>
-                Habit activity - last{' '}
+                Habit activity — last{' '}
                 {PERIODS.find((p) => p.days === days)?.label}
               </h2>
-
               <HabitHeatmap days={heatmapDays} />
             </motion.section>
 
-            {/* Mood chart */}
-            <motion.section
-              className={styles.section}
-              variants={fadeUp}
-            >
+            <motion.section className={styles.section} variants={fadeUp}>
               <h2 className={styles.sectionTitle}>
                 Mood distribution
-
                 {dominantMood && (
                   <span className={styles.dominantMood}>
                     {dominantMood.emoji} mostly{' '}
@@ -172,38 +149,26 @@ export default function InsightsPage() {
                 <MoodChart moodCounts={moodCounts} />
               ) : (
                 <p className={styles.empty}>
-                  Journal entries will appear here - coming in Day 17.
+                  Log a mood on the Today page or write a journal entry
+                  to see your mood distribution here.
                 </p>
               )}
             </motion.section>
 
-            {/* Top habits */}
-            <motion.section
-              className={styles.section}
-              variants={fadeUp}
-            >
-              <h2 className={styles.sectionTitle}>
-                Top habits by streak
-              </h2>
+            <motion.section className={styles.section} variants={fadeUp}>
+              <h2 className={styles.sectionTitle}>Top habits by streak</h2>
 
               {topHabits.length > 0 ? (
                 <TopHabitsTable habits={topHabits} />
               ) : (
                 <p className={styles.empty}>
-                  No habits logged yet - start tracking to see streaks!
+                  No habits logged yet — start tracking to see streaks!
                 </p>
               )}
             </motion.section>
 
-            {/* Goals progress */}
-            <motion.section
-              className={styles.section}
-              variants={fadeUp}
-            >
-              <h2 className={styles.sectionTitle}>
-                Goals progress
-              </h2>
-
+            <motion.section className={styles.section} variants={fadeUp}>
+              <h2 className={styles.sectionTitle}>Goals progress</h2>
               <GoalsSummary goals={goals} />
             </motion.section>
           </div>

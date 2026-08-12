@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { useHabits } from '@/hooks/useHabits'
@@ -20,20 +20,27 @@ const fadeUp = {
   },
 }
 
+const FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'daily', label: 'Daily' },
+  { key: 'weekly_count', label: 'Weekly' },
+  { key: 'specific_days', label: 'Specific days' },
+]
+
 export default function HabitsPage() {
   const { data: habits = [], isLoading } = useHabits()
-  const [filter, setFilter] = useState('All')
+  const [filter, setFilter] = useState('all')
   const [modalOpen, setModalOpen] = useState(false)
   const [editingHabit, setEditing] = useState(null)
 
-  const categories = ['All', ...new Set(habits.map(h => h.frequencyType))]
-
   const filtered =
-    filter === 'All'
+    filter === 'all'
       ? habits
-      : habits.filter(h => h.frequencyType === filter)
+      : habits.filter((h) => h.frequencyType === filter)
 
-  const doneCount = habits.filter(h => !h.isDueToday).length
+  const doneCount = habits.filter(
+    (h) => h.todayLog?.status === 'done'
+  ).length
 
   function handleEdit(habit) {
     setEditing(habit)
@@ -71,20 +78,20 @@ export default function HabitsPage() {
           </button>
         </motion.header>
 
-        {/* Filter tabs */}
         <motion.div className={styles.filters} variants={fadeUp}>
-          {categories.map((cat) => (
+          {FILTERS.map((f) => (
             <button
-              key={cat}
-              className={`${styles.filterBtn} ${filter === cat ? styles.active : ''}`}
-              onClick={() => setFilter(cat)}
+              key={f.key}
+              className={`${styles.filterBtn} ${
+                filter === f.key ? styles.active : ''
+              }`}
+              onClick={() => setFilter(f.key)}
             >
-              {cat}
+              {f.label}
             </button>
           ))}
         </motion.div>
 
-        {/* List */}
         <motion.div className={styles.list} variants={stagger}>
           {isLoading ? (
             <p className={styles.empty}>Loading…</p>
