@@ -32,7 +32,7 @@ export function SignupPage() {
 
     try {
       await signup(form)
-      navigate('/today', { replace: true })
+      navigate('/onboarding', { replace: true })
     } catch (err) {
       capture('signup_failed', {
         reason: err.response?.data?.message ?? 'unknown',
@@ -131,3 +131,4 @@ export function SignupPage() {
     </div>
   )
 }
+

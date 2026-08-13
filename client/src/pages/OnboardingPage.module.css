@@ -1,0 +1,114 @@
+﻿.page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 460px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.stepDots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.dot {
+  width: 22px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.dot.active {
+  background: #7C5CFF;
+}
+
+.dot.done {
+  background: #7C5CFF88;
+}
+
+.icon {
+  color: #7C5CFF;
+  margin-bottom: 12px;
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.sub {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.field > span {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.skip {
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.primary {
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: #7C5CFF;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #EF444422;
+  color: #EF4444;
+  font-size: var(--text-xs);
+  margin-bottom: 12px;
+}
