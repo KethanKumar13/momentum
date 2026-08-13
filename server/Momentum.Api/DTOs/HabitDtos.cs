@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Momentum.Api.DTOs;
 
@@ -24,6 +24,8 @@ public record UpdateHabitRequest(
     Guid? GoalId
 );
 
+public record TodayLogSummary(string Status, string? Note);
+
 public record HabitResponse(
     Guid Id,
     string Title,
@@ -37,6 +39,7 @@ public record HabitResponse(
     bool IsDueToday,
     int CurrentStreak,
     int LongestStreak,
+    TodayLogSummary? TodayLog,
     DateTime? ArchivedAt,
     DateTime CreatedAt,
     DateTime UpdatedAt

@@ -1,5 +1,6 @@
-import { Pencil, Trash2 } from 'lucide-react'
+﻿import { Pencil, Trash2 } from 'lucide-react'
 import { useDeleteGoal } from '@/hooks/useGoals'
+import { capture, EVENTS } from '@/lib/analytics'
 import { GoalProgressBar } from './GoalProgressBar'
 import styles from './GoalCard.module.css'
 
@@ -11,7 +12,10 @@ export function GoalCard({ goal, onEdit }) {
 
   function handleDelete() {
     if (confirm(`Delete "${goal.title}"?`)) {
-      deleteGoal.mutate(goal.id)
+      deleteGoal.mutate(goal.id, {
+        onSuccess: () =>
+          capture(EVENTS.GOAL_DELETED, { goal_id: goal.id }),
+      })
     }
   }
 
@@ -60,15 +64,11 @@ export function GoalCard({ goal, onEdit }) {
 
       <h3 className={styles.title}>{goal.title}</h3>
 
-      {goal.why && (
-        <p className={styles.description}>{goal.why}</p>
-      )}
+      {goal.why && <p className={styles.description}>{goal.why}</p>}
 
       <GoalProgressBar progress={pct} target={100} />
 
-      {isDone && (
-        <p className={styles.doneLabel}>🎉 Completed!</p>
-      )}
+      {isDone && <p className={styles.doneLabel}>🎉 Completed!</p>}
 
       {goal.linkedHabits?.length > 0 && (
         <div className={styles.linkedHabits}>
