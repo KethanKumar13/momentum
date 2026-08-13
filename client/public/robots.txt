@@ -1,0 +1,16 @@
+﻿User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /today
+Disallow: /habits
+Disallow: /goals
+Disallow: /journal
+Disallow: /review
+Disallow: /insights
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+
+Sitemap: https://momentum.app/sitemap.xml

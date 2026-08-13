@@ -1,73 +1,59 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
-    <!-- Character Encoding -->
     <meta charset="UTF-8" />
-
-    <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B0D12" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
 
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#08090D" />
-
-    <!-- SEO -->
+    <title>Momentum — Small habits. Real momentum.</title>
     <meta
       name="description"
-      content="Momentum — Build Better Habits. Achieve Meaningful Goals. Stay Consistent Every Day."
+      content="Turn long-term goals into daily habits. Momentum unifies goals, habits, journaling, and weekly reviews so you can build the life you want — one small day at a time."
     />
-    <meta
-      name="keywords"
-      content="Momentum, Habit Tracker, Goals, Productivity, React, Personal Growth"
-    />
-    <meta name="author" content="Kethan Kumar" />
-
-    <!-- PWA -->
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta
-      name="apple-mobile-web-app-title"
-      content="Momentum"
-    />
-    <link
-      rel="apple-touch-icon"
-      href="/icons/icon-192.svg"
-    />
+    <meta name="author" content="Momentum" />
+    <link rel="canonical" href="https://momentum.app/" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Momentum" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Momentum" />
+    <meta
+      property="og:title"
+      content="Momentum — Small habits. Real momentum."
+    />
     <meta
       property="og:description"
-      content="Build Better Habits. Achieve Meaningful Goals."
+      content="Turn long-term goals into daily habits. Momentum unifies goals, habits, journaling, and weekly reviews."
     />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/og-image.svg" />
+    <meta
+      property="og:image"
+      content="https://momentum.app/og-image.png"
+    />
+    <meta property="og:url" content="https://momentum.app/" />
 
-    <!-- Favicon -->
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/favicon.svg"
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Momentum — Small habits. Real momentum."
+    />
+    <meta
+      name="twitter:description"
+      content="Goals → Habits → Today. Everything you need to become the person you want to be."
+    />
+    <meta
+      name="twitter:image"
+      content="https://momentum.app/og-image.png"
     />
 
-    <!-- Title -->
-    <title>Momentum | Build Better Habits</title>
+    <!-- Fonts (self-hosted via @fontsource in main.jsx) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
   </head>
 
   <body>
-    <a class="skip-link" href="#main-content">
-      Skip to main content
-    </a>
-
     <div id="root"></div>
-
-    <script
-      type="module"
-      src="/src/main.jsx"
-    ></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

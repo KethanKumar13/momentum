@@ -1,0 +1,148 @@
+﻿.page {
+  min-height: 100dvh;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  color: var(--text, #E5E7EB);
+  background: var(--bg, #0B0D12);
+}
+
+.back {
+  color: var(--text-muted, #9CA3AF);
+  text-decoration: none;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.header {
+  text-align: center;
+  margin: 20px 0 32px;
+}
+
+.h1 {
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.sub {
+  color: var(--text-muted, #9CA3AF);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  position: relative;
+  padding: 28px;
+  border: 1px solid var(--border, #232633);
+  border-radius: 14px;
+  background: var(--surface, #151821);
+}
+
+.pro {
+  border-color: #7C5CFF;
+  box-shadow: 0 0 0 1px #7C5CFF33;
+}
+
+.badge,
+.badgeGreen {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge {
+  background: #7C5CFF;
+}
+
+.badgeGreen {
+  background: #22C55E;
+}
+
+.tier {
+  color: var(--text-muted, #9CA3AF);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.price {
+  font-size: 44px;
+  font-weight: 800;
+  margin: 8px 0 4px;
+}
+
+.per {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-muted, #9CA3AF);
+}
+
+.tag {
+  color: var(--text-muted, #9CA3AF);
+  margin-bottom: 16px;
+}
+
+.features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #7C5CFF;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.secondary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border, #232633);
+  color: var(--text-muted, #9CA3AF);
+  cursor: not-allowed;
+}
+
+.legal {
+  color: var(--text-muted, #9CA3AF);
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px;
+}
+
+.legal a {
+  color: #A794FF;
+}

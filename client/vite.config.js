@@ -1,37 +1,70 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { fileURLToPath, URL } from "node:url";
+﻿import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
+import path from 'node:path'
 
 export default defineConfig({
-  plugins: [react()],
-
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      manifest: {
+        name: 'Momentum — Small habits. Real momentum.',
+        short_name: 'Momentum',
+        description:
+          'Turn long-term goals into daily habits with streaks, journaling, and weekly reviews.',
+        theme_color: '#0B0D12',
+        background_color: '#0B0D12',
+        display: 'standalone',
+        start_url: '/today',
+        scope: '/',
+        icons: [
+          {
+            src: '/icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512-maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
+        // Never cache API calls — always go to network
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gfonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+      devOptions: {
+        enabled: false, // SW disabled in dev to avoid caching-during-dev pain
+      },
+    }),
+  ],
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-
-  build: {
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (
-              id.includes("react/") ||
-              id.includes("react-dom/") ||
-              id.includes("react-router-dom/")
-            ) return "vendor";
-
-            if (
-              id.includes("framer-motion/") ||
-              id.includes("lucide-react/")
-            ) return "ui";
-
-            if (id.includes("@radix-ui/")) return "radix";
-          }
-        },
-      },
-    },
-  },
-});
+})
