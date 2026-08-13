@@ -1,10 +1,21 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { useGoals } from '@/hooks/useGoals'
 import { GoalCard } from '@/components/goals/GoalCard'
 import { GoalFormModal } from '@/components/goals/GoalFormModal'
+import { PlanLimitBanner } from '@/components/PlanLimitBanner'
 import styles from './GoalsPage.module.css'
+
+const CATEGORIES = [
+  'All',
+  'Health',
+  'Career',
+  'Learning',
+  'Finance',
+  'Relationships',
+  'Personal',
+]
 
 const stagger = {
   hidden: {},
@@ -22,20 +33,23 @@ const fadeUp = {
 
 export default function GoalsPage() {
   const { data: goals = [], isLoading } = useGoals()
+  const [category, setCategory] = useState('All')
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingGoal, setEditing] = useState(null)
+  const [editingGoal, setEditingGoal] = useState(null)
 
-  const done = goals.filter(g => g.progressPct >= 100).length
-  const inProgress = goals.length - done
+  const filtered =
+    category === 'All'
+      ? goals
+      : goals.filter((goal) => goal.category === category)
 
   function handleEdit(goal) {
-    setEditing(goal)
+    setEditingGoal(goal)
     setModalOpen(true)
   }
 
   function handleClose() {
     setModalOpen(false)
-    setEditing(null)
+    setEditingGoal(null)
   }
 
   return (
@@ -48,10 +62,10 @@ export default function GoalsPage() {
       >
         <motion.header className={styles.header} variants={fadeUp}>
           <div>
-            <p className={styles.sub}>What you are working toward</p>
+            <p className={styles.sub}>What you're working toward</p>
             <h1 className={styles.heading}>Goals</h1>
             <p className={styles.meta}>
-              {inProgress} in progress · {done} completed
+              {goals.length} {goals.length === 1 ? 'goal' : 'goals'}
             </p>
           </div>
 
@@ -64,21 +78,45 @@ export default function GoalsPage() {
           </button>
         </motion.header>
 
-        {isLoading ? (
-          <p className={styles.empty}>Loading…</p>
-        ) : goals.length === 0 ? (
-          <motion.p className={styles.empty} variants={fadeUp}>
-            No goals yet. Add one to start tracking your progress!
-          </motion.p>
-        ) : (
-          <motion.div className={styles.grid} variants={stagger}>
-            {goals.map((goal) => (
+        <PlanLimitBanner
+          current={goals.length}
+          max={3}
+          kind="goals"
+        />
+
+        <motion.div className={styles.filters} variants={fadeUp}>
+          {CATEGORIES.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className={`${styles.filterBtn} ${
+                category === item ? styles.active : ''
+              }`}
+              onClick={() => setCategory(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </motion.div>
+
+        <motion.div className={styles.grid} variants={stagger}>
+          {isLoading ? (
+            <p className={styles.empty}>Loading…</p>
+          ) : filtered.length === 0 ? (
+            <motion.p className={styles.empty} variants={fadeUp}>
+              No goals yet. Create your first one!
+            </motion.p>
+          ) : (
+            filtered.map((goal) => (
               <motion.div key={goal.id} variants={fadeUp}>
-                <GoalCard goal={goal} onEdit={handleEdit} />
+                <GoalCard
+                  goal={goal}
+                  onEdit={handleEdit}
+                />
               </motion.div>
-            ))}
-          </motion.div>
-        )}
+            ))
+          )}
+        </motion.div>
       </motion.div>
 
       <GoalFormModal

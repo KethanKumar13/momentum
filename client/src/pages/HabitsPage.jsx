@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { useHabits } from '@/hooks/useHabits'
 import { HabitCard } from '@/components/habits/HabitCard'
 import { HabitFormModal } from '@/components/habits/HabitFormModal'
+import { PlanLimitBanner } from '@/components/PlanLimitBanner'
 import styles from './HabitsPage.module.css'
 
 const stagger = {
@@ -77,6 +78,12 @@ export default function HabitsPage() {
             New habit
           </button>
         </motion.header>
+
+        <PlanLimitBanner
+          current={habits.length}
+          max={5}
+          kind="active habits"
+        />
 
         <motion.div className={styles.filters} variants={fadeUp}>
           {FILTERS.map((f) => (

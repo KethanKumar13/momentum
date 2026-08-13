@@ -1,19 +1,16 @@
 ﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Zap, User, Bell, Trash2 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Download, Zap, User, Bell, Trash2, Sparkles } from 'lucide-react'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { exportService } from '@/services/exportService'
+import { userService } from '@/services/userService'
 import { capture, EVENTS } from '@/lib/analytics'
 import styles from './SettingsPage.module.css'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: 'easeOut' },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 }
 
 const stagger = {
@@ -26,12 +23,55 @@ const EXPORTERS = {
   csv: () => exportService.downloadCsv(),
 }
 
+const TIMEZONES = [
+  'Asia/Kolkata',
+  'Asia/Dubai',
+  'Asia/Singapore',
+  'Asia/Tokyo',
+  'Europe/London',
+  'Europe/Berlin',
+  'America/New_York',
+  'America/Los_Angeles',
+  'Australia/Sydney',
+  'UTC',
+]
+
 export default function SettingsPage() {
-  const { user, deleteAccount } = useAuth()
+  const { user, deleteAccount, refresh } = useAuth()
   const navigate = useNavigate()
+
+  const [name, setName] = useState(user?.name ?? '')
+  const [tz, setTz] = useState(user?.timezone ?? 'Asia/Kolkata')
+  const [theme, setTheme] = useState(user?.theme ?? 'dark')
+  const [saving, setSaving] = useState(false)
+  const [profileMsg, setProfileMsg] = useState('')
 
   const [exporting, setExporting] = useState(null)
   const [deleting, setDeleting] = useState(false)
+
+  async function handleSaveProfile(e) {
+    e.preventDefault()
+    setSaving(true)
+    setProfileMsg('')
+
+    try {
+      await userService.updateProfile({
+        name,
+        timezone: tz,
+        theme,
+      })
+
+      setProfileMsg('Saved ✓')
+      refresh?.()
+    } catch (err) {
+      setProfileMsg(
+        err.response?.data?.message ?? 'Could not save.'
+      )
+    } finally {
+      setSaving(false)
+      setTimeout(() => setProfileMsg(''), 3000)
+    }
+  }
 
   async function handleExport(type) {
     const fn = EXPORTERS[type]
@@ -41,7 +81,10 @@ export default function SettingsPage() {
 
     try {
       await fn()
-      capture(EVENTS.EXPORT_DOWNLOADED, { format: type })
+
+      capture(EVENTS.EXPORT_DOWNLOADED, {
+        format: type,
+      })
     } catch (err) {
       capture('export_failed', {
         format: type,
@@ -55,7 +98,7 @@ export default function SettingsPage() {
   async function handleDeleteAccount() {
     if (
       !confirm(
-        'Are you sure? This permanently deletes all your data and cannot be undone.'
+        'Are you sure? This permanently deletes all your data.'
       )
     ) {
       return
@@ -71,7 +114,7 @@ export default function SettingsPage() {
     } catch (err) {
       alert(
         err.response?.data?.message ??
-          'Could not delete account. Please try again or contact support.'
+          'Could not delete account.'
       )
     } finally {
       setDeleting(false)
@@ -90,6 +133,7 @@ export default function SettingsPage() {
         <h1 className={styles.heading}>Settings</h1>
       </motion.header>
 
+      {/* Profile */}
       <motion.section className={styles.section} variants={fadeUp}>
         <div className={styles.sectionHeader}>
           <User size={16} />
@@ -102,8 +146,9 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <p className={styles.profileName}>{user?.name ?? '—'}</p>
-            <p className={styles.profileEmail}>{user?.email ?? '—'}</p>
+            <p className={styles.profileEmail}>
+              {user?.email ?? '—'}
+            </p>
           </div>
 
           <span
@@ -113,69 +158,140 @@ export default function SettingsPage() {
                 : styles.planFree
             }`}
           >
-            {user?.plan === 'pro' ? '⚡ Pro' : 'Free'}
+            {user?.plan === 'pro' ? '⚡ Pro' : 'Free (Beta)'}
           </span>
         </div>
 
-        {user?.plan !== 'pro' && (
-          <div className={styles.upgradeBox}>
-            <Zap size={16} className={styles.upgradeIcon} />
+        <form
+          className={styles.form}
+          onSubmit={handleSaveProfile}
+        >
+          <label className={styles.field}>
+            <span className={styles.label}>Name</span>
+            <input
+              className={styles.input}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+            />
+          </label>
 
-            <div>
-              <p className={styles.upgradeTitle}>Upgrade to Pro</p>
-              <p className={styles.upgradeSub}>
-                Unlimited habits, goals, and priority support.
-              </p>
-            </div>
-
-            <button
-              className={styles.upgradeBtn}
-              type="button"
-              onClick={() => capture(EVENTS.CHECKOUT_STARTED)}
+          <label className={styles.field}>
+            <span className={styles.label}>Timezone</span>
+            <select
+              className={styles.input}
+              value={tz}
+              onChange={(e) => setTz(e.target.value)}
             >
-              Upgrade →
-            </button>
-          </div>
-        )}
+              {TIMEZONES.map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        {user?.plan === 'free' && (
-          <div className={styles.limitsRow}>
-            <span className={styles.limit}>3 goals max</span>
-            <span className={styles.limitDivider}>·</span>
-            <span className={styles.limit}>5 habits max</span>
+          <label className={styles.field}>
+            <span className={styles.label}>Theme</span>
+            <select
+              className={styles.input}
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+            >
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </label>
+
+          <div className={styles.formFooter}>
+            <button
+              type="submit"
+              className={styles.saveBtn}
+              disabled={saving}
+            >
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+
+            {profileMsg && (
+              <span className={styles.savedMsg}>
+                {profileMsg}
+              </span>
+            )}
           </div>
-        )}
+        </form>
       </motion.section>
 
+      {/* Pro coming soon */}
+      <motion.section className={styles.section} variants={fadeUp}>
+        <div className={styles.sectionHeader}>
+          <Sparkles size={16} />
+          <h2 className={styles.sectionTitle}>
+            Momentum Pro
+          </h2>
+        </div>
+
+        <div className={styles.upgradeBox}>
+          <Zap size={16} className={styles.upgradeIcon} />
+
+          <div>
+            <p className={styles.upgradeTitle}>
+              Free during beta 💜
+            </p>
+
+            <p className={styles.upgradeSub}>
+              Momentum is free while we gather feedback. Paid
+              plans (Pro, AI coach) are coming soon — you'll be
+              the first to know.
+            </p>
+          </div>
+
+          <Link
+            to="/settings/billing"
+            className={styles.upgradeBtn}
+          >
+            Learn more →
+          </Link>
+        </div>
+
+        <div className={styles.limitsRow}>
+          <span className={styles.limit}>3 goals max</span>
+          <span className={styles.limitDivider}>·</span>
+          <span className={styles.limit}>
+            5 active habits max
+          </span>
+        </div>
+      </motion.section>
+
+      {/* Notifications */}
       <motion.section className={styles.section} variants={fadeUp}>
         <div className={styles.sectionHeader}>
           <Bell size={16} />
-          <h2 className={styles.sectionTitle}>Notifications</h2>
+          <h2 className={styles.sectionTitle}>
+            Notifications
+          </h2>
         </div>
 
         <div className={styles.noticeBox}>
           <p>
-            Email reminders are sent automatically — daily at{' '}
-            <strong>8 AM UTC</strong> for due habits, and every{' '}
-            <strong>Sunday at 6 PM UTC</strong> for your weekly review.
-          </p>
-
-          <p className={styles.noticeSmall}>
-            Per-habit reminder times and notification preferences will
-            be configurable in a future update.
+            Email reminders are sent daily at{' '}
+            <strong>8 AM UTC</strong> and every{' '}
+            <strong>Sunday at 6 PM UTC</strong> for your weekly
+            review.
           </p>
         </div>
       </motion.section>
 
+      {/* Data Export */}
       <motion.section className={styles.section} variants={fadeUp}>
         <div className={styles.sectionHeader}>
           <Download size={16} />
-          <h2 className={styles.sectionTitle}>Export your data</h2>
+          <h2 className={styles.sectionTitle}>
+            Export your data
+          </h2>
         </div>
 
         <p className={styles.sectionDesc}>
-          Download everything — your goals, habits, logs, journal,
-          and weekly reviews. Your data is always yours.
+          Download everything — your data is always yours.
         </p>
 
         <div className={styles.exportRow}>
@@ -199,12 +315,16 @@ export default function SettingsPage() {
         </div>
       </motion.section>
 
+      {/* Danger zone */}
       <motion.section
         className={`${styles.section} ${styles.dangerSection}`}
         variants={fadeUp}
       >
         <div className={styles.sectionHeader}>
-          <Trash2 size={16} className={styles.dangerIcon} />
+          <Trash2
+            size={16}
+            className={styles.dangerIcon}
+          />
 
           <h2
             className={`${styles.sectionTitle} ${styles.dangerTitle}`}
@@ -214,8 +334,8 @@ export default function SettingsPage() {
         </div>
 
         <p className={styles.sectionDesc}>
-          Permanently delete your account and all associated data.
-          This cannot be undone.
+          Permanently delete your account and all associated
+          data.
         </p>
 
         <button
@@ -224,7 +344,9 @@ export default function SettingsPage() {
           onClick={handleDeleteAccount}
           disabled={deleting}
         >
-          {deleting ? 'Deleting…' : 'Delete my account'}
+          {deleting
+            ? 'Deleting…'
+            : 'Delete my account'}
         </button>
       </motion.section>
     </motion.div>

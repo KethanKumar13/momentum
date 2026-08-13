@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { format, startOfWeek, subWeeks } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -43,29 +43,10 @@ export default function ReviewPage() {
     'MMM d'
   )} – ${weekEnd}`
 
-  const { data: review, isLoading } = useWeeklyReview(weekStart)
+  const { data: review, isLoading } =
+    useWeeklyReview(weekStart)
+
   const upsert = useUpsertWeeklyReview()
-
-  const [localWins, setLocalWins] = useState('')
-  const [localStruggles, setLocalStruggles] = useState('')
-  const [localFocus, setLocalFocus] = useState('')
-
-  useEffect(() => {
-    setLocalWins(review?.wins ?? '')
-    setLocalStruggles(review?.struggles ?? '')
-    setLocalFocus(review?.nextWeekFocus ?? '')
-  }, [review, weekStart])
-
-  async function handleSave() {
-    await upsert.mutateAsync({
-      weekStart,
-      data: {
-        wins: localWins,
-        struggles: localStruggles,
-        nextWeekFocus: localFocus,
-      },
-    })
-  }
 
   return (
     <motion.div
@@ -74,7 +55,6 @@ export default function ReviewPage() {
       initial="hidden"
       animate="show"
     >
-      {/* Header */}
       <motion.header
         className={styles.header}
         variants={fadeUp}
@@ -91,7 +71,6 @@ export default function ReviewPage() {
           </p>
         </div>
 
-        {/* Week navigator */}
         <div className={styles.weekNav}>
           <button
             type="button"
@@ -128,7 +107,6 @@ export default function ReviewPage() {
         </p>
       ) : (
         <>
-          {/* Auto stats */}
           {review?.stats && (
             <motion.div
               className={styles.statsGrid}
@@ -166,84 +144,127 @@ export default function ReviewPage() {
             </motion.div>
           )}
 
-          {/* Reflection form */}
-          <motion.div
-            className={styles.form}
-            variants={fadeUp}
-          >
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>
-                🏆 Wins this week
-              </label>
-
-              <textarea
-                className={styles.textarea}
-                rows={4}
-                placeholder="What went well? What are you proud of?"
-                value={localWins}
-                onChange={(e) =>
-                  setLocalWins(e.target.value)
-                }
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>
-                😤 Struggles
-              </label>
-
-              <textarea
-                className={styles.textarea}
-                rows={4}
-                placeholder="What was hard? What didn't go as planned?"
-                value={localStruggles}
-                onChange={(e) =>
-                  setLocalStruggles(e.target.value)
-                }
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>
-                🎯 Focus for next week
-              </label>
-
-              <textarea
-                className={styles.textarea}
-                rows={3}
-                placeholder="What's your #1 priority next week?"
-                value={localFocus}
-                onChange={(e) =>
-                  setLocalFocus(e.target.value)
-                }
-              />
-            </div>
-
-            <div className={styles.formFooter}>
-              <button
-                type="button"
-                className={styles.saveBtn}
-                onClick={handleSave}
-                disabled={upsert.isPending}
-              >
-                {upsert.isPending
-                  ? 'Saving...'
-                  : review?.id &&
-                      review.id !==
-                        '00000000-0000-0000-0000-000000000000'
-                    ? 'Update review'
-                    : 'Save review'}
-              </button>
-
-              {upsert.isSuccess && (
-                <span className={styles.savedLabel}>
-                  ✓ Saved
-                </span>
-              )}
-            </div>
-          </motion.div>
+          {/* key={weekStart} → remounts with fresh state when the week changes */}
+          <ReviewForm
+            key={weekStart}
+            weekStart={weekStart}
+            initial={{
+              wins: review?.wins ?? '',
+              struggles: review?.struggles ?? '',
+              nextWeekFocus:
+                review?.nextWeekFocus ?? '',
+            }}
+            hasSaved={
+              review?.id &&
+              review.id !==
+                '00000000-0000-0000-0000-000000000000'
+            }
+            upsert={upsert}
+          />
         </>
       )}
+    </motion.div>
+  )
+}
+
+function ReviewForm({
+  weekStart,
+  initial,
+  hasSaved,
+  upsert,
+}) {
+  const [wins, setWins] = useState(initial.wins)
+  const [struggles, setStruggles] = useState(
+    initial.struggles
+  )
+  const [focusText, setFocusText] = useState(
+    initial.nextWeekFocus
+  )
+
+  async function handleSave() {
+    await upsert.mutateAsync({
+      weekStart,
+      data: {
+        wins,
+        struggles,
+        nextWeekFocus: focusText,
+      },
+    })
+  }
+
+  return (
+    <motion.div
+      className={styles.form}
+      variants={fadeUp}
+    >
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>
+          🏆 Wins this week
+        </label>
+
+        <textarea
+          className={styles.textarea}
+          rows={4}
+          placeholder="What went well? What are you proud of?"
+          value={wins}
+          onChange={(e) =>
+            setWins(e.target.value)
+          }
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>
+          😤 Struggles
+        </label>
+
+        <textarea
+          className={styles.textarea}
+          rows={4}
+          placeholder="What was hard? What didn't go as planned?"
+          value={struggles}
+          onChange={(e) =>
+            setStruggles(e.target.value)
+          }
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>
+          🎯 Focus for next week
+        </label>
+
+        <textarea
+          className={styles.textarea}
+          rows={3}
+          placeholder="What's your #1 priority next week?"
+          value={focusText}
+          onChange={(e) =>
+            setFocusText(e.target.value)
+          }
+        />
+      </div>
+
+      <div className={styles.formFooter}>
+        <button
+          type="button"
+          className={styles.saveBtn}
+          onClick={handleSave}
+          disabled={upsert.isPending}
+        >
+          {upsert.isPending
+            ? 'Saving...'
+            : hasSaved
+            ? 'Update review'
+            : 'Save review'}
+        </button>
+
+        {upsert.isSuccess && (
+          <span className={styles.savedLabel}>
+            ✓ Saved
+          </span>
+        )}
+      </div>
     </motion.div>
   )
 }
@@ -252,8 +273,11 @@ function StatTile({ label, value, sub, icon }) {
   return (
     <div className={styles.statTile}>
       <span className={styles.statIcon}>{icon}</span>
+
       <p className={styles.statValue}>{value}</p>
+
       <p className={styles.statLabel}>{label}</p>
+
       <p className={styles.statSub}>{sub}</p>
     </div>
   )

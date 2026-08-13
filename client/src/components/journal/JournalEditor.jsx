@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useState } from 'react'
 import { Bold, Italic, List, ListOrdered, X } from 'lucide-react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -15,12 +15,8 @@ function Toolbar({ editor }) {
     <div className={styles.toolbar}>
       <button
         type="button"
-        className={`${styles.toolBtn} ${
-          editor.isActive('bold') ? styles.toolActive : ''
-        }`}
-        onClick={() =>
-          editor.chain().focus().toggleBold().run()
-        }
+        className={`${styles.toolBtn} ${editor.isActive('bold') ? styles.toolActive : ''}`}
+        onClick={() => editor.chain().focus().toggleBold().run()}
         aria-label="Bold"
       >
         <Bold size={15} />
@@ -28,12 +24,8 @@ function Toolbar({ editor }) {
 
       <button
         type="button"
-        className={`${styles.toolBtn} ${
-          editor.isActive('italic') ? styles.toolActive : ''
-        }`}
-        onClick={() =>
-          editor.chain().focus().toggleItalic().run()
-        }
+        className={`${styles.toolBtn} ${editor.isActive('italic') ? styles.toolActive : ''}`}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
         aria-label="Italic"
       >
         <Italic size={15} />
@@ -43,12 +35,8 @@ function Toolbar({ editor }) {
 
       <button
         type="button"
-        className={`${styles.toolBtn} ${
-          editor.isActive('bulletList') ? styles.toolActive : ''
-        }`}
-        onClick={() =>
-          editor.chain().focus().toggleBulletList().run()
-        }
+        className={`${styles.toolBtn} ${editor.isActive('bulletList') ? styles.toolActive : ''}`}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
         aria-label="Bullet list"
       >
         <List size={15} />
@@ -56,12 +44,8 @@ function Toolbar({ editor }) {
 
       <button
         type="button"
-        className={`${styles.toolBtn} ${
-          editor.isActive('orderedList') ? styles.toolActive : ''
-        }`}
-        onClick={() =>
-          editor.chain().focus().toggleOrderedList().run()
-        }
+        className={`${styles.toolBtn} ${editor.isActive('orderedList') ? styles.toolActive : ''}`}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
         aria-label="Ordered list"
       >
         <ListOrdered size={15} />
@@ -70,40 +54,49 @@ function Toolbar({ editor }) {
   )
 }
 
-export function JournalEditor({
-  open,
-  onClose,
-  entry,
-  date,
-}) {
+export function JournalEditor({ open, onClose, entry, date }) {
+  if (!open) return null
+
+  // Wrapper uses `key` so a fresh entry/date fully remounts the form &
+  // editor with new initial state — no useEffect setState needed.
+  const targetDate = date ?? format(new Date(), 'yyyy-MM-dd')
+
+  return (
+    <div
+      className={styles.overlay}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <JournalForm
+        key={`${entry?.id ?? 'new'}-${targetDate}`}
+        entry={entry}
+        targetDate={targetDate}
+        onClose={onClose}
+      />
+    </div>
+  )
+}
+
+function JournalForm({ entry, targetDate, onClose }) {
   const upsert = useUpsertJournal()
   const remove = useDeleteJournal()
 
-  const targetDate =
-    date ?? format(new Date(), 'yyyy-MM-dd')
+  const [mood, setMood] = useState(entry?.mood ?? 'good')
+  const [title, setTitle] = useState(entry?.title ?? '')
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder:
-          'Write freely — this is just for you...',
+        placeholder: 'Write freely — this is just for you...',
       }),
     ],
     content: entry?.content ?? '',
   })
 
-  // Sync editor content when entry changes
-  useEffect(() => {
-    if (editor && entry?.content !== undefined) {
-      editor.commands.setContent(entry.content ?? '')
-    }
-  }, [editor, entry?.content])
-
-  async function handleSave(mood, title) {
+  async function handleSave() {
     const html = editor?.getHTML() ?? ''
 
-    if (!html || html === '') return
+    if (!html || html === '<p></p>' || html === '') return
 
     await upsert.mutateAsync({
       date: targetDate,
@@ -124,59 +117,14 @@ export function JournalEditor({
     }
   }
 
-  if (!open) return null
-
-  return (
-    <div
-      className={styles.overlay}
-      onClick={(e) =>
-        e.target === e.currentTarget && onClose()
-      }
-    >
-      <JournalForm
-        editor={editor}
-        entry={entry}
-        targetDate={targetDate}
-        onSave={handleSave}
-        onDelete={entry ? handleDelete : null}
-        onClose={onClose}
-        isPending={
-          upsert.isPending || remove.isPending
-        }
-      />
-    </div>
-  )
-}
-
-function JournalForm({
-  editor,
-  entry,
-  targetDate,
-  onSave,
-  onDelete,
-  onClose,
-  isPending,
-}) {
-  const [mood, setMood] = useState(
-    entry?.mood ?? 'good'
-  )
-
-  const [title, setTitle] = useState(
-    entry?.title ?? ''
-  )
-
-  // Sync local state when entry prop changes
-  useEffect(() => {
-    setMood(entry?.mood ?? 'good')
-    setTitle(entry?.title ?? '')
-  }, [entry])
-
   const displayDate = targetDate
     ? format(
         new Date(`${targetDate}T00:00:00`),
         'EEEE, MMMM d yyyy'
       )
     : ''
+
+  const isPending = upsert.isPending || remove.isPending
 
   return (
     <div className={styles.panel}>
@@ -186,14 +134,10 @@ function JournalForm({
             {entry ? 'Edit entry' : 'New entry'}
           </p>
 
-          <h2 className={styles.heading}>
-            Journal
-          </h2>
+          <h2 className={styles.heading}>Journal</h2>
 
           {displayDate && (
-            <p className={styles.entryDate}>
-              {displayDate}
-            </p>
+            <p className={styles.entryDate}>{displayDate}</p>
           )}
         </div>
 
@@ -218,17 +162,13 @@ function JournalForm({
             type="text"
             placeholder="What's on your mind?"
             value={title}
-            onChange={(e) =>
-              setTitle(e.target.value)
-            }
+            onChange={(e) => setTitle(e.target.value)}
             autoFocus={!entry}
           />
         </label>
 
         <div className={styles.field}>
-          <span className={styles.fieldLabel}>
-            Entry
-          </span>
+          <span className={styles.fieldLabel}>Entry</span>
 
           <div className={styles.editorWrap}>
             <Toolbar editor={editor} />
@@ -252,11 +192,11 @@ function JournalForm({
       </div>
 
       <div className={styles.footer}>
-        {onDelete && (
+        {entry && (
           <button
             type="button"
             className={styles.deleteBtn}
-            onClick={onDelete}
+            onClick={handleDelete}
           >
             Delete
           </button>
@@ -274,13 +214,13 @@ function JournalForm({
           type="button"
           className={styles.submitBtn}
           disabled={isPending}
-          onClick={() => onSave(mood, title)}
+          onClick={handleSave}
         >
           {isPending
             ? 'Saving…'
             : entry
-              ? 'Save changes'
-              : 'Save entry'}
+            ? 'Save changes'
+            : 'Save entry'}
         </button>
       </div>
     </div>
