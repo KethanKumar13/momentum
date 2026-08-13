@@ -2,11 +2,13 @@
 
 import { AuthProvider } from '../context/AuthProvider'
 import { AppLayout } from '../layouts/AppLayout'
-import { PublicLayout } from '../layouts/PublicLayout'
 import { AuthLayout } from '../layouts/AuthLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
 import { LandingPage } from '../pages/LandingPage'
+import { PricingPage } from '../pages/PricingPage'
+import { TermsPage } from '../pages/TermsPage'
+import { PrivacyPage } from '../pages/PrivacyPage'
 import { LoginPage } from '../pages/LoginPage'
 import { SignupPage } from '../pages/SignupPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
@@ -31,20 +33,19 @@ export function AppRouter() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<LandingPage />} />
-          </Route>
+          {/* Public pages — no layout so the landing owns its own chrome */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route
-              path="/forgot-password"
-              element={<ForgotPasswordPage />}
-            />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Route>
 
-          {/* Onboarding — protected, no AppLayout so it's full-screen */}
+          {/* Onboarding — protected, full-screen */}
           <Route
             path="/onboarding"
             element={
@@ -61,25 +62,16 @@ export function AppRouter() {
               </ProtectedRoute>
             }
           >
-            <Route index path="/today" element={<TodayPage />} />
+            <Route path="/today" element={<TodayPage />} />
             <Route path="/habits" element={<HabitsPage />} />
-            <Route
-              path="/habits/:id"
-              element={<HabitDetailPage />}
-            />
+            <Route path="/habits/:id" element={<HabitDetailPage />} />
             <Route path="/goals" element={<GoalsPage />} />
-            <Route
-              path="/goals/:id"
-              element={<GoalDetailPage />}
-            />
+            <Route path="/goals/:id" element={<GoalDetailPage />} />
             <Route path="/journal" element={<JournalPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route
-              path="/settings/billing"
-              element={<BillingPage />}
-            />
+            <Route path="/settings/billing" element={<BillingPage />} />
           </Route>
 
           <Route path="/dev/ui" element={<UIShowcasePage />} />
