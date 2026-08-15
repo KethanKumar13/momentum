@@ -1,21 +1,27 @@
-.overlay {
+﻿.overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
   animation: fadeIn 0.15s ease;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
 }
 
-.content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(480px, calc(100vw - var(--sp-8)));
-  background: var(--surface-1);
-  border: 1px solid var(--border);
+.content,
+.modal {
+  position: relative;
+  width: min(520px, calc(100vw - var(--sp-8)));
+  max-height: calc(100dvh - var(--sp-8));
+  overflow-y: auto;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: var(--sp-6);
+  box-shadow: var(--shadow-lg);
   z-index: 101;
   animation: slideUp 0.2s ease;
 }
@@ -27,14 +33,15 @@
   margin-bottom: var(--sp-5);
 }
 
-.title {
-  font-size: var(--text-lg);
+.header h2 {
+  font-size: var(--fs-h3);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
 
-.close {
+.close,
+.closeBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,11 +52,13 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
-.close:hover {
-  background: var(--surface-2);
+.close:hover,
+.closeBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 .form {
@@ -58,14 +67,27 @@
   gap: var(--sp-4);
 }
 
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .field {
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
 }
 
-.fieldLabel {
-  font-size: var(--text-sm);
+.fieldLabel,
+.label {
+  font-size: var(--fs-small);
   font-weight: 500;
   color: var(--text-secondary);
 }
@@ -74,21 +96,28 @@
 .select {
   width: 100%;
   padding: var(--sp-2) var(--sp-3);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: var(--text-sm);
-  font-family: var(--font-sans);
-  transition: border-color 0.15s;
+  font-size: var(--fs-small);
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 .input:focus,
 .select:focus {
-  outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--brand-500);
+  box-shadow: var(--shadow-ring);
 }
 
+/* ── Icon picker ─────────────────────────────── */
 .iconGrid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -101,22 +130,97 @@
   justify-content: center;
   height: 40px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
   font-size: 1.25rem;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
 }
 
 .iconBtn:hover {
-  background: var(--surface-3, var(--surface-2));
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
-.iconSelected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-muted);
+.iconSelected,
+.iconActive {
+  border-color: var(--brand-500);
+  background: color-mix(
+    in srgb,
+    var(--brand-500) 15%,
+    var(--bg-elevated)
+  );
 }
 
+/* ── Color picker ────────────────────────────── */
+.colorRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.colorBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+
+.colorBtn:hover {
+  transform: scale(1.08);
+}
+
+.colorActive {
+  box-shadow:
+    0 0 0 2px var(--bg-surface),
+    0 0 0 4px var(--text-primary);
+}
+
+/* ── Specific-days picker ────────────────────── */
+.dayGrid {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-top: var(--sp-2);
+}
+
+.dayBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dayBtn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.dayBtn.dayActive {
+  background: var(--brand-500);
+  border-color: var(--brand-500);
+  color: #fff;
+}
+
+/* Hint text under frequency picker */
+.hint,
+.configHint {
+  font-size: var(--fs-micro);
+  color: var(--text-muted);
+  margin: 0;
+  padding: var(--sp-2) 0;
+}
+
+/* ── Footer ──────────────────────────────────── */
 .footer {
   display: flex;
   justify-content: flex-end;
@@ -126,35 +230,111 @@
 
 .cancelBtn {
   padding: var(--sp-2) var(--sp-4);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--text-secondary);
-  font-size: var(--text-sm);
+  font-size: var(--fs-small);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .cancelBtn:hover {
-  background: var(--surface-2);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 .submitBtn {
   padding: var(--sp-2) var(--sp-4);
   border: none;
   border-radius: var(--radius-md);
-  background: var(--color-primary);
+  background: var(--brand-500);
   color: #fff;
-  font-size: var(--text-sm);
+  font-size: var(--fs-small);
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: background 0.15s, opacity 0.15s;
 }
 
-.submitBtn:hover {
-  opacity: 0.9;
+.submitBtn:hover:not(:disabled) {
+  background: var(--brand-600);
 }
 
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Light-theme safeguards ─────────────────── */
+[data-theme="light"] .overlay {
+  background: rgba(20, 22, 31, 0.35);
+}
+
+[data-theme="light"] .content,
+[data-theme="light"] .modal {
+  background: var(--bg-surface);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .header h2 {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .fieldLabel,
+[data-theme="light"] .label {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .input,
+[data-theme="light"] .select {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .iconBtn,
+[data-theme="light"] .dayBtn {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .dayBtn {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .dayBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+[data-theme="light"] .cancelBtn {
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .cancelBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .close,
+[data-theme="light"] .closeBtn {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .close:hover,
+[data-theme="light"] .closeBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* ── Animations ───────────────────────────────── */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -168,48 +348,11 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translate(-50%, -46%);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translateY(0);
   }
-}
-.dayGrid {
-  display: flex;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
-  margin-top: var(--sp-2);
-}
-
-.dayBtn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.dayBtn:hover {
-  border-color: var(--border-default);
-  color: var(--text-primary);
-}
-
-.dayBtn.dayActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
-}
-
-.configHint {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  margin: 0;
-  padding: var(--sp-2) 0;
 }

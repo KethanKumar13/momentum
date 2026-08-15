@@ -4,16 +4,19 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: var(--bg);
+  background: var(--bg-base);
+  color: var(--text-primary);
 }
 
 .card {
   width: 100%;
   max-width: 460px;
   padding: 28px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
-  background: var(--surface);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .stepDots {
@@ -26,31 +29,31 @@
   width: 22px;
   height: 4px;
   border-radius: 999px;
-  background: var(--border);
+  background: var(--border-subtle);
 }
 
 .dot.active {
-  background: #7C5CFF;
+  background: var(--brand-500);
 }
 
 .dot.done {
-  background: #7C5CFF88;
+  background: color-mix(in srgb, var(--brand-500) 55%, transparent);
 }
 
 .icon {
-  color: #7C5CFF;
+  color: var(--brand-500);
   margin-bottom: 12px;
 }
 
 .heading {
   font-size: 22px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
 .sub {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 20px;
 }
 
@@ -61,17 +64,30 @@
 }
 
 .field > span {
-  font-size: var(--text-xs);
+  font-size: var(--fs-micro);
   color: var(--text-muted);
 }
 
 .input {
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
   width: 100%;
+  font-family: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--brand-500);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 .footer {
@@ -89,14 +105,22 @@
   cursor: pointer;
 }
 
+.skip:hover {
+  color: var(--text-primary);
+}
+
 .primary {
   padding: 8px 18px;
   border: 0;
   border-radius: 8px;
-  background: #7C5CFF;
-  color: white;
+  background: var(--brand-500);
+  color: #fff;
   font-weight: 600;
   cursor: pointer;
+}
+
+.primary:hover:not(:disabled) {
+  filter: brightness(0.95);
 }
 
 .primary:disabled {
@@ -107,8 +131,54 @@
 .error {
   padding: 8px 12px;
   border-radius: 8px;
-  background: #EF444422;
-  color: #EF4444;
-  font-size: var(--text-xs);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger);
+  font-size: var(--fs-micro);
   margin-bottom: 12px;
+}
+
+/* ─── Light Theme Readability Fixes ──────────────────────── */
+[data-theme="light"] .page {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .card {
+  background: var(--bg-surface);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .heading {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .sub {
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .field > span {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .input {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .skip {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .skip:hover {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .error {
+  color: var(--danger);
 }

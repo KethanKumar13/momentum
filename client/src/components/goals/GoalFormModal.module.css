@@ -1,21 +1,30 @@
-.overlay {
+﻿.overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
   animation: fadeIn 0.15s ease;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
 }
 
-.content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+/* Both `.content` (legacy) and `.modal` (JSX) point at the same panel */
+.content,
+.modal {
+  position: relative;
   width: min(520px, calc(100vw - var(--sp-8)));
+  max-height: calc(100dvh - var(--sp-8));
+  overflow-y: auto;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: var(--sp-6);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
   z-index: 101;
   animation: slideUp 0.2s ease;
 }
@@ -34,7 +43,9 @@
   margin: 0;
 }
 
-.close {
+/* Both `.close` (legacy) and `.closeBtn` (JSX) */
+.close,
+.closeBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,11 +56,12 @@
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
-
-.close:hover {
+.close:hover,
+.closeBtn:hover {
   background: var(--surface-2);
+  color: var(--text-primary);
 }
 
 .form {
@@ -63,6 +75,9 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--sp-3);
 }
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; }
+}
 
 .field {
   display: flex;
@@ -70,7 +85,9 @@
   gap: var(--sp-2);
 }
 
-.fieldLabel {
+/* Both `.fieldLabel` (legacy) and `.label` (JSX) */
+.fieldLabel,
+.label {
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-secondary);
@@ -86,18 +103,19 @@
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: var(--text-sm);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans, inherit);
   transition: border-color 0.15s;
+  outline: none;
 }
 
 .textarea {
   resize: vertical;
+  min-height: 72px;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-  outline: none;
   border-color: var(--color-primary);
 }
 
@@ -118,7 +136,6 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-
 .cancelBtn:hover {
   background: var(--surface-2);
 }
@@ -134,29 +151,15 @@
   cursor: pointer;
   transition: opacity 0.15s;
 }
-
-.submitBtn:hover {
-  opacity: 0.9;
-}
+.submitBtn:hover:not(:disabled) { opacity: 0.9; }
+.submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -46%);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
 }
