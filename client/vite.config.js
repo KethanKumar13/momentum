@@ -2,6 +2,9 @@
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [
@@ -40,7 +43,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
-        // Never cache API calls — always go to network
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
           {
@@ -52,13 +54,15 @@ export default defineConfig({
                 maxEntries: 30,
                 maxAgeSeconds: 60 * 60 * 24 * 365,
               },
-              cacheableResponse: { statuses: [0, 200] },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
             },
           },
         ],
       },
       devOptions: {
-        enabled: false, // SW disabled in dev to avoid caching-during-dev pain
+        enabled: false,
       },
     }),
   ],

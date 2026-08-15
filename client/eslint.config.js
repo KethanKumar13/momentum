@@ -1,4 +1,4 @@
-import js from "@eslint/js";
+﻿import js from "@eslint/js";
 import globals from "globals";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -38,6 +38,9 @@ export default defineConfig([
     },
 
     rules: {
+      // Disable cosmetic JSX entity escaping warnings
+      "react/no-unescaped-entities": "off",
+
       // React 17+ JSX Transform
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",
