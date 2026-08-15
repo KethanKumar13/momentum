@@ -1,37 +1,23 @@
-import styles from "./StatCard.module.css";
+﻿import styles from './StatCard.module.css'
 
-export function StatCard({
-  label,
-  value,
-  sub,
-  icon,
-  accent,
-}) {
+/**
+ * StatCard
+ * @param {ReactNode} icon    — a Lucide icon element, e.g. <Target size={18} />
+ * @param {string}    accent  — 'primary' | 'success' | 'warning' | 'info' | 'default'
+ * @param {string}    label
+ * @param {string}    value
+ * @param {string}    sub
+ */
+export function StatCard({ icon, accent = 'default', label, value, sub }) {
   return (
-    <div
-      className={`${styles.card} ${
-        accent ? styles[accent] : ""
-      }`}
-    >
-      {icon && (
-        <span className={styles.icon}>
-          {icon}
-        </span>
-      )}
+    <div className={`${styles.card} ${styles[accent]}`}>
+      <div className={styles.iconTile}>
+        {icon}
+      </div>
 
-      <p className={styles.value}>
-        {value}
-      </p>
-
-      <p className={styles.label}>
-        {label}
-      </p>
-
-      {sub && (
-        <p className={styles.sub}>
-          {sub}
-        </p>
-      )}
+      <p className={styles.value}>{value}</p>
+      <p className={styles.label}>{label}</p>
+      {sub && <p className={styles.sub}>{sub}</p>}
     </div>
-  );
+  )
 }
