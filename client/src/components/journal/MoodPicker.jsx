@@ -1,42 +1,34 @@
-import { MOODS } from "@/store/journalStore";
-import styles from "./MoodPicker.module.css";
+﻿import { MoodEmoji } from '@/components/ui/MoodEmoji'
+import styles from './MoodPicker.module.css'
 
-export function MoodPicker({
-  value,
-  onChange,
-}) {
+const MOODS = [
+  { value: 'great', label: 'Great' },
+  { value: 'good', label: 'Good' },
+  { value: 'okay', label: 'Okay' },
+  { value: 'bad', label: 'Bad' },
+  { value: 'awful', label: 'Awful' },
+]
+
+export function MoodPicker({ value, onChange }) {
   return (
-    <div
-      className={styles.wrap}
-      role="group"
-      aria-label="Select your mood"
-    >
-      {MOODS.map((mood) => (
-        <button
-          key={mood.value}
-          type="button"
-          className={`${styles.btn} ${
-            value === mood.value
-              ? styles.active
-              : ""
-          }`}
-          onClick={() =>
-            onChange(mood.value)
-          }
-          title={mood.label}
-          aria-pressed={
-            value === mood.value
-          }
-        >
-          <span className={styles.emoji}>
-            {mood.emoji}
-          </span>
+    <div className={styles.wrap}>
+      {MOODS.map((m) => {
+        const active = value === m.value
 
-          <span className={styles.label}>
-            {mood.label}
-          </span>
-        </button>
-      ))}
+        return (
+          <button
+            key={m.value}
+            type="button"
+            className={`${styles.btn} ${active ? styles.active : ''}`}
+            onClick={() => onChange(m.value)}
+            aria-pressed={active}
+            aria-label={m.label}
+          >
+            <MoodEmoji mood={m.value} size={36} />
+            <span className={styles.label}>{m.label}</span>
+          </button>
+        )
+      })}
     </div>
-  );
+  )
 }

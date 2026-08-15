@@ -220,3 +220,36 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ── Modern colored tile for icons inside review stats ── */
+.statIconTile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--sp-2);
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+  color: var(--text-secondary);
+}
+
+.accent_primary .statIconTile {
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--color-primary);
+}
+
+.accent_success .statIconTile {
+  background: color-mix(in srgb, var(--color-success, #22C55E) 15%, transparent);
+  color: var(--color-success, #22C55E);
+}
+
+.accent_warning .statIconTile {
+  background: color-mix(in srgb, var(--color-warning, #F59E0B) 15%, transparent);
+  color: var(--color-warning, #F59E0B);
+}
+
+.accent_info .statIconTile {
+  background: color-mix(in srgb, var(--color-info, #3B82F6) 15%, transparent);
+  color: var(--color-info, #3B82F6);
+}

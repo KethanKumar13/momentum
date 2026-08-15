@@ -1,35 +1,55 @@
 ﻿import { Flame } from 'lucide-react'
+import { HabitIcon } from '@/components/habits/IconPicker'
 import styles from './TopHabitsTable.module.css'
 
 export function TopHabitsTable({ habits }) {
   return (
     <div className={styles.wrap}>
-      {habits.map((habit, index) => (
-        <div className={styles.row} key={habit.id}>
-          <span className={styles.rank}>
-            #{index + 1}
-          </span>
+      {habits.map((habit, index) => {
+        const color = habit.color ?? '#7C5CFF'
 
-          <span
-            className={styles.icon}
-            style={{ color: habit.color }}
+        return (
+          <div
+            className={styles.row}
+            key={habit.id}
           >
-            {habit.icon ?? '⚡'}
-          </span>
+            <span className={styles.rank}>
+              #{index + 1}
+            </span>
 
-          <div className={styles.info}>
-            <p className={styles.label}>{habit.title}</p>
-            <p className={styles.category}>
-              {habit.consistencyPct}% consistent · {habit.totalLogs} logs
-            </p>
-          </div>
+            <span
+              className={styles.icon}
+              style={{
+                background: `${color}22`,
+                color,
+              }}
+            >
+              <HabitIcon
+                name={habit.icon}
+                size={16}
+              />
+            </span>
 
-          <div className={styles.streak}>
-            <Flame size={13} />
-            <span>{habit.currentStreak}d</span>
+            <div className={styles.info}>
+              <p className={styles.label}>
+                {habit.title}
+              </p>
+
+              <p className={styles.category}>
+                {habit.consistencyPct}% consistent ·{' '}
+                {habit.totalLogs} logs
+              </p>
+            </div>
+
+            <div className={styles.streak}>
+              <Flame size={13} />
+              <span>
+                {habit.currentStreak}d
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

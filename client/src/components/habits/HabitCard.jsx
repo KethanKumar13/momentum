@@ -1,6 +1,7 @@
 ﻿import { Pencil, Trash2, Flame, Archive } from 'lucide-react'
 import { useDeleteHabit, useArchiveHabit } from '@/hooks/useHabits'
 import { capture, EVENTS } from '@/lib/analytics'
+import { HabitIcon } from './IconPicker'
 import styles from './HabitCard.module.css'
 
 function frequencyLabel(habit) {
@@ -10,7 +11,10 @@ function frequencyLabel(habit) {
 
     case 'weekly_count': {
       try {
-        const cfg = JSON.parse(habit.frequencyConfig ?? '{}')
+        const cfg = JSON.parse(
+          habit.frequencyConfig ?? '{}'
+        )
+
         return `${cfg.count ?? 1}× / week`
       } catch {
         return 'Weekly'
@@ -19,9 +23,24 @@ function frequencyLabel(habit) {
 
     case 'specific_days': {
       try {
-        const cfg = JSON.parse(habit.frequencyConfig ?? '{}')
-        const map = ['', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
-        return (cfg.days ?? []).map((d) => map[d]).join(' · ')
+        const cfg = JSON.parse(
+          habit.frequencyConfig ?? '{}'
+        )
+
+        const map = [
+          '',
+          'Mo',
+          'Tu',
+          'We',
+          'Th',
+          'Fr',
+          'Sa',
+          'Su',
+        ]
+
+        return (cfg.days ?? [])
+          .map((day) => map[day])
+          .join(' · ')
       } catch {
         return 'Specific days'
       }
@@ -40,7 +59,9 @@ export function HabitCard({ habit, onEdit }) {
     if (confirm(`Delete "${habit.title}"?`)) {
       deleteHabit.mutate(habit.id, {
         onSuccess: () =>
-          capture(EVENTS.HABIT_DELETED, { habit_id: habit.id }),
+          capture(EVENTS.HABIT_DELETED, {
+            habit_id: habit.id,
+          }),
       })
     }
   }
@@ -49,17 +70,35 @@ export function HabitCard({ habit, onEdit }) {
     if (confirm(`Archive "${habit.title}"?`)) {
       archiveHabit.mutate(habit.id, {
         onSuccess: () =>
-          capture(EVENTS.HABIT_ARCHIVED, { habit_id: habit.id }),
+          capture(EVENTS.HABIT_ARCHIVED, {
+            habit_id: habit.id,
+          }),
       })
     }
   }
 
+  const color = habit.color ?? '#7C5CFF'
+
   return (
     <article className={styles.card}>
-      <div className={styles.icon}>{habit.icon ?? '⚡'}</div>
+      <div
+        className={styles.icon}
+        style={{
+          background: `${color}22`,
+          color,
+        }}
+      >
+        <HabitIcon
+          name={habit.icon}
+          size={18}
+        />
+      </div>
 
       <div className={styles.body}>
-        <p className={styles.label}>{habit.title}</p>
+        <p className={styles.label}>
+          {habit.title}
+        </p>
+
         <span className={styles.category}>
           {frequencyLabel(habit)}
         </span>
@@ -67,7 +106,9 @@ export function HabitCard({ habit, onEdit }) {
 
       <div className={styles.streak}>
         <Flame size={14} />
-        <span>{habit.currentStreak ?? 0}</span>
+        <span>
+          {habit.currentStreak ?? 0}
+        </span>
       </div>
 
       <div className={styles.actions}>

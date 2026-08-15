@@ -153,3 +153,16 @@
     align-self: flex-start;
   }
 }
+
+/* ─── Section title icon alignment / theme fix ───────────── */
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-primary);
+}
+
+.sectionIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}

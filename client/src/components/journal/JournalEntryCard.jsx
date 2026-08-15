@@ -1,4 +1,5 @@
-﻿import { format } from 'date-fns'
+﻿import { MoodEmoji } from '@/components/ui/MoodEmoji'
+import { format } from 'date-fns'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useDeleteJournal } from '@/hooks/useJournal'
 import styles from './JournalEntryCard.module.css'
@@ -36,10 +37,10 @@ export function JournalEntryCard({ entry, onEdit }) {
           </span>
 
           {mood && (
-            <span className={styles.mood} title={mood.label}>
-              {mood.emoji}
-            </span>
-          )}
+  <span className={styles.mood} title={mood.label}>
+    <MoodEmoji mood={entry.mood} size={18} />
+  </span>
+)}
         </div>
 
         <div className={styles.actions}>
@@ -89,3 +90,5 @@ export function JournalEntryCard({ entry, onEdit }) {
     </article>
   )
 }
+
+

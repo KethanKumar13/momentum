@@ -1,44 +1,58 @@
-.wrap {
-  display: flex;
+﻿.wrap {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: var(--sp-2);
-  flex-wrap: wrap;
 }
 
 .btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-1);
-  padding: var(--sp-2) var(--sp-3);
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--surface-2);
+  background: var(--surface-1);
   cursor: pointer;
   transition:
-    border-color 0.15s,
-    background 0.15s,
+    border-color 0.18s,
+    background 0.18s,
     transform 0.1s;
-  min-width: 60px;
 }
 
 .btn:hover {
-  background: var(--surface-1);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
+  background: var(--surface-2);
+  border-color: var(--border-default);
+  transform: translateY(-2px);
+}
+
+.btn:hover img {
+  transform: scale(1.1);
 }
 
 .btn.active {
   border-color: var(--color-primary);
-  background: var(--color-primary-muted);
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--surface-1));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
-.emoji {
-  font-size: 1.5rem;
-  line-height: 1;
+.btn.active img {
+  transform: scale(1.15);
 }
 
 .label {
   font-size: var(--text-xs);
   color: var(--text-secondary);
   font-weight: 500;
+}
+
+.btn.active .label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .label {
+    font-size: 10px;
+  }
 }

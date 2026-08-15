@@ -1,27 +1,47 @@
 ﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { format, startOfWeek, subWeeks } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useWeeklyReview, useUpsertWeeklyReview } from '@/hooks/useWeeklyReview'
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Flame,
+  BookMarked,
+  Star,
+} from 'lucide-react'
+import {
+  useWeeklyReview,
+  useUpsertWeeklyReview,
+} from '@/hooks/useWeeklyReview'
 import styles from './ReviewPage.module.css'
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
+  show: {
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: {
+    opacity: 0,
+    y: 12,
+  },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: 'easeOut' },
+    transition: {
+      duration: 0.3,
+      ease: 'easeOut',
+    },
   },
 }
 
 function toWeekStart(date) {
-  const s = startOfWeek(date, { weekStartsOn: 1 })
-  return format(s, 'yyyy-MM-dd')
+  const start = startOfWeek(date, { weekStartsOn: 1 })
+  return format(start, 'yyyy-MM-dd')
 }
 
 export default function ReviewPage() {
@@ -43,9 +63,7 @@ export default function ReviewPage() {
     'MMM d'
   )} – ${weekEnd}`
 
-  const { data: review, isLoading } =
-    useWeeklyReview(weekStart)
-
+  const { data: review, isLoading } = useWeeklyReview(weekStart)
   const upsert = useUpsertWeeklyReview()
 
   return (
@@ -76,11 +94,11 @@ export default function ReviewPage() {
             type="button"
             className={styles.weekNavBtn}
             onClick={() =>
-              setWeekOffset((o) => o - 1)
+              setWeekOffset((offset) => offset - 1)
             }
             aria-label="Previous week"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={16} aria-hidden="true" />
           </button>
 
           <span className={styles.weekLabel}>
@@ -91,12 +109,14 @@ export default function ReviewPage() {
             type="button"
             className={styles.weekNavBtn}
             onClick={() =>
-              setWeekOffset((o) => Math.min(0, o + 1))
+              setWeekOffset((offset) =>
+                Math.min(0, offset + 1)
+              )
             }
             disabled={weekOffset >= 0}
             aria-label="Next week"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={16} aria-hidden="true" />
           </button>
         </div>
       </motion.header>
@@ -113,38 +133,41 @@ export default function ReviewPage() {
               variants={fadeUp}
             >
               <StatTile
+                icon={<CheckCircle2 size={18} />}
+                accent="success"
                 label="Habits done"
                 value={`${review.stats.habitCompletionPct}%`}
                 sub={`${review.stats.habitCompletions} completions`}
-                icon="✅"
               />
 
               <StatTile
+                icon={<Flame size={18} />}
+                accent="warning"
                 label="Best streak"
                 value={`${review.stats.bestStreak}d`}
                 sub="this week"
-                icon="🔥"
               />
 
               <StatTile
+                icon={<BookMarked size={18} />}
+                accent="info"
                 label="Journal entries"
                 value={review.stats.journalEntries}
                 sub="days written"
-                icon="📓"
               />
 
               <StatTile
+                icon={<Star size={18} />}
+                accent="primary"
                 label="Most consistent"
                 value={
                   review.stats.mostConsistentHabit || '—'
                 }
                 sub="habit"
-                icon="⭐"
               />
             </motion.div>
           )}
 
-          {/* key={weekStart} → remounts with fresh state when the week changes */}
           <ReviewForm
             key={weekStart}
             weekStart={weekStart}
@@ -199,7 +222,7 @@ function ReviewForm({
     >
       <div className={styles.field}>
         <label className={styles.fieldLabel}>
-          🏆 Wins this week
+          Wins this week
         </label>
 
         <textarea
@@ -207,15 +230,15 @@ function ReviewForm({
           rows={4}
           placeholder="What went well? What are you proud of?"
           value={wins}
-          onChange={(e) =>
-            setWins(e.target.value)
+          onChange={(event) =>
+            setWins(event.target.value)
           }
         />
       </div>
 
       <div className={styles.field}>
         <label className={styles.fieldLabel}>
-          😤 Struggles
+          Struggles
         </label>
 
         <textarea
@@ -223,15 +246,15 @@ function ReviewForm({
           rows={4}
           placeholder="What was hard? What didn't go as planned?"
           value={struggles}
-          onChange={(e) =>
-            setStruggles(e.target.value)
+          onChange={(event) =>
+            setStruggles(event.target.value)
           }
         />
       </div>
 
       <div className={styles.field}>
         <label className={styles.fieldLabel}>
-          🎯 Focus for next week
+          Focus for next week
         </label>
 
         <textarea
@@ -239,8 +262,8 @@ function ReviewForm({
           rows={3}
           placeholder="What's your #1 priority next week?"
           value={focusText}
-          onChange={(e) =>
-            setFocusText(e.target.value)
+          onChange={(event) =>
+            setFocusText(event.target.value)
           }
         />
       </div>
@@ -255,13 +278,13 @@ function ReviewForm({
           {upsert.isPending
             ? 'Saving...'
             : hasSaved
-            ? 'Update review'
-            : 'Save review'}
+              ? 'Update review'
+              : 'Save review'}
         </button>
 
         {upsert.isSuccess && (
           <span className={styles.savedLabel}>
-            ✓ Saved
+            Saved
           </span>
         )}
       </div>
@@ -269,10 +292,22 @@ function ReviewForm({
   )
 }
 
-function StatTile({ label, value, sub, icon }) {
+function StatTile({
+  icon,
+  accent = 'default',
+  label,
+  value,
+  sub,
+}) {
   return (
-    <div className={styles.statTile}>
-      <span className={styles.statIcon}>{icon}</span>
+    <div
+      className={`${styles.statTile} ${
+        styles[`accent_${accent}`] ?? ''
+      }`}
+    >
+      <div className={styles.statIconTile}>
+        {icon}
+      </div>
 
       <p className={styles.statValue}>{value}</p>
 

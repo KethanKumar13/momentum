@@ -1,4 +1,4 @@
-﻿import { useMemo, useRef } from 'react'
+﻿import { useMemo } from 'react'
 import { useInsightsData } from './useInsightsData'
 import { useJournalEntries } from './useJournal'
 
@@ -10,23 +10,33 @@ const MOODS = [
   { value: 'awful', emoji: '😢', label: 'Awful' },
 ]
 
-const WEEK_MS = 7 * 86_400_000
+const DAY_MS = 86_400_000
+
+/** Pure: given a list of yyyy-MM-dd entry dates, returns how many fall in the
+ * last-7-days window relative to the most recent entry. */
+function countEntriesThisWeek(entries) {
+  if (entries.length === 0) return 0
+
+  const times = entries.map(
+    (e) => new Date(`${e.date}T00:00:00Z`).getTime()
+  )
+
+  const latest = Math.max(...times)
+
+  return times.filter(
+    (t) => latest - t < 7 * DAY_MS
+  ).length
+}
 
 export function useInsights(days = 35) {
   const { data, isLoading, isError } = useInsightsData(days)
   const { data: journalEntries = [] } = useJournalEntries()
 
-  // Freeze "now" for the lifetime of the hook — avoids the react-hooks/purity
-  // rule (Date.now() is an impure call during render).
-  const nowRef = useRef(Date.now())
-
   return useMemo(() => {
-    const now = nowRef.current
-
     const moodCounts = MOODS.map((mood) => ({
       ...mood,
       count: journalEntries.filter(
-        (e) => e.mood === mood.value
+        (entry) => entry.mood === mood.value
       ).length,
     }))
 
@@ -37,13 +47,7 @@ export function useInsights(days = 35) {
     )
 
     const totalEntries = journalEntries.length
-
-    const entriesThisWeek = journalEntries.filter((e) => {
-      const diff =
-        now - new Date(`${e.date}T00:00:00`).getTime()
-
-      return diff < WEEK_MS
-    }).length
+    const entriesThisWeek = countEntriesThisWeek(journalEntries)
 
     if (!data) {
       return {
@@ -88,24 +92,24 @@ export function useInsights(days = 35) {
       avgGoalProgress: summary.avgGoalProgressPct,
       totalLogs: summary.totalHabitLogsAllTime,
 
-      heatmapDays: heatmap.map((d) => ({
-        date: new Date(d.date),
-        label: new Date(d.date).toLocaleDateString(
-          'en-US',
-          {
+      heatmapDays: heatmap.map((d) => {
+        const date = new Date(d.date)
+
+        return {
+          date,
+          label: date.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
-          }
-        ),
-        intensity: d.count,
-        max: d.total,
-      })),
+          }),
+          intensity: d.count,
+          max: d.total,
+        }
+      }),
 
       topHabits,
       goals,
       moodCounts,
-      dominantMood:
-        totalEntries > 0 ? dominantMood : null,
+      dominantMood: totalEntries > 0 ? dominantMood : null,
       totalEntries,
       entriesThisWeek,
     }
