@@ -1,15 +1,8 @@
 ﻿import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useJournalCalendar } from '@/hooks/useJournal'
+import { MoodEmoji } from '@/components/ui/MoodEmoji'
 import styles from './JournalCalendar.module.css'
-
-const MOOD_EMOJI = {
-  great: '😄',
-  good: '🙂',
-  okay: '😐',
-  bad: '😔',
-  awful: '😢',
-}
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -21,14 +14,12 @@ export function JournalCalendar({ onSelectDate, selectedDate }) {
 
   const { data: calDays = [] } = useJournalCalendar(year, month)
 
-  // Build a lookup: "2026-08-08" → { mood, title }
   const lookup = Object.fromEntries(
     calDays.map((d) => [d.date, d])
   )
 
   const firstDay = new Date(year, month - 1, 1)
 
-  // ISO: Mon=0 ... Sun=6
   const startOffset = (firstDay.getDay() + 6) % 7
   const daysInMonth = new Date(year, month, 0).getDate()
 
@@ -68,7 +59,7 @@ export function JournalCalendar({ onSelectDate, selectedDate }) {
 
   return (
     <div className={styles.wrap}>
-      {/* Month nav */}
+      {/* Month navigation */}
       <div className={styles.nav}>
         <button
           type="button"
@@ -94,7 +85,7 @@ export function JournalCalendar({ onSelectDate, selectedDate }) {
         </button>
       </div>
 
-      {/* Weekday headers */}
+      {/* Calendar grid */}
       <div className={styles.grid}>
         {WEEKDAYS.map((w) => (
           <div key={w} className={styles.weekday}>
@@ -118,11 +109,16 @@ export function JournalCalendar({ onSelectDate, selectedDate }) {
               onClick={() => onSelectDate?.(cell.dateStr)}
               title={cell.entry?.title ?? cell.dateStr}
             >
-              <span className={styles.dayNum}>{cell.d}</span>
+              <span className={styles.dayNum}>
+                {cell.d}
+              </span>
 
               {cell.entry?.mood && (
                 <span className={styles.dayMood}>
-                  {MOOD_EMOJI[cell.entry.mood] ?? '📝'}
+                  <MoodEmoji
+                    mood={cell.entry.mood}
+                    size={12}
+                  />
                 </span>
               )}
 

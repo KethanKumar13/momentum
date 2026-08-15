@@ -2,12 +2,13 @@
 import { useInsightsData } from './useInsightsData'
 import { useJournalEntries } from './useJournal'
 
+// No `emoji` field — consumers render <MoodEmoji mood={value} /> instead
 const MOODS = [
-  { value: 'great', emoji: '😄', label: 'Great' },
-  { value: 'good', emoji: '🙂', label: 'Good' },
-  { value: 'okay', emoji: '😐', label: 'Okay' },
-  { value: 'bad', emoji: '😔', label: 'Bad' },
-  { value: 'awful', emoji: '😢', label: 'Awful' },
+  { value: 'great', label: 'Great' },
+  { value: 'good', label: 'Good' },
+  { value: 'okay', label: 'Okay' },
+  { value: 'bad', label: 'Bad' },
+  { value: 'awful', label: 'Awful' },
 ]
 
 const DAY_MS = 86_400_000
@@ -23,9 +24,7 @@ function countEntriesThisWeek(entries) {
 
   const latest = Math.max(...times)
 
-  return times.filter(
-    (t) => latest - t < 7 * DAY_MS
-  ).length
+  return times.filter((t) => latest - t < 7 * DAY_MS).length
 }
 
 export function useInsights(days = 35) {
@@ -41,8 +40,7 @@ export function useInsights(days = 35) {
     }))
 
     const dominantMood = moodCounts.reduce(
-      (best, mood) =>
-        mood.count > best.count ? mood : best,
+      (best, mood) => (mood.count > best.count ? mood : best),
       moodCounts[0]
     )
 
@@ -72,12 +70,7 @@ export function useInsights(days = 35) {
       }
     }
 
-    const {
-      summary,
-      heatmap,
-      topHabits,
-      goals,
-    } = data
+    const { summary, heatmap, topHabits, goals } = data
 
     return {
       isLoading,

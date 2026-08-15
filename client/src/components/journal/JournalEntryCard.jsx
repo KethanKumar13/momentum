@@ -1,21 +1,20 @@
-﻿import { MoodEmoji } from '@/components/ui/MoodEmoji'
-import { format } from 'date-fns'
+﻿import { format } from 'date-fns'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useDeleteJournal } from '@/hooks/useJournal'
+import { MoodEmoji } from '@/components/ui/MoodEmoji'
 import styles from './JournalEntryCard.module.css'
 
-const MOODS = [
-  { value: 'great', emoji: '😄', label: 'Great' },
-  { value: 'good', emoji: '🙂', label: 'Good' },
-  { value: 'okay', emoji: '😐', label: 'Okay' },
-  { value: 'bad', emoji: '😔', label: 'Bad' },
-  { value: 'awful', emoji: '😢', label: 'Awful' },
-]
+// Human-readable labels for the aria-label / title tooltip
+const MOOD_LABEL = {
+  great: 'Great',
+  good: 'Good',
+  okay: 'Okay',
+  bad: 'Bad',
+  awful: 'Awful',
+}
 
 export function JournalEntryCard({ entry, onEdit }) {
   const remove = useDeleteJournal()
-
-  const mood = MOODS.find((m) => m.value === entry.mood)
 
   function handleDelete() {
     if (confirm('Delete this journal entry?')) {
@@ -28,6 +27,8 @@ export function JournalEntryCard({ entry, onEdit }) {
     ? entry.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
     : ''
 
+  const moodLabel = MOOD_LABEL[entry.mood]
+
   return (
     <article className={styles.card}>
       <div className={styles.header}>
@@ -36,11 +37,15 @@ export function JournalEntryCard({ entry, onEdit }) {
             {format(new Date(`${entry.date}T00:00:00`), 'EEE, MMM d')}
           </span>
 
-          {mood && (
-  <span className={styles.mood} title={mood.label}>
-    <MoodEmoji mood={entry.mood} size={18} />
-  </span>
-)}
+          {entry.mood && (
+            <span
+              className={styles.mood}
+              title={moodLabel ?? entry.mood}
+              aria-label={`Mood: ${moodLabel ?? entry.mood}`}
+            >
+              <MoodEmoji mood={entry.mood} size={18} />
+            </span>
+          )}
         </div>
 
         <div className={styles.actions}>
@@ -90,5 +95,3 @@ export function JournalEntryCard({ entry, onEdit }) {
     </article>
   )
 }
-
-
