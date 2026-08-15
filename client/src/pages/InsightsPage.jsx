@@ -16,6 +16,7 @@ import { HabitHeatmap } from '@/components/insights/HabitHeatmap'
 import { MoodChart } from '@/components/insights/MoodChart'
 import { TopHabitsTable } from '@/components/insights/TopHabitsTable'
 import { GoalsSummary } from '@/components/insights/GoalsSummary'
+import { MoodEmoji } from '@/components/ui/MoodEmoji'
 import styles from './InsightsPage.module.css'
 
 const PERIODS = [
@@ -85,9 +86,7 @@ export default function InsightsPage() {
       <motion.header className={styles.header} variants={fadeUp}>
         <div>
           <p className={styles.sub}>Your data, your story</p>
-
           <h1 className={styles.heading}>Insights</h1>
-
           <p className={styles.meta}>
             Based on your habits &amp; goals
           </p>
@@ -201,8 +200,11 @@ export default function InsightsPage() {
 
                 {dominantMood && (
                   <span className={styles.dominantMood}>
-                    {dominantMood.emoji} mostly{' '}
-                    {dominantMood.label.toLowerCase()}
+                    <MoodEmoji
+                      mood={dominantMood.value}
+                      size={16}
+                    />
+                    mostly {dominantMood.label.toLowerCase()}
                   </span>
                 )}
               </h2>
@@ -236,7 +238,7 @@ export default function InsightsPage() {
                 <TopHabitsTable habits={topHabits} />
               ) : (
                 <p className={styles.empty}>
-                  No habits logged yet — start tracking to see
+                  No habits logged yet. Start tracking to see
                   streaks!
                 </p>
               )}

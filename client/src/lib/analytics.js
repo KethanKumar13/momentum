@@ -1,72 +1,71 @@
 ﻿import posthog from 'posthog-js'
 
-let initialised = false
+const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY
+const POSTHOG_HOST =
+  import.meta.env.VITE_POSTHOG_HOST ?? 'https://us.i.posthog.com'
 
-/**
- * Canonical event names — use these everywhere instead of magic strings.
- */
-export const EVENTS = {
-  SIGNUP: 'signup',
-  LOGIN: 'login',
-  LOGOUT: 'logout',
-  HABIT_CREATED: 'habit_created',
-  HABIT_UPDATED: 'habit_updated',
-  HABIT_ARCHIVED: 'habit_archived',
-  HABIT_DELETED: 'habit_deleted',
-  HABIT_CHECKED: 'habit_checked',
-  GOAL_CREATED: 'goal_created',
-  GOAL_UPDATED: 'goal_updated',
-  GOAL_DELETED: 'goal_deleted',
-  JOURNAL_SAVED: 'journal_saved',
-  REVIEW_COMPLETED: 'review_completed',
-  CHECKIN_SAVED: 'checkin_saved',
-  EXPORT_DOWNLOADED: 'export_downloaded',
-  ACCOUNT_DELETED: 'account_deleted',
-  CHECKOUT_STARTED: 'checkout_started',
-  CHECKOUT_SUCCEEDED: 'checkout_succeeded',
-}
+let initialized = false
 
 export function initAnalytics() {
-  const key = import.meta.env.VITE_POSTHOG_KEY
-  const host =
-    import.meta.env.VITE_POSTHOG_HOST ?? 'https://app.posthog.com'
+  if (initialized) return
 
-  if (!key || initialised) return
+  if (!POSTHOG_KEY || POSTHOG_KEY.startsWith('phc_xxxx')) {
+    console.info(
+      '[analytics] PostHog disabled — no valid key configured'
+    )
+    return
+  }
 
-  posthog.init(key, {
-    api_host: host,
-    capture_pageview: true,
-    autocapture: false,
+  posthog.init(POSTHOG_KEY, {
+    api_host: POSTHOG_HOST,
+    capture_pageview: false,
     persistence: 'localStorage',
   })
 
-  initialised = true
+  initialized = true
 }
 
-/**
- * Identify user after login / signup
- */
-export function identifyUser(id, properties = {}) {
-  if (!initialised) return
-  posthog.identify(String(id), properties)
-}
+export function track(event, properties = {}) {
+  if (!initialized) return
 
-/**
- * Reset on logout
- */
-export function resetAnalytics() {
-  if (!initialised) return
-  posthog.reset()
-}
-
-/**
- * Track a named event with optional properties.
- * Safe to call before init — no-op if PostHog isn't configured.
- */
-export function capture(event, properties = {}) {
-  if (!initialised) return
   posthog.capture(event, properties)
 }
 
-// Backwards-compatible alias
-export const track = capture
+export function capture(event, properties = {}) {
+  if (!initialized) return
+
+  posthog.capture(event, properties)
+}
+
+export function identifyUser(userId, properties = {}) {
+  if (!initialized) return
+
+  posthog.identify(userId, properties)
+}
+
+export function resetAnalytics() {
+  if (!initialized) return
+
+  posthog.reset()
+}
+
+export const EVENTS = {
+  SIGNED_UP: 'signed_up',
+  LOGGED_IN: 'logged_in',
+  LOGGED_OUT: 'logged_out',
+
+  HABIT_CREATED: 'habit_created',
+  HABIT_COMPLETED: 'habit_completed',
+  HABIT_CHECKED: 'habit_checked',
+  HABIT_DELETED: 'habit_deleted',
+  HABIT_ARCHIVED: 'habit_archived',
+
+  GOAL_CREATED: 'goal_created',
+  GOAL_COMPLETED: 'goal_completed',
+
+  JOURNAL_CREATED: 'journal_created',
+  JOURNAL_UPDATED: 'journal_updated',
+  JOURNAL_DELETED: 'journal_deleted',
+
+  WEEKLY_REVIEW_SAVED: 'weekly_review_saved',
+}

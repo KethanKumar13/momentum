@@ -7,13 +7,13 @@ const FREE = [
   '5 active habits',
   'Full journal',
   'Weekly reviews',
-  'Insights & heatmaps',
-  'Daily & weekly email reminders',
+  'Insights and heatmaps',
+  'Daily and weekly email reminders',
   'Data export (JSON + CSV)',
 ]
 
 const PRO = [
-  'Unlimited goals & habits',
+  'Unlimited goals and habits',
   'Full history (no 30-day cap)',
   'AI weekly summary',
   'AI coach chat',
@@ -30,9 +30,10 @@ export function PricingPage() {
 
       <header className={styles.header}>
         <h1 className={styles.h1}>Simple pricing</h1>
+
         <p className={styles.sub}>
-          Momentum is free while we're in beta. Paid Pro plans are coming
-          soon — early beta users will get a discount at launch.
+          Momentum is free while we&apos;re in beta. Paid Pro plans are
+          coming soon. Early beta users will get a launch discount.
         </p>
       </header>
 
@@ -40,16 +41,25 @@ export function PricingPage() {
         {/* Free */}
         <div className={styles.card}>
           <span className={styles.badgeGreen}>Available now</span>
+
           <p className={styles.tier}>Free (Beta)</p>
+
           <p className={styles.price}>
             ₹0<span className={styles.per}>/month</span>
           </p>
-          <p className={styles.tag}>Everything you need to get started.</p>
+
+          <p className={styles.tag}>
+            Everything you need to get started.
+          </p>
+
           <ul className={styles.features}>
-            {FREE.map((f) => (
-              <li key={f}><Check size={14} /> {f}</li>
+            {FREE.map((feature) => (
+              <li key={feature}>
+                <Check size={14} /> {feature}
+              </li>
             ))}
           </ul>
+
           <Link to="/signup" className={styles.primary}>
             Sign up free
           </Link>
@@ -58,17 +68,30 @@ export function PricingPage() {
         {/* Pro */}
         <div className={`${styles.card} ${styles.pro}`}>
           <span className={styles.badge}>Coming soon</span>
+
           <p className={styles.tier}>Pro</p>
-          <p className={styles.price}>—</p>
+
+          <p className={styles.price}>
+            <span className={styles.priceTbd}>TBD</span>
+            <span className={styles.per}>launching soon</span>
+          </p>
+
           <p className={styles.tag}>Everything in Free, plus:</p>
+
           <ul className={styles.features}>
-            {PRO.map((f) => (
-              <li key={f}><Sparkles size={14} /> {f}</li>
+            {PRO.map((feature) => (
+              <li key={feature}>
+                <Sparkles size={14} /> {feature}
+              </li>
             ))}
           </ul>
-          <button className={styles.secondary} disabled>
-            Notify me
-          </button>
+
+          <a
+            href="mailto:hello@momentum.app?subject=Pro%20early%20access"
+            className={styles.secondary}
+          >
+            Get notified
+          </a>
         </div>
       </div>
 
