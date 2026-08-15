@@ -13,7 +13,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'Momentum — Small habits. Real momentum.',
+        name: 'Momentum • Small habits. Real momentum',
         short_name: 'Momentum',
         description:
           'Turn long-term goals into daily habits with streaks, journaling, and weekly reviews.',
@@ -72,3 +72,4 @@ export default defineConfig({
     },
   },
 })
+

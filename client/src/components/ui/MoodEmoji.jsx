@@ -30,17 +30,7 @@ const MOOD_MAP = {
   },
 }
 
-export const MOODS = Object.keys(MOOD_MAP).map((value) => ({
-  value,
-  label: MOOD_MAP[value].label,
-}))
-
-export function MoodEmoji({
-  mood,
-  size = 24,
-  className,
-  title,
-}) {
+export function MoodEmoji({ mood, size = 24, className, title }) {
   const entry = MOOD_MAP[mood]
 
   if (!entry) return null

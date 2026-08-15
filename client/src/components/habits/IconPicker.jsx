@@ -54,7 +54,7 @@ import styles from './IconPicker.module.css'
  * key → Lucide component. `key` is what we persist to the DB
  * (e.g. "dumbbell") — never the component itself.
  */
-export const ICON_REGISTRY = {
+const ICON_REGISTRY = {
   // Health
   dumbbell: Dumbbell,
   heartpulse: HeartPulse,
