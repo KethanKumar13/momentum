@@ -1,35 +1,35 @@
-/* ─── Design Tokens + Base Styles ───────────────────────── */
+﻿/* ─── Design tokens + base ───────────────────────────────── */
 @import "./variables.css";
 @import "./reset.css";
 @import "./typography.css";
 @import "./utilities.css";
 @import "./animations.css";
 
-/* ─── Skip Link ──────────────────────────────────────────── */
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: var(--sp-4);
-  padding: var(--sp-2) var(--sp-4);
-  background: var(--color-primary, #7C5CFF);
-  color: #fff;
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  z-index: 9999;
-  text-decoration: none;
-  transition: top 0.1s;
+/* ─── Color scheme (theme-aware) ─────────────────────────── */
+:root {
+  color-scheme: dark;
 }
 
-.skip-link:focus {
-  top: var(--sp-4);
+[data-theme="light"] {
+  color-scheme: light;
 }
 
-/* ─── Focus Visible ──────────────────────────────────────── */
-:focus-visible {
-  outline: 2px solid var(--color-primary, #7C5CFF);
-  outline-offset: 3px;
-  border-radius: var(--radius-sm);
+select,
+option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+option:checked,
+option:hover {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: inherit;
 }
 
 /* ─── Base ───────────────────────────────────────────────── */
@@ -46,13 +46,25 @@ html {
 
 body {
   min-height: 100dvh;
-  background: var(--bg-base);
+  background:
+    radial-gradient(
+      1200px 600px at 100% -200px,
+      color-mix(in srgb, var(--brand-500) 10%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at -100px 30%,
+      color-mix(in srgb, var(--accent-500) 6%, transparent),
+      transparent 60%
+    ),
+    var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-ui);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
 }
 
 #root {
@@ -74,4 +86,208 @@ button {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* ─── Native form controls ───────────────────────────────── */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+select,
+option {
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+}
+
+option:checked,
+option:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-elevated);
+}
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: inherit;
+}
+
+/* ─── Modern scrollbar ───────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
+
+/* ─── Skip link ──────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--sp-4);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--brand-500);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  z-index: 9999;
+  text-decoration: none;
+  transition: top 0.1s;
+}
+
+.skip-link:focus {
+  top: var(--sp-4);
+}
+
+/* ─── Focus ring (accessible + branded) ──────────────────── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-ring);
+  border-radius: var(--radius-sm);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+
+/* ─── Selection colour ───────────────────────────────────── */
+::selection {
+  background: color-mix(in srgb, var(--brand-500) 40%, transparent);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   Modern polish — hand-usable classes.
+   Add to any element that could use extra love.
+   ============================================================ */
+
+/* Glassmorphism surface */
+.u-glass {
+  background: var(--bg-glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Gradient text */
+.u-gradient-text {
+  background: var(--grad-momentum);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Hoverable card (subtle lift + brand ring) */
+.u-hover-lift {
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.u-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(
+    in srgb,
+    var(--brand-500) 30%,
+    var(--border-subtle)
+  );
+}
+
+/* Modern primary button (drop in) */
+.u-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 10px 18px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--grad-momentum);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--fs-small);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.u-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.u-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ─── Light-theme readability safeguards ────────────────── */
+[data-theme="light"] body {
+  background:
+    radial-gradient(
+      1200px 600px at 100% -200px,
+      color-mix(in srgb, var(--brand-500) 7%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at -100px 30%,
+      color-mix(in srgb, var(--accent-500) 4%, transparent),
+      transparent 60%
+    ),
+    var(--bg-base);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+[data-theme="light"] button:not(.u-btn-primary) {
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .u-glass {
+  background: var(--bg-glass);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="light"] {
+  scrollbar-color: var(--border-strong) var(--bg-base);
 }
