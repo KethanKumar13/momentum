@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Api.DTOs;
@@ -15,15 +15,20 @@ public class AuthController : ControllerBase
     private readonly AuthService _auth;
     private readonly TokenService _tokens;
     private readonly IConfiguration _config;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AuthService auth, TokenService tokens, IConfiguration config)
+    public AuthController(
+        AuthService auth,
+        TokenService tokens,
+        IConfiguration config,
+        ILogger<AuthController> logger)
     {
         _auth = auth;
         _tokens = tokens;
         _config = config;
+        _logger = logger;
     }
 
-    // POST /api/auth/signup
     [HttpPost("signup"), AllowAnonymous]
     public async Task<IActionResult> Signup([FromBody] SignupRequest req)
     {
@@ -32,7 +37,6 @@ public class AuthController : ControllerBase
         return Ok(ToResponse(user));
     }
 
-    // POST /api/auth/login
     [HttpPost("login"), AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
@@ -41,87 +45,143 @@ public class AuthController : ControllerBase
         return Ok(ToResponse(user));
     }
 
-    // POST /api/auth/refresh
     [HttpPost("refresh"), AllowAnonymous]
     public async Task<IActionResult> Refresh()
     {
         var rawToken = Request.Cookies["refresh_token"];
+
         if (string.IsNullOrEmpty(rawToken))
             return Unauthorized(new { message = "No refresh token." });
 
         var (user, access, refresh) = await _auth.RefreshAsync(rawToken);
         _tokens.SetTokenCookies(Response, access, refresh);
+
         return Ok(ToResponse(user));
     }
 
-    // POST /api/auth/logout
     [HttpPost("logout"), AllowAnonymous]
     public async Task<IActionResult> Logout()
     {
         var rawToken = Request.Cookies["refresh_token"];
+
         if (!string.IsNullOrEmpty(rawToken))
             await _auth.LogoutAsync(rawToken);
 
         _tokens.ClearTokenCookies(Response);
+
         return NoContent();
     }
 
-    // POST /api/auth/forgot-password
     [HttpPost("forgot-password"), AllowAnonymous]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest req)
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest req)
     {
         await _auth.ForgotPasswordAsync(req.Email);
-        return Ok(new { message = "If that email exists, a reset link has been sent." });
+
+        return Ok(new
+        {
+            message = "If that email exists, a reset link has been sent."
+        });
     }
 
-    // POST /api/auth/reset-password
     [HttpPost("reset-password"), AllowAnonymous]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest req)
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest req)
     {
         await _auth.ResetPasswordAsync(req);
-        return Ok(new { message = "Password reset successfully." });
+
+        return Ok(new
+        {
+            message = "Password reset successfully."
+        });
     }
 
-    // ── Google OAuth ─────────────────────────────────────────
-    // GET /api/auth/google → redirects to Google
+    // ── Google OAuth ─────────────────────────────────────────────────
+
     [HttpGet("google"), AllowAnonymous]
-    public IActionResult Google()
+    public IActionResult Google([FromQuery] string? returnUrl = null)
     {
+        var safeReturn =
+            string.IsNullOrEmpty(returnUrl) || !returnUrl.StartsWith('/')
+                ? "/today"
+                : returnUrl;
+
+        var callbackUri = Url.Action(
+            action: nameof(GoogleCallback),
+            values: new { returnUrl = safeReturn })!;
+
         var props = new AuthenticationProperties
         {
-            RedirectUri = Url.Action(nameof(GoogleCallback))!,
+            RedirectUri = callbackUri,
         };
-        return Challenge(props, GoogleDefaults.AuthenticationScheme);
+
+        return Challenge(props, "Google");
     }
 
-    // GET /api/auth/google/callback → Google redirects here
     [HttpGet("google/callback"), AllowAnonymous]
-    public async Task<IActionResult> GoogleCallback()
+    public async Task<IActionResult> GoogleCallback(
+        [FromQuery] string? returnUrl = null)
     {
+        var clientBase =
+            (_config["Client:BaseUrl"] ?? "http://localhost:5173")
+                .TrimEnd('/');
+
+        var safeReturn =
+            string.IsNullOrEmpty(returnUrl) || !returnUrl.StartsWith('/')
+                ? "/today"
+                : returnUrl;
+
         var result = await HttpContext.AuthenticateAsync(
-            GoogleDefaults.AuthenticationScheme);
+            CookieAuthenticationDefaults.AuthenticationScheme);
 
         if (!result.Succeeded || result.Principal is null)
-            return Unauthorized(new { message = "Google authentication failed." });
+        {
+            _logger.LogWarning(
+                "Google callback: cookie principal missing");
 
-        var email = result.Principal.FindFirstValue(ClaimTypes.Email);
-        var name = result.Principal.FindFirstValue(ClaimTypes.Name);
+            return Redirect(
+                $"{clientBase}/login?error=google_auth_failed");
+        }
+
+        var email =
+            result.Principal.FindFirstValue(ClaimTypes.Email);
+
+        var name =
+            result.Principal.FindFirstValue(ClaimTypes.Name);
 
         if (string.IsNullOrEmpty(email))
-            return BadRequest(new { message = "Google account has no email." });
+        {
+            _logger.LogWarning(
+                "Google callback: no email claim");
 
-        var (_, access, refresh) =
-            await _auth.LoginOrCreateGoogleAsync(email, name);
+            return Redirect(
+                $"{clientBase}/login?error=google_no_email");
+        }
 
-        _tokens.SetTokenCookies(Response, access, refresh);
+        try
+        {
+            var (_, access, refresh) =
+                await _auth.LoginOrCreateGoogleAsync(email, name);
 
-        var clientUrl =
-            _config["Client:BaseUrl"] ?? "http://localhost:5173";
+            _tokens.SetTokenCookies(Response, access, refresh);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Google callback: LoginOrCreateGoogleAsync failed for {Email}",
+                email);
 
-        return Redirect($"{clientUrl}/today");
+            return Redirect(
+                $"{clientBase}/login?error=google_provision_failed");
+        }
+
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return Redirect($"{clientBase}{safeReturn}");
     }
 
-    // ── Helper ────────────────────────────────────────────────
     private static AuthResponse ToResponse(Domain.User u) => new(
         u.Id,
         u.Name ?? "",

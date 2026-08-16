@@ -1,24 +1,10 @@
 ﻿import styles from './GoogleButton.module.css'
 
-/**
- * Resolves the API base URL used for the OAuth redirect.
- *
- * Priority:
- *  1. VITE_API_URL (production build)
- *  2. Same origin (behind a reverse proxy where /api is proxied to the API)
- *  3. localhost fallback for dev
- */
 function resolveApiBase() {
   const envUrl = import.meta.env.VITE_API_URL
 
   if (envUrl) {
-    // Strip trailing slash so we can safely append "/auth/google"
     return envUrl.replace(/\/$/, '')
-  }
-
-  // Same origin fallback (Vercel rewrites, nginx, etc.)
-  if (typeof window !== 'undefined' && window.location.origin) {
-    return `${window.location.origin}/api`
   }
 
   return 'http://localhost:5080/api'
@@ -28,7 +14,11 @@ export function GoogleButton({ label = 'Continue with Google' }) {
   const href = `${resolveApiBase()}/auth/google`
 
   return (
-    <a href={href} className={styles.button} aria-label={label}>
+    <a
+      href={href}
+      className={styles.button}
+      aria-label={label}
+    >
       <svg
         className={styles.icon}
         width="18"
