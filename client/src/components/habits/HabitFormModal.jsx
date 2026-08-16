@@ -1,10 +1,11 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { useCreateHabit, useUpdateHabit } from '@/hooks/useHabits'
 import { IconPicker } from './IconPicker'
 import styles from './HabitFormModal.module.css'
 
 const FREQUENCY_TYPES = ['daily', 'weekly_count', 'specific_days']
+
 const COLORS = [
   '#7C5CFF',
   '#22C55E',
@@ -14,7 +15,32 @@ const COLORS = [
   '#EC4899',
   '#14B8A6',
 ]
+
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+const EMPTY_FORM = {
+  title: '',
+  type: 'build',
+  frequencyType: 'daily',
+  frequencyConfig: '{}',
+  color: '#7C5CFF',
+  icon: 'zap',
+  goalId: '',
+}
+
+function toFormState(habit) {
+  if (!habit) return { ...EMPTY_FORM }
+
+  return {
+    title: habit.title ?? '',
+    type: habit.type ?? 'build',
+    frequencyType: habit.frequencyType ?? 'daily',
+    frequencyConfig: habit.frequencyConfig ?? '{}',
+    color: habit.color ?? '#7C5CFF',
+    icon: habit.icon ?? 'zap',
+    goalId: habit.goalId ?? '',
+  }
+}
 
 function FrequencyConfigInput({ frequencyType, value, onChange }) {
   let config = {}
@@ -45,11 +71,7 @@ function FrequencyConfigInput({ frequencyType, value, onChange }) {
           max={7}
           value={config.count ?? 3}
           onChange={(e) =>
-            onChange(
-              JSON.stringify({
-                count: Number(e.target.value),
-              })
-            )
+            onChange(JSON.stringify({ count: Number(e.target.value) }))
           }
         />
       </label>
@@ -64,11 +86,7 @@ function FrequencyConfigInput({ frequencyType, value, onChange }) {
         ? selected.filter((day) => day !== iso)
         : [...selected, iso]
 
-      onChange(
-        JSON.stringify({
-          days: next.sort(),
-        })
-      )
+      onChange(JSON.stringify({ days: next.sort() }))
     }
 
     return (
@@ -84,9 +102,7 @@ function FrequencyConfigInput({ frequencyType, value, onChange }) {
                 key={iso}
                 type="button"
                 className={`${styles.dayBtn} ${
-                  selected.includes(iso)
-                    ? styles.dayActive
-                    : ''
+                  selected.includes(iso) ? styles.dayActive : ''
                 }`}
                 onClick={() => toggle(iso)}
               >
@@ -102,39 +118,19 @@ function FrequencyConfigInput({ frequencyType, value, onChange }) {
   return null
 }
 
-export function HabitFormModal({
-  open,
-  onClose,
-  habit,
-}) {
+export function HabitFormModal({ open, onClose, habit }) {
   const createHabit = useCreateHabit()
   const updateHabit = useUpdateHabit()
 
-  const initialForm = useMemo(
-    () =>
-      habit
-        ? {
-            title: habit.title,
-            type: habit.type,
-            frequencyType: habit.frequencyType,
-            frequencyConfig: habit.frequencyConfig,
-            color: habit.color,
-            icon: habit.icon ?? 'zap',
-            goalId: habit.goalId ?? '',
-          }
-        : {
-            title: '',
-            type: 'build',
-            frequencyType: 'daily',
-            frequencyConfig: '{}',
-            color: '#7C5CFF',
-            icon: 'zap',
-            goalId: '',
-          },
-    [habit]
-  )
+  const initialForm = useMemo(() => toFormState(habit), [habit])
 
   const [form, setForm] = useState(initialForm)
+
+  useEffect(() => {
+    if (open) {
+      setForm(toFormState(habit))
+    }
+  }, [open, habit])
 
   function set(key, value) {
     setForm((current) => ({
@@ -148,9 +144,7 @@ export function HabitFormModal({
       frequencyType === 'weekly_count'
         ? JSON.stringify({ count: 3 })
         : frequencyType === 'specific_days'
-        ? JSON.stringify({
-            days: [1, 2, 3, 4, 5],
-          })
+        ? JSON.stringify({ days: [1, 2, 3, 4, 5] })
         : '{}'
 
     setForm((current) => ({
@@ -164,7 +158,7 @@ export function HabitFormModal({
     e.preventDefault()
 
     const payload = {
-      title: form.title,
+      title: form.title.trim(),
       type: form.type,
       frequencyType: form.frequencyType,
       frequencyConfig: form.frequencyConfig,
@@ -182,6 +176,12 @@ export function HabitFormModal({
       await createHabit.mutateAsync(payload)
     }
 
+    setForm({ ...EMPTY_FORM })
+    onClose()
+  }
+
+  function handleClose() {
+    setForm({ ...EMPTY_FORM })
     onClose()
   }
 
@@ -194,73 +194,56 @@ export function HabitFormModal({
     <div
       className={styles.overlay}
       onClick={(e) =>
-        e.target === e.currentTarget && onClose()
+        e.target === e.currentTarget && handleClose()
       }
     >
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2>
-            {habit ? 'Edit habit' : 'New habit'}
-          </h2>
+          <h2>{habit ? 'Edit habit' : 'New habit'}</h2>
 
           <button
             type="button"
             className={styles.closeBtn}
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="Close"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form
-          className={styles.form}
-          onSubmit={handleSubmit}
-        >
-          {/* Icon picker */}
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.field}>
             <span className={styles.label}>Icon</span>
 
             <IconPicker
               value={form.icon}
-              onChange={(icon) =>
-                set('icon', icon)
-              }
+              onChange={(icon) => set('icon', icon)}
               color={form.color}
             />
           </div>
 
-          {/* Title */}
           <label className={styles.field}>
-            <span className={styles.label}>
-              Title *
-            </span>
+            <span className={styles.label}>Title *</span>
 
             <input
               className={styles.input}
               value={form.title}
-              onChange={(e) =>
-                set('title', e.target.value)
-              }
+              onChange={(e) => set('title', e.target.value)}
               required
               maxLength={200}
               autoFocus
+              placeholder="e.g. Run 30 minutes"
             />
           </label>
 
-          {/* Type + Frequency type */}
           <div className={styles.row}>
             <label className={styles.field}>
-              <span className={styles.label}>
-                Type
-              </span>
+              <span className={styles.label}>Type</span>
 
               <select
                 className={styles.select}
                 value={form.type}
-                onChange={(e) =>
-                  set('type', e.target.value)
-                }
+                onChange={(e) => set('type', e.target.value)}
               >
                 <option value="build">Build</option>
                 <option value="break">Break</option>
@@ -268,9 +251,7 @@ export function HabitFormModal({
             </label>
 
             <label className={styles.field}>
-              <span className={styles.label}>
-                Frequency
-              </span>
+              <span className={styles.label}>Frequency</span>
 
               <select
                 className={styles.select}
@@ -279,24 +260,18 @@ export function HabitFormModal({
                   setFrequencyType(e.target.value)
                 }
               >
-                {FREQUENCY_TYPES.map(
-                  (frequencyType) => (
-                    <option
-                      key={frequencyType}
-                      value={frequencyType}
-                    >
-                      {frequencyType.replace(
-                        '_',
-                        ' '
-                      )}
-                    </option>
-                  )
-                )}
+                {FREQUENCY_TYPES.map((frequencyType) => (
+                  <option
+                    key={frequencyType}
+                    value={frequencyType}
+                  >
+                    {frequencyType.replace('_', ' ')}
+                  </option>
+                ))}
               </select>
             </label>
           </div>
 
-          {/* Dynamic frequency config */}
           <FrequencyConfigInput
             frequencyType={form.frequencyType}
             value={form.frequencyConfig}
@@ -305,11 +280,8 @@ export function HabitFormModal({
             }
           />
 
-          {/* Color */}
           <div className={styles.field}>
-            <span className={styles.label}>
-              Color
-            </span>
+            <span className={styles.label}>Color</span>
 
             <div className={styles.colorRow}>
               {COLORS.map((color) => (
@@ -322,21 +294,18 @@ export function HabitFormModal({
                       : ''
                   }`}
                   style={{ background: color }}
-                  onClick={() =>
-                    set('color', color)
-                  }
+                  onClick={() => set('color', color)}
                   aria-label={`Choose color ${color}`}
                 />
               ))}
             </div>
           </div>
 
-          {/* Footer */}
           <div className={styles.footer}>
             <button
               type="button"
               className={styles.cancelBtn}
-              onClick={onClose}
+              onClick={handleClose}
             >
               Cancel
             </button>
@@ -344,10 +313,12 @@ export function HabitFormModal({
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={isPending}
+              disabled={
+                isPending || !form.title.trim()
+              }
             >
               {isPending
-                ? 'Saving…'
+                ? 'Saving...'
                 : habit
                 ? 'Save changes'
                 : 'Create habit'}

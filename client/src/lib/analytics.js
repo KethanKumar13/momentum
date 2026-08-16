@@ -9,9 +9,10 @@ let initialized = false
 export function initAnalytics() {
   if (initialized) return
 
+  // Skip PostHog entirely if the key is missing or is the leftover placeholder.
   if (!POSTHOG_KEY || POSTHOG_KEY.startsWith('phc_xxxx')) {
     console.info(
-      '[analytics] PostHog disabled — no valid key configured'
+      '[analytics] PostHog disabled — no valid VITE_POSTHOG_KEY configured'
     )
     return
   }
@@ -25,47 +26,67 @@ export function initAnalytics() {
   initialized = true
 }
 
-export function track(event, properties = {}) {
-  if (!initialized) return
-
-  posthog.capture(event, properties)
-}
-
 export function capture(event, properties = {}) {
-  if (!initialized) return
-
+  if (!initialized || !event) return
   posthog.capture(event, properties)
 }
+
+// Backward-compatible alias
+export const track = capture
 
 export function identifyUser(userId, properties = {}) {
   if (!initialized) return
-
-  posthog.identify(userId, properties)
+  posthog.identify(String(userId), properties)
 }
 
 export function resetAnalytics() {
   if (!initialized) return
-
   posthog.reset()
 }
 
+/**
+ * Canonical event names.
+ *
+ * Legacy aliases are kept so existing call-sites continue working
+ * without requiring a repo-wide rename.
+ */
 export const EVENTS = {
-  SIGNED_UP: 'signed_up',
-  LOGGED_IN: 'logged_in',
-  LOGGED_OUT: 'logged_out',
+  // Auth
+  SIGNED_UP:       'signed_up',
+  SIGNUP:          'signed_up',
+  LOGGED_IN:       'logged_in',
+  LOGIN:           'logged_in',
+  LOGGED_OUT:      'logged_out',
+  LOGOUT:          'logged_out',
+  ACCOUNT_DELETED: 'account_deleted',
 
-  HABIT_CREATED: 'habit_created',
+  // Habits
+  HABIT_CREATED:   'habit_created',
+  HABIT_UPDATED:   'habit_updated',
   HABIT_COMPLETED: 'habit_completed',
-  HABIT_CHECKED: 'habit_checked',
-  HABIT_DELETED: 'habit_deleted',
-  HABIT_ARCHIVED: 'habit_archived',
+  HABIT_CHECKED:   'habit_checked',
+  HABIT_DELETED:   'habit_deleted',
+  HABIT_ARCHIVED:  'habit_archived',
 
-  GOAL_CREATED: 'goal_created',
+  // Goals
+  GOAL_CREATED:   'goal_created',
+  GOAL_UPDATED:   'goal_updated',
   GOAL_COMPLETED: 'goal_completed',
+  GOAL_DELETED:   'goal_deleted',
 
+  // Journal
   JOURNAL_CREATED: 'journal_created',
   JOURNAL_UPDATED: 'journal_updated',
   JOURNAL_DELETED: 'journal_deleted',
+  JOURNAL_SAVED:   'journal_saved',
 
+  // Review / Check-in
   WEEKLY_REVIEW_SAVED: 'weekly_review_saved',
+  REVIEW_COMPLETED:    'weekly_review_saved',
+  CHECKIN_SAVED:       'checkin_saved',
+
+  // Export / Billing
+  EXPORT_DOWNLOADED:  'export_downloaded',
+  CHECKOUT_STARTED:   'checkout_started',
+  CHECKOUT_SUCCEEDED: 'checkout_succeeded',
 }

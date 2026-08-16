@@ -1,0 +1,6 @@
+
+/* Additional brand tokens */
+:root {
+  --brand-600: #6A48F0;
+  --shadow-glow: 0 0 24px color-mix(in srgb, var(--brand-500) 25%, transparent);
+}
